@@ -3,9 +3,9 @@ package DB;
 import java.util.Hashtable;
 
 public class Table {
-    String name;
-    Row prototype;
-
+    private String name;
+    private Row prototype;
+    private int size;
     public Table (String strTableName,
                   String strClusteringKeyColumn,
                   Hashtable<String,String> htblColNameType,
@@ -18,5 +18,12 @@ public class Table {
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
+        size=0;
+    }
+    public int getSize(){
+        return this.size;
+    }
+    public String getName() {
+        return name;
     }
 }
