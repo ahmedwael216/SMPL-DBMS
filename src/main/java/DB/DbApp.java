@@ -4,6 +4,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 public class DbApp {
+    //TODO create directory for database in database init
+    //TODO add DBname in DBApp.config
     public void init() {
 
     }
