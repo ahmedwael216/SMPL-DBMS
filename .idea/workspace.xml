@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f7ea61b6-4352-4880-bc63-ee3be4092f2d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/DB/Record.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/DB/RecordTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DB/Row.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DB/DBVector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DB/DBVector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DB/Record.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DB/Record.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,19 +48,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "last_opened_file_path": "/home/ibrahim/Desktop/DataBaseProject/SMPL-DBMS",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "copyright"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ibrahim/Desktop/DataBaseProject/SMPL-DBMS&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;copyright&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -74,7 +73,7 @@
       <recent name="org.example" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.RecordTest.emptyInstanceFromClassShouldCreateDouble">
+  <component name="RunManager">
     <configuration name="Record" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="DB.Record" />
       <module name="SMPL-DBMS" />
@@ -153,9 +152,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.RecordTest" />
         <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateDouble" />
         <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateDate" />
-        <item itemvalue="JUnit.RecordTest" />
         <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateInteger" />
         <item itemvalue="Application.Record" />
       </list>
