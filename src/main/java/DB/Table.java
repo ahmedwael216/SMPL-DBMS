@@ -94,7 +94,7 @@ public class Table {
             minVal = minValStr;
             maxVal = maxValStr;
         }
-        if(minVal.compareTo(value) > 1){
+        if(minVal.compareTo(value) > 0){
             return false;
         }
         if(maxVal.compareTo(value) < 0){
