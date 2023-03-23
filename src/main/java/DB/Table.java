@@ -69,7 +69,39 @@ public class Table {
     public String getName() {
         return name;
     }
-
+    // checker method to check if the inserted value in the valid range of the key
+    private boolean check(String columnName, Comparable value) throws ParseException, ClassNotFoundException {
+        // TODO : get the min and the max values for the columnName from the CSV file
+        String minValStr = "", maxValStr = "";
+        String className = value.getClass().getName();
+        Class c = Class.forName(className);
+        Comparable minVal, maxVal;
+        // get the value of the min and the max
+        if(className.equals("java.lang.Integer")){
+            minVal = Integer.parseInt(minValStr);
+            maxVal = Integer.parseInt(maxValStr);
+        }
+        else if(className.equals("java.lang.Date")){
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            minVal = formatter.parse(minValStr);
+            maxVal = formatter.parse(maxValStr);
+        }
+        else if(className.equals("java.lang.Double")){
+            minVal = Double.parseDouble(minValStr);
+            maxVal = Double.parseDouble(maxValStr);
+        }
+        else{
+            minVal = minValStr;
+            maxVal = maxValStr;
+        }
+        if(minVal.compareTo(value) > 1){
+            return false;
+        }
+        if(maxVal.compareTo(value) < 0){
+            return false;
+        }
+        return true;
+    }
     public static void main(String[] args) throws DBAppException {
         try {
             new Table("test", null, null, null, null);
