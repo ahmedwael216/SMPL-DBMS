@@ -3,7 +3,7 @@ package DB;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-public class DbApp {
+public class DBApp {
     public void init() {
 
     }
