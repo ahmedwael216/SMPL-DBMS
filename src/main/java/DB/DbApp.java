@@ -1,16 +1,33 @@
 package DB;
 
-import java.util.Hashtable;
+import java.util.*;
 //import java.util.Iterator;
 
 public class DBApp {
 
     /**
      * Executes at application startup.
+     * Checks if there are previously defined databases.
      * Prompts user to choose from available databases or create new one.
      */
     public void init() {
+        ArrayList<String> availableDatabases = new ArrayList<>();
+        // TODO find existing databases
 
+        System.out.println("Welcome to our Database Management System!\n------------------------------------------");
+        System.out.println("To create a new database, type its name.");
+        if (availableDatabases.size() > 0) {
+            System.out.println("To load an existing database, type its name from the following list:");
+            System.out.print(availableDatabases.get(0));
+            for (String databaseName : availableDatabases) {
+                System.out.print(" ||| " + databaseName);
+            }
+        }
+        System.out.print("\n\nLoad database: ");
+        Scanner sc = new Scanner(System.in);
+        String chosenDatabaseName = sc.nextLine();
+        sc.close();
+        // TODO load the chosen database
     }
 
     /*
@@ -37,11 +54,11 @@ public class DBApp {
     // depending on the count of column names passed.
     // If three column names are passed, create an octree.
     // If only one or two column names is passed, throw an Exception.
-    public void createIndex(String
-                                    strTableName,
-                            String[] strarrColName) throws DBAppException{}
+    public void createIndex(String strTableName,
+                            String[] strarrColName)
+                            throws DBAppException{
 
-
+    }
 
     /**
      * Inserts a new row in a specified table.
@@ -75,19 +92,19 @@ public class DBApp {
 
     }
 
-/**
- * Delete one or more rows from a specified table.
- * Searches for the values in the specified columns and deletes matching row(s).
- * Entries are anded together.
- *
- * @param strTableName                  name of the table to delete row(s) from
- * @param htblColNameValue              maps column names to certain value and delete the row(s) if matching(s) found
- *
- * @throws DBAppException           If an exception occurred
- */
+    /**
+     * Delete one or more rows from a specified table.
+     * Searches for the values in the specified columns and deletes matching row(s).
+     * Entries are anded together.
+     *
+     * @param strTableName                  name of the table to delete row(s) from
+     * @param htblColNameValue              maps column names to certain value and delete the row(s) if matching(s) found
+     *
+     * @throws DBAppException           If an exception occurred
+     */
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
-                                throws DBAppException{
+                                throws DBAppException {
 
     }
 
@@ -97,4 +114,14 @@ public class DBApp {
             throws DBAppException{}
      */
     //TODO create SQL Term class
+
+    /**
+     * Helper function to check if the column has an index or not.
+     *
+     * @return index if found or null if not
+     */
+    // TODO
+    //public ??? findIndex(String strTableName,
+    //                     String strColName)
+    //                     throws DBAppException {}
 }
