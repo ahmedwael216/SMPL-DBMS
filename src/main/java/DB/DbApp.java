@@ -1,6 +1,9 @@
 package DB;
 
 import java.util.*;
+import java.io.*;
+
+import DB.DBVector;
 //import java.util.Iterator;
 
 public class DBApp {
@@ -9,11 +12,24 @@ public class DBApp {
      * Executes at application startup.
      * Checks if there are previously defined databases.
      * Prompts user to choose from available databases or create new one.
+     *
+     * @throws FielNotFoundException    if an error occurred while manipulating files
+     * @throws IOException              if an error occurred while inputting or outputting
      */
-    public void init() {
+    public void init() throws FileNotFoundException, IOException {
+        // Store currently available database names
         DBVector<String> availableDatabases = new DBVector<>();
-        // TODO find existing databases
+        String rootPath = "../../../../";
+        File rootFile = new File(rootPath);
+        String rootContents[] = rootFile.list();
+        for (String fileName : rootContents) {
+            File file = new File(rootPath + fileName);
+            if (file.isDirectory() && fileName != "src" && fileName != "target") {
+                availableDatabases.add(fileName);
+            }
+        }
 
+        // Prompt user for database name
         System.out.println("Welcome to our Database Management System!\n------------------------------------------");
         System.out.println("To create a new database, type its name.");
         if (availableDatabases.size() > 0) {
@@ -27,7 +43,26 @@ public class DBApp {
         Scanner sc = new Scanner(System.in);
         String chosenDatabaseName = sc.nextLine();
         sc.close();
-        // TODO load the chosen database
+
+        // Create new database if does not exist
+        if (!availableDatabases.contains(chosenDatabaseName)) {
+            File newDatabase = new File(rootPath + chosenDatabaseName);
+            if (newDatabase.mkdir()) {
+                DBVector<String> lines = new DBVector<>();
+                lines.add("Database Name = " + chosenDatabaseName);
+                lines.add("MaximumRowsCountinTablePage = 200");
+                File newConfig = new File(rootPath + chosenDatabaseName + "/" + chosenDatabaseName + ".config");
+                try {
+                    FileWriter fw = new FileWriter(newConfig);
+                    for (String line : lines) {
+                        fw.append(line);
+                    }
+                    fw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /*
