@@ -11,7 +11,7 @@ public class DBApp {
      * Prompts user to choose from available databases or create new one.
      */
     public void init() {
-        ArrayList<String> availableDatabases = new ArrayList<>();
+        DBVector<String> availableDatabases = new DBVector<>();
         // TODO find existing databases
 
         System.out.println("Welcome to our Database Management System!\n------------------------------------------");
@@ -19,8 +19,8 @@ public class DBApp {
         if (availableDatabases.size() > 0) {
             System.out.println("To load an existing database, type its name from the following list:");
             System.out.print(availableDatabases.get(0));
-            for (String databaseName : availableDatabases) {
-                System.out.print(" ||| " + databaseName);
+            for (int i = 1; i < availableDatabases.size(); i++) {
+                System.out.print(" ||| " + availableDatabases.get(i));
             }
         }
         System.out.print("\n\nLoad database: ");

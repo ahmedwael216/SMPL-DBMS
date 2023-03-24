@@ -33,6 +33,7 @@ build/
 
 ### VS Code ###
 .vscode/
+.metadata/
 
 ### Mac OS ###
 .DS_Store
