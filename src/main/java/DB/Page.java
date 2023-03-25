@@ -1,24 +1,49 @@
 package DB;
 
 import java.io.Serializable;
-import java.util.Vector;
 
 public class Page implements Serializable {
-    Vector<Record> records;
+    DBVector<Record> records;
 
     public Page() {
-        records = new Vector<Record>();
+        records = new DBVector<Record>();
     }
 
-    public Vector<Record> getRecords() {
+    public DBVector<Record> getRecords() {
         return records;
     }
 
-    public static void main(String[] args) {
-        int maxRecordsCountinPage = DbApp.maxRecordsCountinPage;
-        System.out.println(maxRecordsCountinPage);
+    public Record insertRecord(Record record) throws DBAppException {
+        int index = records.binarySearch(records, record);
+        if (index < 0) {
+            index = -index - 1;
+            records.add(index, record);
+            int maxRecordsCountPage = DbApp.maxRecordsCountPage;
+            if (records.size() > maxRecordsCountPage) {
+                return records.remove(maxRecordsCountPage);
+            }
+        } else {
+            throw new DBAppException("Record already exists!");
+        }
+        return null;
     }
 
-    // insert sorted => binary search inside the page => return null if inserted => return the last record if page is full
-    
+    public void updateRecord(Record oldRecord, Record newRecord) throws DBAppException {
+        int index = records.binarySearch(records, oldRecord);
+        if (index >= 0) {
+            records.set(index, newRecord);
+        } else {
+            throw new DBAppException("Record not found!");
+        }
+    }
+
+    public void deleteRecord(Record record) throws DBAppException {
+        int index = records.binarySearch(records, record);
+        if (index >= 0) {
+            records.remove(index);
+        } else {
+            throw new DBAppException("Record not found!");
+        }
+    }
+
 }

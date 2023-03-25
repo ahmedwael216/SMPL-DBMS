@@ -7,7 +7,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 public class DbApp {
-    public static int maxRecordsCountinPage;
+    public static int maxRecordsCountPage;
 
     public void init() {
 
@@ -19,7 +19,7 @@ public class DbApp {
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
-            maxRecordsCountinPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
+            maxRecordsCountPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
