@@ -7,7 +7,6 @@
     <list default="true" id="f7ea61b6-4352-4880-bc63-ee3be4092f2d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DB/Record.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DB/Record.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/DB/RecordTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DB/RecordTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
