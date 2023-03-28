@@ -2,8 +2,10 @@ package DB;
 
 import java.io.Serializable;
 
-public class Page implements Serializable {
+public class Page implements Serializable, Comparable {
     DBVector<Record> records;
+    Comparable minValue;
+    Comparable maxValue;
 
     public Page() {
         records = new DBVector<Record>();
@@ -22,6 +24,7 @@ public class Page implements Serializable {
             if (records.size() > maxRecordsCountPage) {
                 return records.remove(maxRecordsCountPage);
             }
+            updateMinMax();
         } else {
             throw new DBAppException("Record already exists!");
         }
@@ -32,6 +35,7 @@ public class Page implements Serializable {
         int index = records.binarySearch(oldRecord);
         if (index >= 0) {
             records.set(index, newRecord);
+            updateMinMax();
         } else {
             throw new DBAppException("Record not found!");
         }
@@ -41,9 +45,26 @@ public class Page implements Serializable {
         int index = records.binarySearch(record);
         if (index >= 0) {
             records.remove(index);
+            updateMinMax();
         } else {
             throw new DBAppException("Record not found!");
         }
+    }
+
+    public void updateMinMax() {
+        this.minValue = (this.records.get(0).getPrimaryKey());
+        this.maxValue = (this.records.get(records.size() - 1).getPrimaryKey());
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (((Comparable) o).compareTo(maxValue) <= 0 && ((Comparable) o).compareTo(minValue) >= 0)
+            return 0;
+        if (((Comparable) o).compareTo(maxValue) > 0) {
+            return 1;
+        }
+
+        return -1;
     }
 
 }

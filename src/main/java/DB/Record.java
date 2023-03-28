@@ -27,6 +27,11 @@ public class Record implements Cloneable,Comparable {
     public Comparable getItem(int i) {
         return tupleRow.get(i);
     }
+
+    public Comparable getPrimaryKey() {
+        return this.getItem(0);
+    }
+
     public Comparable setItem(int i,Comparable val) {
         return tupleRow.set(i,val);
     }
