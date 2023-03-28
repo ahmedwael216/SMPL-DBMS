@@ -14,7 +14,7 @@ public class Page implements Serializable {
     }
 
     public Record insertRecord(Record record) throws DBAppException {
-        int index = records.binarySearch(records, record);
+        int index = records.binarySearch(record);
         if (index < 0) {
             index = -index - 1;
             records.add(index, record);
@@ -29,7 +29,7 @@ public class Page implements Serializable {
     }
 
     public void updateRecord(Record oldRecord, Record newRecord) throws DBAppException {
-        int index = records.binarySearch(records, oldRecord);
+        int index = records.binarySearch(oldRecord);
         if (index >= 0) {
             records.set(index, newRecord);
         } else {
@@ -38,7 +38,7 @@ public class Page implements Serializable {
     }
 
     public void deleteRecord(Record record) throws DBAppException {
-        int index = records.binarySearch(records, record);
+        int index = records.binarySearch(record);
         if (index >= 0) {
             records.remove(index);
         } else {

@@ -7,13 +7,13 @@ public class DBVector<T> extends Vector<T> implements Cloneable {
         return super.clone();
     }
 
-    public int binarySearch(DBVector<T> records, T record) {
+    public int binarySearch(T record) {
         int low = 0;
-        int high = records.size() - 1;
+        int high = this.size() - 1;
 
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            T midVal = records.get(mid);
+            T midVal = this.get(mid);
             int cmp = ((Comparable) midVal).compareTo(record);
             if (cmp < 0)
                 low = mid + 1;
