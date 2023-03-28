@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f7ea61b6-4352-4880-bc63-ee3be4092f2d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DB/Record.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DB/Record.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/DB/RecordTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/DB/RecordTest.java" afterDir="false" />
-    </list>
+    <list default="true" id="f7ea61b6-4352-4880-bc63-ee3be4092f2d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -73,7 +69,22 @@
       <recent name="org.example" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.RecordTest.constructorShouldPlaceTheClusteringKeyAtTheFirstIndex">
+  <component name="RunManager" selected="JUnit.DBVectorTest">
+    <configuration name="DBVectorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SMPL-DBMS" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="DB.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="DB" />
+      <option name="MAIN_CLASS_NAME" value="DB.DBVectorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="RecordTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SMPL-DBMS" />
       <extension name="coverage">
@@ -105,22 +116,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="RecordTest.emptyInstanceFromClassShouldCreateDate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="SMPL-DBMS" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="DB.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="DB" />
-      <option name="MAIN_CLASS_NAME" value="DB.RecordTest" />
-      <option name="METHOD_NAME" value="emptyInstanceFromClassShouldCreateDate" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="RecordTest.emptyInstanceFromClassShouldCreateDouble" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SMPL-DBMS" />
       <extension name="coverage">
@@ -137,29 +132,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="RecordTest.emptyInstanceFromClassShouldCreateInteger" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Write tests for class DBVector" type="com.diffblue.cover.write-tests-run-configuration" factoryName="com.diffblue.cover.write-tests-run-configuration" activateToolWindowBeforeRun="false" temporary="true">
       <module name="SMPL-DBMS" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="DB.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="DB" />
-      <option name="MAIN_CLASS_NAME" value="DB.RecordTest" />
-      <option name="METHOD_NAME" value="emptyInstanceFromClassShouldCreateInteger" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+      <settings run-config-name="Write tests for class DBVector" include-system-env-vars="true">
+        <jvm-args />
+        <selection-scope>class</selection-scope>
+        <selected-element key="DB.DBVector" />
+      </settings>
+      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.DBVectorTest" />
+        <item itemvalue="Diffblue Cover.Write tests for class DBVector" />
         <item itemvalue="JUnit.RecordTest.constructorShouldPlaceTheClusteringKeyAtTheFirstIndex" />
         <item itemvalue="JUnit.RecordTest" />
         <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateDouble" />
-        <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateDate" />
-        <item itemvalue="JUnit.RecordTest.emptyInstanceFromClassShouldCreateInteger" />
       </list>
     </recent_temporary>
   </component>
