@@ -41,7 +41,7 @@ class RecordTest {
 
         String ClusteringKey = "B";
 
-        Record prototype = new Record(schema,ClusteringKey);
+        Record prototype = new Record(ClusteringKey,schema);
 
         assertEquals((new Integer(0)).getClass(),prototype.getItem(0).getClass());
         assertEquals((new String()).getClass(),prototype.getItem(1).getClass());

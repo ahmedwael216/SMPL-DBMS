@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 public class Table {
     private String name;
-    private Row prototype;
+    private Record prototype;
     private int size;
 
     public Table(String strTableName,
@@ -56,7 +56,7 @@ public class Table {
         }
 
         try {
-            //this.prototype = new Row(strClusteringKeyColumn,htblColNameType);
+            this.prototype = new Record(strClusteringKeyColumn,htblColNameType);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
