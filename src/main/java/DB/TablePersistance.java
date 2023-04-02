@@ -1,7 +1,7 @@
 package DB;
 import java.io.*;
 
-public class TablePersistance {
+public class TablePersistence {
     public static void insert(Record r) throws DBAppException, IOException, ClassNotFoundException {
         int n= 0;
         //TODO get n the number of pages for a specific table from DBApp.cpnfig
