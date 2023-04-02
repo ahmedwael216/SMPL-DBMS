@@ -24,6 +24,7 @@ A small database engine written in Java with support for Octrees Indices.
 - [Amir Awad](https://github.com/amir-awad)
 - [John Fayez](https://github.com/john-roufaeil)
 - [Omar Mohamed](https://github.com/OmarMUhammed03)
+- [Ibrahim Soltan](https://github.com/Ibrahim-Soltan)
 
 
 ## License
