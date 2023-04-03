@@ -66,7 +66,7 @@ public class DbApp {
                 try {
                     FileWriter fw = new FileWriter(newConfig);
                     for (String line : lines) {
-                        fw.append(line);
+                        fw.append(line + "\n");
                     }
                     fw.close();
                 } catch (IOException e) {
@@ -78,7 +78,8 @@ public class DbApp {
     }
 
     /*
-     * Creates a new table in the current database.
+     * Appends to current database config file the table's name with initially 0 pages.
+     * Does nothing if table already exists
      *
      * @param strTableName              name of the table to create
      * @param strClusteringKeyColumn    name of the column to be the primary key and the clustering column of this table
@@ -95,15 +96,18 @@ public class DbApp {
                             Hashtable<String, String> htblColNameMax)
                             throws DBAppException {
         Properties prop = new Properties();
-        String root = currentDbPath.getAbsolutePath();
+        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
         try {
-            FileInputStream is = new FileInputStream(root);
+            FileInputStream is = new FileInputStream(configPath);
             prop.load(is);
-            if (prop.getProperty(strTableName + "Pages") != null) {
-                System.err.println(strTableName + "already exists in database" + currentDb);
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDB + "\"");
             } else {
-
+                prop.setProperty(strTableName + "TablePages", "0");
+                prop.store(new FileWriter(configPath), "Created " + strTableName + " table");
+                System.out.println("The table \"" + strTableName + "\" has been added to the database \"" + selectedDB + "\"");
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
