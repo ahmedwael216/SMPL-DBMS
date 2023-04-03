@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Scanner;
@@ -15,11 +16,12 @@ import java.util.Scanner;
 
 public class DbApp {
     public static int maxRecordsCountPage;
+    String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
+     public String selectedDB = null;
 
     /**
      * Executes at application startup.
-     * Checks if there are previously defined databases.
-     * Prompts user to choose from available databases or create new one.
+     * Prompts user to enter absolute path of database to use.
      *
      * @throws FielNotFoundException    if an error occurred while manipulating files
      * @throws IOException              if an error occurred while inputting or outputting
@@ -27,26 +29,27 @@ public class DbApp {
     public void init() throws FileNotFoundException, IOException {
         // Store currently available database names
         DBVector<String> availableDatabases = new DBVector<>();
-        String rootPath = "../../../../";
+        DBVector<String> excludedDirs = new DBVector<>();
+        Collections.addAll(excludedDirs, ".metadata", ".git", "src", "target");
         File rootFile = new File(rootPath);
         String rootContents[] = rootFile.list();
         for (String fileName : rootContents) {
-            File file = new File(rootPath + fileName);
-            if (file.isDirectory() && fileName != "src" && fileName != "target") {
+            File file = new File(rootPath + File.separator + fileName);
+            if (file.isDirectory() && !excludedDirs.contains(fileName)) {
                 availableDatabases.add(fileName);
             }
         }
 
         // Prompt user for database name
-        System.out.println("Welcome to our Database Management System!\n------------------------------------------");
-        System.out.println("To create a new database, type its name.");
-        if (availableDatabases.size() > 0) {
-            System.out.println("To load an existing database, type its name from the following list:");
-            System.out.print(availableDatabases.get(0));
-            for (int i = 1; i < availableDatabases.size(); i++) {
-                System.out.print(" ||| " + availableDatabases.get(i));
-            }
-        }
+        System.out.println("Hello " + System.getProperty("user.name") + ", welcome to our Simple Database Management System!");
+        System.out.println("Please enter the database name you would like to load.");
+        // if (availableDatabases.size() > 0) {
+        //     System.out.println("To load an existing database, type its name from the following list:");
+        //     System.out.print(availableDatabases.get(0));
+        //     for (int i = 1; i < availableDatabases.size(); i++) {
+        //         System.out.print(" ||| " + availableDatabases.get(i));
+        //     }
+        // }
         System.out.print("\n\nLoad database: ");
         Scanner sc = new Scanner(System.in);
         String chosenDatabaseName = sc.nextLine();
@@ -90,7 +93,21 @@ public class DbApp {
                             Hashtable<String, String> htblColNameMin,
                             Hashtable<String, String> htblColNameMax)
                             throws DBAppException {
+        Properties prop = new Properties();
+        String root = currentDbPath.getAbsolutePath();
+        try {
+            FileInputStream is = new FileInputStream(root);
+            prop.load(is);
+            if (prop.getProperty(strTableName + "Pages") != null) {
+                System.err.println(strTableName + "already exists in database" + currentDb);
+            } else {
 
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void getMaximumRecordsCountinPage() {
