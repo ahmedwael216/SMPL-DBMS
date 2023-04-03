@@ -1,12 +1,20 @@
 package DB;
 
-import java.util.*;
-import java.io.*;
-
 import DB.DBVector;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Scanner;
 //import java.util.Iterator;
 
-public class DBApp {
+
+public class DbApp {
+    public static int maxRecordsCountPage;
 
     /**
      * Executes at application startup.
@@ -85,6 +93,20 @@ public class DBApp {
 
     }
 
+    public void getMaximumRecordsCountinPage() {
+        Properties prop = new Properties();
+        String fileName = "src/main/java/DB/config/DBApp.config";
+        try {
+            FileInputStream is = new FileInputStream(fileName);
+            prop.load(is);
+            maxRecordsCountPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // following method creates an octree
     // depending on the count of column names passed.
     // If three column names are passed, create an octree.
@@ -144,9 +166,9 @@ public class DBApp {
     }
 
     /*
-    public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-                                    String[] strarrOperators)
-            throws DBAppException{}
+     * public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
+     * String[] strarrOperators)
+     * throws DBAppException{}
      */
     //TODO create SQL Term class
 
