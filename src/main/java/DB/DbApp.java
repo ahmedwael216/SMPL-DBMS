@@ -18,6 +18,7 @@ public class DbApp {
     public static int maxRecordsCountPage;
     String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
      public String selectedDB = null;
+     public File currentDB = null;
 
     /**
      * Executes at application startup.
@@ -36,33 +37,32 @@ public class DbApp {
         for (String fileName : rootContents) {
             File file = new File(rootPath + File.separator + fileName);
             if (file.isDirectory() && !excludedDirs.contains(fileName)) {
-                availableDatabases.add(fileName);
+                availableDatabases.add(fileName.toLowerCase());
             }
         }
 
         // Prompt user for database name
-        System.out.println("Hello " + System.getProperty("user.name") + ", welcome to our Simple Database Management System!");
+        System.out.println("\nHello " + System.getProperty("user.name") + ", welcome to our Simple Database Management System!");
         System.out.println("Please enter the database name you would like to load.");
-        // if (availableDatabases.size() > 0) {
-        //     System.out.println("To load an existing database, type its name from the following list:");
-        //     System.out.print(availableDatabases.get(0));
-        //     for (int i = 1; i < availableDatabases.size(); i++) {
-        //         System.out.print(" ||| " + availableDatabases.get(i));
-        //     }
-        // }
-        System.out.print("\n\nLoad database: ");
+        System.out.println("Allowed characters: A-Z, 0-9, underscore (case in-sensitive)\n\n");
         Scanner sc = new Scanner(System.in);
-        String chosenDatabaseName = sc.nextLine();
+        do {
+            System.out.print("Load database: ");
+            selectedDB = sc.nextLine();
+        } while(selectedDB == null || !selectedDB.matches("^[a-zA-Z0-9_]+"));
         sc.close();
 
-        // Create new database if does not exist
-        if (!availableDatabases.contains(chosenDatabaseName)) {
-            File newDatabase = new File(rootPath + chosenDatabaseName);
+        // Moving to selected database
+        if (availableDatabases.contains(selectedDB.toLowerCase())) {
+            System.out.println("Switching context to exisitng database: " + selectedDB);
+        } else {
+            System.out.println("Creating new database: " + selectedDB);
+            File newDatabase = new File(rootPath + File.separator + selectedDB);
             if (newDatabase.mkdir()) {
                 DBVector<String> lines = new DBVector<>();
-                lines.add("Database Name = " + chosenDatabaseName);
-                lines.add("MaximumRowsCountinTablePage = 200");
-                File newConfig = new File(rootPath + chosenDatabaseName + "/" + chosenDatabaseName + ".config");
+                lines.add("databaseName = " + selectedDB);
+                lines.add("maximumNumberOfRows = 200");
+                File newConfig = new File(rootPath + File.separator + selectedDB + File.separator + "DB.config");
                 try {
                     FileWriter fw = new FileWriter(newConfig);
                     for (String line : lines) {
@@ -74,6 +74,7 @@ public class DbApp {
                 }
             }
         }
+        currentDB = new File(rootPath + File.separator + selectedDB);
     }
 
     /*
