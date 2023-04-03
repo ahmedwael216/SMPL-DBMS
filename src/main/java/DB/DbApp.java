@@ -151,7 +151,21 @@ public class DbApp {
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
                                 throws DBAppException {
-
+        Properties prop = new Properties();
+        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
+        try {
+            FileInputStream is = new FileInputStream(configPath);
+            prop.load(is);
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                // TODO Insert into table
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -168,7 +182,21 @@ public class DbApp {
                             String strClusteringKeyValue,
                             Hashtable<String, Object> htblColNameValue)
                             throws DBAppException {
-
+        Properties prop = new Properties();
+        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
+        try {
+            FileInputStream is = new FileInputStream(configPath);
+            prop.load(is);
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                // TODO Update table
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -184,7 +212,21 @@ public class DbApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
                                 throws DBAppException {
-
+        Properties prop = new Properties();
+        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
+        try {
+            FileInputStream is = new FileInputStream(configPath);
+            prop.load(is);
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                // TODO delete from table
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
