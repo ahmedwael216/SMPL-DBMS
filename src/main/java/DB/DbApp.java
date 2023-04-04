@@ -16,13 +16,15 @@ import java.util.Scanner;
 
 public class DbApp {
     public static int maxRecordsCountPage;
-    String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
-     public String selectedDB = null;
-     public File currentDB = null;
+    // Path to SMPL-DBMS
+    private String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
+    public String selectedDBName = null;
+    public File currentDBFile = null;
+    public File currentConfigFile = null;
 
     /**
      * Executes at application startup.
-     * Prompts user to enter absolute path of database to use.
+     * Prompts user to enter name of database to use.
      *
      * @throws FielNotFoundException    if an error occurred while manipulating files
      * @throws IOException              if an error occurred while inputting or outputting
@@ -30,14 +32,14 @@ public class DbApp {
     public void init() throws FileNotFoundException, IOException {
         // Store currently available database names
         DBVector<String> availableDatabases = new DBVector<>();
-        DBVector<String> excludedDirs = new DBVector<>();
-        Collections.addAll(excludedDirs, ".metadata", ".git", "src", "target");
+        DBVector<String> excludedDirectories = new DBVector<>();
+        Collections.addAll(excludedDirectories, ".metadata", ".git", "src", "target");
         File rootFile = new File(rootPath);
         String rootContents[] = rootFile.list();
         for (String fileName : rootContents) {
             File file = new File(rootPath + File.separator + fileName);
-            if (file.isDirectory() && !excludedDirs.contains(fileName)) {
-                availableDatabases.add(fileName.toLowerCase());
+            if (file.isDirectory() && !excludedDirectories.contains(fileName)) {
+                availableDatabases.add(fileName.toLowerCase()); // toLowerCase to avoid logic errors because Windows file system is case insensitive
             }
         }
 
@@ -48,21 +50,21 @@ public class DbApp {
         Scanner sc = new Scanner(System.in);
         do {
             System.out.print("Load database: ");
-            selectedDB = sc.nextLine();
-        } while(selectedDB == null || !selectedDB.matches("^[a-zA-Z0-9_]+"));
+            selectedDBName = sc.nextLine();
+        } while(selectedDBName == null || !selectedDBName.matches("^[a-zA-Z0-9_]+")); // ensure proper naming of input database name
         sc.close();
 
         // Moving to selected database
-        if (availableDatabases.contains(selectedDB.toLowerCase())) {
-            System.out.println("Switching context to exisitng database: " + selectedDB);
+        if (availableDatabases.contains(selectedDBName.toLowerCase())) {
+            System.out.println("Switching context to exisitng database: \"" + selectedDBName + "\"");
         } else {
-            System.out.println("Creating new database: " + selectedDB);
-            File newDatabase = new File(rootPath + File.separator + selectedDB);
+            System.out.println("Creating new database: \"" + selectedDBName + "\"");
+            File newDatabase = new File(rootPath + File.separator + selectedDBName);
             if (newDatabase.mkdir()) {
                 DBVector<String> lines = new DBVector<>();
-                lines.add("databaseName = " + selectedDB);
+                lines.add("databaseName = " + selectedDBName);
                 lines.add("maximumNumberOfRows = 200");
-                File newConfig = new File(rootPath + File.separator + selectedDB + File.separator + "DB.config");
+                File newConfig = new File(rootPath + File.separator + selectedDBName + File.separator + "DB.config");
                 try {
                     FileWriter fw = new FileWriter(newConfig);
                     for (String line : lines) {
@@ -72,9 +74,12 @@ public class DbApp {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } else {
+                System.err.println("Could not create the directory \"" + newDatabase.getAbsolutePath() + "\"");
             }
         }
-        currentDB = new File(rootPath + File.separator + selectedDB);
+        currentDBFile = new File(rootPath + File.separator + selectedDBName);
+        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DB.config");
     }
 
     /*
@@ -96,16 +101,14 @@ public class DbApp {
                             Hashtable<String, String> htblColNameMax)
                             throws DBAppException {
         Properties prop = new Properties();
-        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
         try {
-            FileInputStream is = new FileInputStream(configPath);
-            prop.load(is);
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
-                System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDB + "\"");
+                System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
             } else {
-                prop.setProperty(strTableName + "TablePages", "0");
-                prop.store(new FileWriter(configPath), "Created " + strTableName + " table");
-                System.out.println("The table \"" + strTableName + "\" has been added to the database \"" + selectedDB + "\"");
+                prop.setProperty(strTableName + "TablePages", "0"); // Initialize the new table with 0 pages in config of current DB
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Created " + strTableName + " table");
+                System.out.println("The table \"" + strTableName + "\" has been added to the database \"" + selectedDBName + "\"");
             }
 
         } catch (FileNotFoundException e) {
@@ -117,10 +120,8 @@ public class DbApp {
 
     public void getMaximumRecordsCountinPage() {
         Properties prop = new Properties();
-        String fileName = "src/main/java/DB/config/DBApp.config";
         try {
-            FileInputStream is = new FileInputStream(fileName);
-            prop.load(is);
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             maxRecordsCountPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -152,14 +153,12 @@ public class DbApp {
                                 Hashtable<String, Object> htblColNameValue)
                                 throws DBAppException {
         Properties prop = new Properties();
-        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
         try {
-            FileInputStream is = new FileInputStream(configPath);
-            prop.load(is);
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 // TODO Insert into table
             } else {
-                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -183,14 +182,12 @@ public class DbApp {
                             Hashtable<String, Object> htblColNameValue)
                             throws DBAppException {
         Properties prop = new Properties();
-        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
         try {
-            FileInputStream is = new FileInputStream(configPath);
-            prop.load(is);
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 // TODO Update table
             } else {
-                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -213,14 +210,12 @@ public class DbApp {
                                 Hashtable<String, Object> htblColNameValue)
                                 throws DBAppException {
         Properties prop = new Properties();
-        String configPath = currentDB.getAbsolutePath() + File.separator + "DB.config";
         try {
-            FileInputStream is = new FileInputStream(configPath);
-            prop.load(is);
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 // TODO delete from table
             } else {
-                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDB + "\"");
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
