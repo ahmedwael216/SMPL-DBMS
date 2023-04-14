@@ -1,6 +1,7 @@
 package DB;
 
 import com.opencsv.CSVWriter;
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
 
 import java.io.*;
 import java.text.ParseException;
@@ -61,6 +62,7 @@ public class Table {
             System.out.println(e.getMessage());
         }
         size = 0;
+        setNumberOfPagesForTable(this.name,0);
     }
     public int getSize() {
         return this.size;
@@ -102,6 +104,31 @@ public class Table {
         }
         return true;
     }
+    public static void setNumberOfPagesForTable(String name, int x) {
+        Properties prop = new Properties();
+        String fileName = "src/main/java/DB/config/DBApp.config";
+        try {
+            FileInputStream is = new FileInputStream(fileName);
+            prop.load(is);
+            prop.setProperty("NumberOfPagesOfTable"+name, x+"");
+            FileOutputStream os = new FileOutputStream(fileName);
+            prop.store(os,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static int getNumberOfPagesForTable(String name) {
+        Properties prop = new Properties();
+        String fileName = "src/main/java/DB/config/DBApp.config";
+        try {
+            FileInputStream is = new FileInputStream(fileName);
+            prop.load(is);
+            return  Integer.parseInt(prop.getProperty("NumberOfPagesOfTable"+name));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
     public static void main(String[] args) throws DBAppException {
         try {
             new Table("test", null, null, null, null);
@@ -109,4 +136,5 @@ public class Table {
             throw new RuntimeException(e);
         }
     }
+
 }

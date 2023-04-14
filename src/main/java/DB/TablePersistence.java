@@ -1,8 +1,21 @@
 package DB;
 import java.io.*;
+import java.util.Properties;
 
 public class TablePersistence {
-    public static void insert(Record r) throws DBAppException, IOException, ClassNotFoundException {
+    public static int getNumberOfPagesForTable(String name) {
+        Properties prop = new Properties();
+        String fileName = "src/main/java/DB/config/DBApp.config";
+        try {
+            FileInputStream is = new FileInputStream(fileName);
+            prop.load(is);
+            return  Integer.parseInt(prop.getProperty("NumberOfPagesOfTable"+name));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public static void insert(String name , Record r) throws DBAppException, IOException, ClassNotFoundException {
         int n= 0;
         //TODO get n the number of pages for a specific table from DBApp.cpnfig
         if(n==0){
