@@ -15,9 +15,21 @@ public class TablePersistence {
         }
         return 0;
     }
+    public static void setNumberOfPagesForTable(String name, int x) {
+        Properties prop = new Properties();
+        String fileName = "src/main/java/DB/config/DBApp.config";
+        try {
+            FileInputStream is = new FileInputStream(fileName);
+            prop.load(is);
+            prop.setProperty("NumberOfPagesOfTable"+name, x+"");
+            FileOutputStream os = new FileOutputStream(fileName);
+            prop.store(os,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public static void insert(String name , Record r) throws DBAppException, IOException, ClassNotFoundException {
-        int n= 0;
-        //TODO get n the number of pages for a specific table from DBApp.cpnfig
+        int n= getNumberOfPagesForTable(name);
         if(n==0){
             Page p =new Page();
             p.insertRecord(r);
@@ -31,11 +43,22 @@ public class TablePersistence {
         }else{
             while (overflow!=null){
                 x=x+1;
-                Page nextP =deserialize(x);
-                overflow = nextP.insertRecord(r);
-                //TODO handle the case where the last page is full and create a new page
+                if(pageExists(x)){
+                    Page nextP =deserialize(x);
+                    overflow = nextP.insertRecord(r);
+                }else{
+                    setNumberOfPagesForTable(name,x);
+                    Page newPage = new Page();
+                    newPage.insertRecord(overflow);
+                    serialize(newPage,x);
+                }
             }
         }
+    }
+    public static boolean pageExists(int x){
+        String filename = x+".ser";
+        //TODO check for file existence
+        return true;
     }
     public static int findPageNumber(int n, Comparable pk) throws IOException, ClassNotFoundException {
         int low = 0;
