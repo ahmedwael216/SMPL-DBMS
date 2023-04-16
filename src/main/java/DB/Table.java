@@ -19,8 +19,8 @@ public class Table {
                  Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException {
         this.name = strTableName;
-        //TODO load DBName from DBApp.config
-        String DBName = "DB1";
+
+        String DBName = DbApp.selectedDBName;
 
         //Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
@@ -38,7 +38,6 @@ public class Table {
             throw new RuntimeException(e);
         }
 
-        //TODO add column data to csv file
         writer.writeNext(new String[]{"TableName","ColumnName", "ColumnType", "ClusteringKey", "IndexName", "IndexType", "min", "max"});
 
         // add the primary key column
@@ -64,6 +63,7 @@ public class Table {
         size = 0;
         setNumberOfPagesForTable(this.name,0);
     }
+
     public int getSize() {
         return this.size;
     }
@@ -71,12 +71,30 @@ public class Table {
     public String getName() {
         return name;
     }
+
+    private String[] getMaxAndMinString(String columnName) throws IOException {
+        String DBName = DbApp.selectedDBName;
+        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
+        BufferedReader br = new BufferedReader(new FileReader(csvFile));
+        String line = "";
+        String cvsSplitBy = ",";
+
+        while ((line = br.readLine()) != null) {
+            String[] column = line.split(cvsSplitBy);
+            if(column[1].equals(columnName)){
+                return new String [] {column[6], column[7]};
+            }
+        }
+
+        return null;
+    }
     // checker method to check if the inserted value in the valid range of the key
-    private boolean check(String columnName, Comparable value) throws ParseException, ClassNotFoundException {
-        // TODO : get the min and the max values for the columnName from the CSV file
-        String minValStr = "", maxValStr = "";
+    private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException {
+        String[] minAndMax = getMaxAndMinString(columnName);
+
         String className = value.getClass().getName();
-        Class c = Class.forName(className);
+
+        String minValStr = minAndMax[0], maxValStr = minAndMax[1];
         Comparable minVal, maxVal;
         // get the value of the min and the max
         if(className.equals("java.lang.Integer")){
@@ -96,6 +114,7 @@ public class Table {
             minVal = minValStr;
             maxVal = maxValStr;
         }
+
         if(minVal.compareTo(value) > 0){
             return false;
         }

@@ -4,33 +4,14 @@ import java.util.Properties;
 
 public class TablePersistence {
     public static int getNumberOfPagesForTable(String name) {
-        Properties prop = new Properties();
-        String fileName = "src/main/java/DB/config/DBApp.config";
-        try {
-            FileInputStream is = new FileInputStream(fileName);
-            prop.load(is);
-            return  Integer.parseInt(prop.getProperty("NumberOfPagesOfTable"+name));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return Table.getNumberOfPagesForTable(name);
     }
     public static void setNumberOfPagesForTable(String name, int x) {
-        Properties prop = new Properties();
-        String fileName = "src/main/java/DB/config/DBApp.config";
-        try {
-            FileInputStream is = new FileInputStream(fileName);
-            prop.load(is);
-            prop.setProperty("NumberOfPagesOfTable"+name, x+"");
-            FileOutputStream os = new FileOutputStream(fileName);
-            prop.store(os,null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Table.setNumberOfPagesForTable(name, x);
     }
     public static void insert(String name , Record r) throws DBAppException, IOException, ClassNotFoundException {
         int n= getNumberOfPagesForTable(name);
-        if(n==0){
+        if(n == 0){
             Page p =new Page();
             p.insertRecord(r);
             serialize(p,0);
@@ -65,7 +46,7 @@ public class TablePersistence {
         int high = n - 1;
 
         while (low <= high) {
-            int mid = (low + high) >>> 1;
+            int mid = (low + high) >> 1;
             Page midPage = deserialize(mid);
             int cmp = ((Comparable) midPage).compareTo(pk);
             if (cmp < 0)
