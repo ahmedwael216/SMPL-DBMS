@@ -57,6 +57,7 @@ public class Table {
 
         try {
             this.prototype = new Record(strClusteringKeyColumn,htblColNameType);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -123,6 +124,45 @@ public class Table {
         }
         return true;
     }
+    private String getClusteringKey(String tableName) throws IOException {
+        String DBName = DbApp.selectedDBName;
+        String csvFile = DBName + "/" + tableName + "/" + "Metadata.csv";
+        BufferedReader br = new BufferedReader(new FileReader(csvFile));
+        String line = "";
+        String cvsSplitBy = ",";
+
+        while ((line = br.readLine()) != null) {
+            String[] column = line.split(cvsSplitBy);
+            if(column[3].equals("True")){
+                return column[1];
+            }
+        }
+
+        return null;
+    }
+    public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue) throws
+            DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException {
+        String clusteringKey = getClusteringKey(strTableName);
+        DBVector vector = new DBVector();
+        vector.add(htblColNameValue.get(clusteringKey));
+        for(Map.Entry<String, Object> entry: htblColNameValue.entrySet()){
+            if(entry.getKey().equals(clusteringKey))
+                continue;
+            vector.add(entry.getValue());
+        }
+
+        // singleton design pattern constraint
+        Record record = (Record) prototype.clone();
+        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
+        int keyIndex = 1;
+        for(Map.Entry<String, Object> entry: htblColNameValue.entrySet()){
+            if(entry.getKey().equals(clusteringKey))
+                continue;
+            record.getDBVector().set(keyIndex, entry.getValue());
+            keyIndex++;
+        }
+        TablePersistence.insert(strTableName, record);
+    }
     public static void setNumberOfPagesForTable(String name, int x) {
         Properties prop = new Properties();
         String fileName = "src/main/java/DB/config/DBApp.config";
@@ -136,6 +176,7 @@ public class Table {
             e.printStackTrace();
         }
     }
+
     public static int getNumberOfPagesForTable(String name) {
         Properties prop = new Properties();
         String fileName = "src/main/java/DB/config/DBApp.config";

@@ -17,6 +17,9 @@ public class Record implements Cloneable, Comparable {
         tupleRow = schema;
     }
 
+    public DBVector getDBVector(){
+        return tupleRow;
+    }
 
     private DBVector<Comparable> getTupleRow() {
         return tupleRow;
