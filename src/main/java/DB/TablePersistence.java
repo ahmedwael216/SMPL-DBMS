@@ -10,34 +10,40 @@ public class TablePersistence {
         Table.setNumberOfPagesForTable(name, x);
     }
     public static void insert(String name , Record r) throws DBAppException, IOException, ClassNotFoundException {
-        int n= getNumberOfPagesForTable(name);
+        int n = getNumberOfPagesForTable(name);
         if(n == 0){
-            Page p =new Page();
+            Page p = new Page();
             p.insertRecord(r);
             serialize(p,0);
+            return;
         }
-        int x = findPageNumber(n,r.getPrimaryKey());
-        Page p = deserialize(x);
+        int pageIndex = findPageNumber(n, r.getPrimaryKey());
+        Page p = deserialize(pageIndex);
         Record overflow = p.insertRecord(r);
         if(overflow == null){
+            serialize(p, pageIndex);
             return;
         }else{
-            while (overflow!=null){
-                x=x+1;
-                if(pageExists(x)){
-                    Page nextP =deserialize(x);
+            while (overflow != null){
+                pageIndex++;
+                if(pageExists(pageIndex)){
+                    Page nextP = deserialize(pageIndex);
                     overflow = nextP.insertRecord(r);
+                    if(overflow == null){
+                        serialize(nextP, pageIndex);
+                        return;
+                    }
                 }else{
-                    setNumberOfPagesForTable(name,x);
+                    setNumberOfPagesForTable(name, pageIndex);
                     Page newPage = new Page();
-                    newPage.insertRecord(overflow);
-                    serialize(newPage,x);
+                    overflow = newPage.insertRecord(r);
+                    serialize(newPage, pageIndex);
                 }
             }
         }
     }
-    public static boolean pageExists(int x){
-        String filename = x+".ser";
+    public static boolean pageExists(int pageIndex){
+        String filename = pageIndex+".ser";
         //TODO check for file existence
         return true;
     }
@@ -58,8 +64,8 @@ public class TablePersistence {
         }
         return 0;
     }
-    public static void serialize(Page p, int x){
-        String filename = x+".ser";
+    public static void serialize(Page p, int pageIndex){
+        String filename = pageIndex+".ser";
         // Serialization
         try
         {

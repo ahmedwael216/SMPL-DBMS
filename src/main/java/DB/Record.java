@@ -3,7 +3,7 @@ package DB;
 import java.util.Date;
 import java.util.Hashtable;
 
-public class Record implements Cloneable,Comparable {
+public class Record implements Cloneable, Comparable {
     private DBVector<Comparable> tupleRow;
 
 
