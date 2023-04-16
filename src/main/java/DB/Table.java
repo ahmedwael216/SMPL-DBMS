@@ -143,14 +143,6 @@ public class Table {
     public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue) throws
             DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException {
         String clusteringKey = getClusteringKey(strTableName);
-        DBVector vector = new DBVector();
-        vector.add(htblColNameValue.get(clusteringKey));
-        for(Map.Entry<String, Object> entry: htblColNameValue.entrySet()){
-            if(entry.getKey().equals(clusteringKey))
-                continue;
-            vector.add(entry.getValue());
-        }
-
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
