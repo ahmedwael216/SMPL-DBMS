@@ -9,8 +9,8 @@ public class TablePersistence {
     public static void setNumberOfPagesForTable(String name, int x) {
         Table.setNumberOfPagesForTable(name, x);
     }
-    public static void insert(String name , Record r) throws DBAppException, IOException, ClassNotFoundException {
-        int n = getNumberOfPagesForTable(name);
+    public static void insert(String tableName , Record r) throws DBAppException, IOException, ClassNotFoundException {
+        int n = getNumberOfPagesForTable(tableName);
         if(n == 0){
             Page p = new Page();
             p.insertRecord(r);
@@ -26,7 +26,7 @@ public class TablePersistence {
         }else{
             while (overflow != null){
                 pageIndex++;
-                if(pageExists(pageIndex)){
+                if(pageExists(tableName, pageIndex)){
                     Page nextP = deserialize(pageIndex);
                     overflow = nextP.insertRecord(r);
                     if(overflow == null){
@@ -34,7 +34,7 @@ public class TablePersistence {
                         return;
                     }
                 }else{
-                    setNumberOfPagesForTable(name, pageIndex);
+                    setNumberOfPagesForTable(tableName, pageIndex);
                     Page newPage = new Page();
                     overflow = newPage.insertRecord(r);
                     serialize(newPage, pageIndex);
@@ -42,12 +42,13 @@ public class TablePersistence {
             }
         }
     }
-    public static boolean pageExists(int pageIndex){
-        String filename = pageIndex+".ser";
-        //TODO check for file existence
-        return true;
+    private static boolean pageExists(String tableName, int pageIndex){
+       int tablePages = getNumberOfPagesForTable(tableName);
+       if(pageIndex >= tablePages)
+              return false;
+       return true;
     }
-    public static int findPageNumber(int n, Comparable pk) throws IOException, ClassNotFoundException {
+    private static int findPageNumber(int n, Comparable pk) throws IOException, ClassNotFoundException {
         int low = 0;
         int high = n - 1;
 
@@ -64,7 +65,7 @@ public class TablePersistence {
         }
         return 0;
     }
-    public static void serialize(Page p, int pageIndex){
+    private static void serialize(Page p, int pageIndex){
         String filename = pageIndex+".ser";
         // Serialization
         try
@@ -86,7 +87,7 @@ public class TablePersistence {
         }
     }
 
-    public static Page deserialize(int x) throws IOException, ClassNotFoundException {
+    private static Page deserialize(int x) throws IOException, ClassNotFoundException {
         String filename = x+".ser";
         FileInputStream file = new FileInputStream(filename);
         ObjectInputStream in = new ObjectInputStream(file);
