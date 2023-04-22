@@ -82,8 +82,12 @@ public class Table {
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
         String line = "";
         String cvsSplitBy = ",";
-
+        boolean skipFirstLine = true;
         while ((line = br.readLine()) != null) {
+            if(skipFirstLine) {
+                skipFirstLine = false;
+                continue;
+            }
             String[] column = line.split(cvsSplitBy);
             if(column[1].equals(columnName)){
                 return new String [] {column[6], column[7]};
@@ -183,6 +187,7 @@ public class Table {
         }
 
         TablePersistence.insert(strTableName, record);
+        size++;
     }
     public static void setNumberOfPagesForTable(String name, int x) {
         Properties prop = new Properties();
