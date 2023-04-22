@@ -5,8 +5,6 @@ import java.util.Hashtable;
 
 public class Record implements Cloneable, Comparable {
     private DBVector<Comparable> tupleRow;
-
-
     public Record(String ClusteringKey, Hashtable <String,String> schema){
         tupleRow = new DBVector<Comparable>();
         tupleRow.add(emptyInstanceFromClass(schema.get(ClusteringKey)));

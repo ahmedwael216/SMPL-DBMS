@@ -25,4 +25,13 @@ public class DBVector<T> extends Vector<T> implements Cloneable {
 
         return -(low + 1);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        for (T record : this) {
+            res.append(record.toString()).append("\n");
+        }
+        return res.toString();
+    }
 }

@@ -181,6 +181,10 @@ public class Table {
         }
         return 0;
     }
+
+    public String toString() {
+        return "Table [name = " + name + ", number of pages = " + getNumberOfPagesForTable(name) + ", size = " + size + "]";
+    }
     public static void main(String[] args) throws DBAppException {
         try {
             new Table("test", null, null, null, null);
