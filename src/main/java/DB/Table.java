@@ -12,20 +12,22 @@ public class Table {
     private Record prototype;
     private int size;
 
+    private String [] keys;
     public Table(String strTableName,
                  String strClusteringKeyColumn,
                  Hashtable<String, String> htblColNameType,
                  Hashtable<String, String> htblColNameMin,
                  Hashtable<String, String> htblColNameMax)
-            throws DBAppException, RuntimeException {
+            throws DBAppException, RuntimeException, IOException {
         this.name = strTableName;
-
+        numberOfAttributes = htblColNameType.size();
         String DBName = DbApp.selectedDBName;
 
         //Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
         //Creating a Metadata file for the table
         CSVWriter writer;
+
         try {
             File metadata = new File(DBName + "/" + name + "/" + "Metadata.csv");
 
@@ -62,6 +64,7 @@ public class Table {
             System.out.println(e.getMessage());
         }
         size = 0;
+        keys = getKeys(htblColNameType.size());
         setNumberOfPagesForTable(this.name,0);
     }
 
@@ -88,6 +91,25 @@ public class Table {
         }
 
         return null;
+    }
+
+    private String[] getKeys(int numberOfAttributes) throws IOException {
+        String DBName = DbApp.selectedDBName;
+        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
+        BufferedReader br = new BufferedReader(new FileReader(csvFile));
+        String line = "";
+        String cvsSplitBy = ",";
+        String[] keys = new String[numberOfAttributes];
+        int i = 0;
+        while ((line = br.readLine()) != null) {
+            String[] column = line.split(cvsSplitBy);
+            if(column[3].equals("True")){
+                keys[i] = column[1];
+                i++;
+            }
+        }
+
+        return keys;
     }
     // checker method to check if the inserted value in the valid range of the key
     private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException {
@@ -141,7 +163,7 @@ public class Table {
         return null;
     }
     public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue) throws
-            DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException {
+            DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
         String clusteringKey = getClusteringKey(strTableName);
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
@@ -153,6 +175,13 @@ public class Table {
             record.getDBVector().set(keyIndex, entry.getValue());
             keyIndex++;
         }
+
+        for(int i = 0; i < record.getDBVector().size(); i++){
+            if(!checkValidity(keys[i], (Comparable) record.getDBVector().get(i))){
+                throw new DBAppException("The value of the column " + keys[i] + " is not in the valid range");
+            }
+        }
+
         TablePersistence.insert(strTableName, record);
     }
     public static void setNumberOfPagesForTable(String name, int x) {
@@ -188,7 +217,7 @@ public class Table {
     public static void main(String[] args) throws DBAppException {
         try {
             new Table("test", null, null, null, null);
-        } catch (DBAppException e) {
+        } catch (DBAppException | IOException e) {
             throw new RuntimeException(e);
         }
     }
