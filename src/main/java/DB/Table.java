@@ -20,7 +20,6 @@ public class Table {
                  Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
         this.name = strTableName;
-        numberOfAttributes = htblColNameType.size();
         String DBName = DbApp.selectedDBName;
 
         //Creating a Directory for the table
