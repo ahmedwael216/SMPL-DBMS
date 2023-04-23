@@ -99,4 +99,21 @@ public class TablePersistence {
         file.close();
         return p;
     }
+
+    public static void delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
+        int n = getNumberOfPagesForTable(tableName);
+        if(n == 0){
+            throw new DBAppException("Table is empty");
+        }
+        int pageIndex = findPageNumber(n, record.getPrimaryKey());
+        Page p = deserialize(pageIndex);
+        p.deleteRecord(record);
+        if(p.isEmpty()){
+            File f = new File(pageIndex+".ser");
+            f.delete();
+            setNumberOfPagesForTable(tableName, n - 1);
+        }
+        else
+            serialize(p, pageIndex);
+    }
 }

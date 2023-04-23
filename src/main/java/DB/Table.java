@@ -165,6 +165,7 @@ public class Table {
 
         return null;
     }
+
     public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue) throws
             DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
         String clusteringKey = getClusteringKey(strTableName);
@@ -187,6 +188,24 @@ public class Table {
 
         TablePersistence.insert(strTableName, record);
         size++;
+    }
+
+    public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, String
+            strOperator) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
+        String clusteringKey = getClusteringKey(strTableName);
+        // singleton design pattern constraint
+        Record record = (Record) prototype.clone();
+        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
+        int keyIndex = 1;
+        for(Map.Entry<String, Object> entry: htblColNameValue.entrySet()){
+            if(entry.getKey().equals(clusteringKey))
+                continue;
+            record.getDBVector().set(keyIndex, entry.getValue());
+            keyIndex++;
+        }
+
+        TablePersistence.delete(strTableName, record);
+        size--;
     }
     public static void setNumberOfPagesForTable(String name, int x) {
         Properties prop = new Properties();
@@ -215,6 +234,7 @@ public class Table {
         return 0;
     }
 
+    @Override
     public String toString() {
         return "Table [name = " + name + ", number of pages = " + getNumberOfPagesForTable(name) + ", size = " + size + "]";
     }

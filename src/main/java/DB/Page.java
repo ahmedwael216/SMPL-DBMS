@@ -67,4 +67,11 @@ public class Page implements Serializable, Comparable {
         return -1;
     }
 
+    public String toString() {
+        return records.toString();
+    }
+
+    public boolean isEmpty() {
+        return records.isEmpty();
+    }
 }

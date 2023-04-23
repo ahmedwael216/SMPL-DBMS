@@ -18,7 +18,7 @@ public class DbApp {
     public static int maxRecordsCountPage;
     // Path to SMPL-DBMS
     private String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
-    public String selectedDBName = null;
+    public static String selectedDBName = null;
     public File currentDBFile = null;
     public File currentConfigFile = null;
 
