@@ -1,8 +1,9 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.Vector;
 
-public class DBVector<T> extends Vector<T> implements Cloneable {
+public class DBVector<T> extends Vector<T> implements Cloneable, Serializable {
     public Object clone() {
         return super.clone();
     }

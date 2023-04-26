@@ -7,7 +7,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-public class Table {
+public class Table implements Serializable{
     private String name;
     private Record prototype;
     private int size;

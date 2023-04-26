@@ -1,9 +1,10 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Hashtable;
 
-public class Record implements Cloneable, Comparable {
+public class Record implements Cloneable, Comparable, Serializable {
     private DBVector<Comparable> tupleRow;
 
     public Record(String ClusteringKey, Hashtable<String, String> schema) {

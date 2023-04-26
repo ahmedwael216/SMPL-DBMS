@@ -2,22 +2,15 @@ package DB;
 
 import DB.DBVector;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 //import java.util.Iterator;
 
 
 public class DbApp {
     public static int maxRecordsCountPage;
     // Path to SMPL-DBMS
-    private String rootPath = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile().getParent() + File.separator;
+    private String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
     public File currentDBFile = null;
     public File currentConfigFile = null;
@@ -29,12 +22,14 @@ public class DbApp {
      * @throws IOException              if an error occurred while inputting or outputting
      */
     public void init() throws FileNotFoundException, IOException {
+        //TODO hard code a single database to remove prompting before university tests
+
         // Store currently available database names
         DBVector<String> availableDatabases = new DBVector<>();
         DBVector<String> excludedDirectories = new DBVector<>();
         Collections.addAll(excludedDirectories, ".metadata", ".git", "src", "target");
         File rootFile = new File(rootPath);
-        String rootContents[] = rootFile.list();
+        String[] rootContents = rootFile.list();
         for (String fileName : rootContents) {
             File file = new File(rootPath + File.separator + fileName);
             if (file.isDirectory() && !excludedDirectories.contains(fileName)) {
@@ -106,7 +101,16 @@ public class DbApp {
                 System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
             } else {
                 prop.setProperty(strTableName + "TablePages", "0"); // Initialize the new table with 0 pages in config of current DB
+                //TODO name the property right
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Created " + strTableName + " table");
+                Table t = new Table(strTableName,strClusteringKeyColumn,htblColNameType,htblColNameMin,htblColNameMax);
+                //TODO fix this thing
+                FileOutputStream file = new FileOutputStream(currentConfigFile.getParent()+ File.separator+ strTableName + File.separator+ strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(file);
+                out.writeObject(t);
+                out.close();
+                file.close();
+
                 System.out.println("The table \"" + strTableName + "\" has been added to the database \"" + selectedDBName + "\"");
             }
 
@@ -239,4 +243,24 @@ public class DbApp {
     //public ??? findIndex(String strTableName,
     //                     String strColName)
     //                     throws DBAppException {}
+    public static void main(String[] args) throws IOException, DBAppException {
+        DbApp db =new DbApp();
+        db.init();
+        String strTableName = "Student";
+        Hashtable<String,String> min = new Hashtable<>();
+        min.put("id","0");
+        min.put("name","A");
+        min.put("gpa","0.0");
+        Hashtable<String,String> max = new Hashtable<>();
+        max.put("id","1000");
+        max.put("name","zzzzzzzzzzzzz");
+        max.put("gpa","4.0");
+
+        Hashtable<String,String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
+        db.createTable( strTableName, "id", htblColNameType,min,max );
+
+    }
 }
