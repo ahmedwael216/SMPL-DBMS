@@ -52,8 +52,8 @@ public class Page implements Serializable, Comparable {
     }
 
     public void updateMinMax() {
-        this.minValue = (this.records.get(0).getPrimaryKey());
-        this.maxValue = (this.records.get(records.size() - 1).getPrimaryKey());
+        this.minValue = (Comparable) this.records.get(0).getPrimaryKey();
+        this.maxValue = (Comparable) this.records.get(records.size() - 1).getPrimaryKey();
     }
 
     @Override

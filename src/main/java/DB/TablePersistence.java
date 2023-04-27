@@ -17,7 +17,7 @@ public class TablePersistence {
             serialize(p,0);
             return;
         }
-        int pageIndex = findPageNumber(n, r.getPrimaryKey());
+        int pageIndex = findPageNumber(n, (Comparable) r.getPrimaryKey());
         Page p = deserialize(pageIndex);
         Record overflow = p.insertRecord(r);
         if(overflow == null){
@@ -105,7 +105,7 @@ public class TablePersistence {
         if(n == 0){
             throw new DBAppException("Table is empty");
         }
-        int pageIndex = findPageNumber(n, record.getPrimaryKey());
+        int pageIndex = findPageNumber(n, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex);
         p.deleteRecord(record);
         if(p.isEmpty()){

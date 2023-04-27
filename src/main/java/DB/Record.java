@@ -5,17 +5,17 @@ import java.util.Date;
 import java.util.Hashtable;
 
 public class Record implements Cloneable, Comparable, Serializable {
-    private DBVector<Comparable> tupleRow;
+    private DBVector<Serializable> tupleRow;
 
     public Record(String ClusteringKey, Hashtable<String, String> schema) {
-        tupleRow = new DBVector<Comparable>();
+        tupleRow = new DBVector<Serializable>();
         tupleRow.add(emptyInstanceFromClass(schema.get(ClusteringKey)));
         for (String fieldName : schema.keySet())
             if (!fieldName.equals(ClusteringKey))
                 tupleRow.add(emptyInstanceFromClass(schema.get(fieldName)));
     }
 
-    public Record(DBVector<Comparable> schema) {
+    public Record(DBVector<Serializable> schema) {
         tupleRow = schema;
     }
 
@@ -23,24 +23,24 @@ public class Record implements Cloneable, Comparable, Serializable {
         return tupleRow;
     }
 
-    private DBVector<Comparable> getTupleRow() {
+    private DBVector<Serializable> getTupleRow() {
         return tupleRow;
     }
 
 
-    public Comparable getItem(int i) {
+    public Serializable getItem(int i) {
         return tupleRow.get(i);
     }
 
-    public Comparable getPrimaryKey() {
+    public Serializable getPrimaryKey() {
         return this.getItem(0);
     }
 
-    public Comparable setItem(int i, Comparable val) {
+    public Serializable setItem(int i, Serializable val) {
         return tupleRow.set(i, val);
     }
 
-    public static Comparable emptyInstanceFromClass(String ClassName) {
+    public static Serializable emptyInstanceFromClass(String ClassName) {
         switch (ClassName) {
             case "java.lang.Integer":
                 return new Integer(0);
@@ -51,17 +51,12 @@ public class Record implements Cloneable, Comparable, Serializable {
             case "java.util.Date":
                 return new Date();
             default:
-                return new Comparable() {
-                    @Override
-                    public int compareTo(Object o) {
-                        return 0;
-                    }
-                };
+                return new Serializable() {};
         }
     }
 
     protected Object clone() throws CloneNotSupportedException {
-        DBVector<Comparable> schema = (DBVector<Comparable>) this.getTupleRow().clone();
+        DBVector<Serializable> schema = (DBVector<Serializable>) this.getTupleRow().clone();
         return new Record(schema);
     }
 
@@ -75,6 +70,6 @@ public class Record implements Cloneable, Comparable, Serializable {
 
     @Override
     public int compareTo(Object o) {
-        return this.getItem(0).compareTo(((Record) o).getItem(0));
+        return ((Comparable)this.getItem(0)).compareTo(((Record) o).getItem(0));
     }
 }
