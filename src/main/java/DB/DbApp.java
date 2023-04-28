@@ -19,7 +19,7 @@ public class DbApp {
      * Executes at application startup.
      * Prompts user to enter name of database to use.
      *
-     * @throws IOException              if an error occurred while inputting or outputting
+     * @throws IOException if an error occurred while inputting or outputting
      */
     public void init() throws FileNotFoundException, IOException {
         //TODO hard code a single database to remove prompting before university tests
@@ -45,7 +45,7 @@ public class DbApp {
         do {
             System.out.print("Load database: ");
             selectedDBName = sc.nextLine();
-        } while(selectedDBName == null || !selectedDBName.matches("^[a-zA-Z0-9_]+")); // ensure proper naming of input database name
+        } while (selectedDBName == null || !selectedDBName.matches("^[a-zA-Z0-9_]+")); // ensure proper naming of input database name
         sc.close();
 
         // Moving to selected database
@@ -93,7 +93,7 @@ public class DbApp {
                             Hashtable<String, String> htblColNameType,
                             Hashtable<String, String> htblColNameMin,
                             Hashtable<String, String> htblColNameMax)
-                            throws DBAppException {
+            throws DBAppException {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -103,9 +103,9 @@ public class DbApp {
                 prop.setProperty(strTableName + "TablePages", "0"); // Initialize the new table with 0 pages in config of current DB
                 //TODO name the property right
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Created " + strTableName + " table");
-                Table t = new Table(strTableName,strClusteringKeyColumn,htblColNameType,htblColNameMin,htblColNameMax);
+                Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
                 //TODO fix this thing
-                FileOutputStream file = new FileOutputStream(currentConfigFile.getParent()+ File.separator+ strTableName + File.separator+ strTableName + ".ser");
+                FileOutputStream file = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(file);
                 out.writeObject(t);
                 out.close();
@@ -139,7 +139,7 @@ public class DbApp {
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
                             String[] strarrColName)
-                            throws DBAppException{
+            throws DBAppException {
 
     }
 
@@ -147,14 +147,13 @@ public class DbApp {
      * Inserts a new row in a specified table.
      * Inserted data must have a value for the primary key.
      *
-     * @param strTableName              name of the table to insert the row into
-     * @param htblColNameValue          maps columns' names to their corresponding values to be inserted
-     *
-     * @throws DBAppException           If an exception occurred
+     * @param strTableName     name of the table to insert the row into
+     * @param htblColNameValue maps columns' names to their corresponding values to be inserted
+     * @throws DBAppException If an exception occurred
      */
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
-                                throws DBAppException {
+            throws DBAppException {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -174,17 +173,16 @@ public class DbApp {
     /**
      * Updates a row in a specified table.
      *
-     * @param strTableName              name of the table to update the row from
-     * @param strClusteringKeyValue     the value to look for to find the row to update
-     * @param htblColNameValue          maps the column names and their corresponding new values to be updated.
-     *                                  Cannot include clustering key as column name.
-     *
-     * @throws DBAppException           If an exception occurred
+     * @param strTableName          name of the table to update the row from
+     * @param strClusteringKeyValue the value to look for to find the row to update
+     * @param htblColNameValue      maps the column names and their corresponding new values to be updated.
+     *                              Cannot include clustering key as column name.
+     * @throws DBAppException If an exception occurred
      */
     public void updateTable(String strTableName,
                             String strClusteringKeyValue,
                             Hashtable<String, Object> htblColNameValue)
-                            throws DBAppException {
+            throws DBAppException {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -205,14 +203,13 @@ public class DbApp {
      * Searches for the values in the specified columns and deletes matching row(s).
      * Entries are anded together.
      *
-     * @param strTableName                  name of the table to delete row(s) from
-     * @param htblColNameValue              maps column names to certain value and delete the row(s) if matching(s) found
-     *
-     * @throws DBAppException           If an exception occurred
+     * @param strTableName     name of the table to delete row(s) from
+     * @param htblColNameValue maps column names to certain value and delete the row(s) if matching(s) found
+     * @throws DBAppException If an exception occurred
      */
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
-                                throws DBAppException {
+            throws DBAppException {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -245,24 +242,23 @@ public class DbApp {
     //                     String strColName)
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException {
-        DbApp db =new DbApp();
+        DbApp db = new DbApp();
         db.init();
         String strTableName = "Student";
-        Hashtable<String,String> min = new Hashtable<>();
-        min.put("id","0");
-        min.put("name","A");
-        min.put("gpa","0.0");
-        Hashtable<String,String> max = new Hashtable<>();
-        max.put("id","1000");
-        max.put("name","zzzzzzzzzzzzz");
-        max.put("gpa","4.0");
+        Hashtable<String, String> min = new Hashtable<>();
+        min.put("id", "0");
+        min.put("name", "A");
+        min.put("gpa", "0.0");
+        Hashtable<String, String> max = new Hashtable<>();
+        max.put("id", "1000");
+        max.put("name", "zzzzzzzzzzzzz");
+        max.put("gpa", "4.0");
 
-        Hashtable<String,String> htblColNameType = new Hashtable<>();
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
-        db.createTable( strTableName, "id", htblColNameType,min,max );
-
+        db.createTable(strTableName, "id", htblColNameType, min, max);
 
 
     }
