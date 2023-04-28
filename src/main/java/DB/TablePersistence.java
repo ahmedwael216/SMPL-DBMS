@@ -116,4 +116,13 @@ public class TablePersistence {
         else
             serialize(p, pageIndex);
     }
+
+    public static String printTable(String tableName) throws IOException, ClassNotFoundException {
+        int n = getNumberOfPagesForTable(tableName);
+        String s="";
+        for (int i = 0; i < n; i++) {
+            s+=deserialize(i).toString();
+        }
+        return s;
+    }
 }

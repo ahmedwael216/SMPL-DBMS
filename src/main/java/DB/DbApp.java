@@ -24,7 +24,7 @@ public class DbApp {
      */
     public void init() throws FileNotFoundException, IOException {
         //TODO hard code a single database to remove prompting before university tests
-
+        // TODO read available databases doesn't work
         // Store currently available database names
         DBVector<String> availableDatabases = new DBVector<>();
         DBVector<String> excludedDirectories = new DBVector<>();
@@ -280,6 +280,19 @@ public class DbApp {
         }
     }
 
+    public String printTable(String strTableName) throws IOException, ClassNotFoundException {
+        //TODO deserialize table method
+        FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+        ObjectInputStream in = new ObjectInputStream(file);
+
+        // Method for deserialization of object
+        Table table = (Table) in.readObject();
+
+        in.close();
+        file.close();
+        return table.toString();
+    }
+
     /*
      * public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
      * String[] strarrOperators)
@@ -296,7 +309,7 @@ public class DbApp {
     //public ??? findIndex(String strTableName,
     //                     String strColName)
     //                     throws DBAppException {}
-    public static void main(String[] args) throws IOException, DBAppException {
+    public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DbApp db = new DbApp();
         db.init();
         String strTableName = "Student";
@@ -313,12 +326,14 @@ public class DbApp {
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
-//        db.createTable(strTableName, "id", htblColNameType, min, max);
+        db.createTable(strTableName, "id", htblColNameType, min, max);
         Hashtable htblColNameValue = new Hashtable( );
         htblColNameValue.put("id", new Integer( 2343432 ));
         htblColNameValue.put("name", new String("Ahmed Noor" ) );
         htblColNameValue.put("gpa", new Double( 0.95 ) );
-        db.deleteFromTable( strTableName , htblColNameValue );
+        db.insertIntoTable(strTableName ,htblColNameValue);
+        db.printTable(strTableName);
+        //db.deleteFromTable( strTableName , htblColNameValue );
 
 
     }

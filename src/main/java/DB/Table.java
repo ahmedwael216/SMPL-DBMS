@@ -237,7 +237,13 @@ public class Table implements Serializable {
 
     @Override
     public String toString() {
-        return "Table [name = " + name + ", number of pages = " + getNumberOfPagesForTable(name) + ", size = " + size + "]";
+        try {
+            return TablePersistence.printTable(this.name);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) throws DBAppException {
@@ -247,5 +253,4 @@ public class Table implements Serializable {
             throw new RuntimeException(e);
         }
     }
-
 }
