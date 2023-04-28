@@ -191,8 +191,7 @@ public class Table implements Serializable {
         size++;
     }
 
-    public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue, String
-            strOperator) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
+    public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
         String clusteringKey = getClusteringKey(strTableName);
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();

@@ -3,6 +3,7 @@ package DB;
 import DB.DBVector;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 //import java.util.Iterator;
 
@@ -159,6 +160,18 @@ public class DbApp {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 // TODO Insert into table
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
+                // TODO fix path
+                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectInputStream in = new ObjectInputStream(file);
+
+                // Method for deserialization of object
+                Table table = (Table) in.readObject();
+
+                in.close();
+                file.close();
+
+                table.insertIntoTable(strTableName,htblColNameValue);
 
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
@@ -166,6 +179,12 @@ public class DbApp {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
     }
@@ -187,7 +206,17 @@ public class DbApp {
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
-                // TODO Update table
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
+                // TODO fix path
+                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectInputStream in = new ObjectInputStream(file);
+
+                // Method for deserialization of object
+                Table table = (Table) in.readObject();
+
+                in.close();
+                file.close();
+                //table.updateTable(strTableName,strClusteringKeyValue,htblColNameValue);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -195,7 +224,14 @@ public class DbApp {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
+//        catch (CloneNotSupportedException e) {
+//            e.printStackTrace();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**
@@ -215,12 +251,31 @@ public class DbApp {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 // TODO delete from table
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
+                // TODO fix path
+                System.out.println(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectInputStream in = new ObjectInputStream(file);
+
+                // Method for deserialization of object
+                Table table = (Table) in.readObject();
+
+                in.close();
+                file.close();
+
+                table.deleteFromTable(strTableName,htblColNameValue);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
     }
@@ -258,7 +313,12 @@ public class DbApp {
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
-        db.createTable(strTableName, "id", htblColNameType, min, max);
+//        db.createTable(strTableName, "id", htblColNameType, min, max);
+        Hashtable htblColNameValue = new Hashtable( );
+        htblColNameValue.put("id", new Integer( 2343432 ));
+        htblColNameValue.put("name", new String("Ahmed Noor" ) );
+        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        db.deleteFromTable( strTableName , htblColNameValue );
 
 
     }
