@@ -311,6 +311,7 @@ public class DbApp {
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DbApp db = new DbApp();
         db.init();
+        //creating table
         String strTableName = "Student";
         Hashtable<String, String> min = new Hashtable<>();
         min.put("id", "0");
@@ -320,17 +321,19 @@ public class DbApp {
         max.put("id", "1000");
         max.put("name", "zzzzzzzzzzzzz");
         max.put("gpa", "4.0");
-
         Hashtable<String, String> htblColNameType = new Hashtable<>();
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-        Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
-        htblColNameValue.put("id", 500);
-        htblColNameValue.put("name", "Ahmed Noor");
-        htblColNameValue.put("gpa", 0.95);
-        db.insertIntoTable(strTableName ,htblColNameValue);
+        for(int i=0;i<450;i++){
+            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+            htblColNameValue.put("id", 500+i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 0.95);
+            db.insertIntoTable(strTableName ,htblColNameValue);
+        }
+
         System.out.println(db.printTable(strTableName));
         //db.deleteFromTable( strTableName , htblColNameValue );
 

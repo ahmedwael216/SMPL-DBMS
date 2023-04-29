@@ -120,6 +120,7 @@ public class TablePersistence {
     public static String printTable(String tableName) throws IOException, ClassNotFoundException {
         int n = getNumberOfPagesForTable(tableName);
         StringBuilder s= new StringBuilder();
+        System.out.println("\t page number = "+n);
         for (int i = 0; i < n; i++) {
             s.append("----Page ").append(i).append("----\n");
             s.append(deserialize(i,tableName).toString());
