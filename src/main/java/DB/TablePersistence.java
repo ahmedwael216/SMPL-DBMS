@@ -56,9 +56,9 @@ public class TablePersistence {
             int mid = (low + high) >> 1;
             Page midPage = deserialize(mid,tableName);
             int cmp = ((Comparable) midPage).compareTo(pk);
-            if (cmp < 0)
+            if (cmp > 0)
                 low = mid + 1;
-            else if (cmp > 0)
+            else if (cmp < 0)
                 high = mid - 1;
             else
                 return mid;

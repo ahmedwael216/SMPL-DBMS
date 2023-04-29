@@ -338,6 +338,7 @@ public class DbApp {
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 0.95);
         db.insertIntoTable(strTableName ,htblColNameValue);
+
         System.out.println(db.printTable(strTableName));
     }
 }
