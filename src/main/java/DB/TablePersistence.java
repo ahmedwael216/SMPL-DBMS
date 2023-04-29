@@ -20,25 +20,22 @@ public class TablePersistence {
         int pageIndex = findPageNumber(n,tableName,(Comparable) r.getPrimaryKey());
         Page p = deserialize(pageIndex,tableName);
         Record overflow = p.insertRecord(r);
-        if(overflow == null){
-            serialize(p,tableName, pageIndex);
-            return;
-        }else{
-            while (overflow != null){
-                pageIndex++;
-                if(pageExists(tableName, pageIndex)){
-                    Page nextP = deserialize(pageIndex,tableName);
-                    overflow = nextP.insertRecord(r);
-                    if(overflow == null){
-                        serialize(nextP,tableName, pageIndex);
-                        return;
-                    }
-                }else{
-                    setNumberOfPagesForTable(tableName, pageIndex+1);
-                    Page newPage = new Page();
-                    overflow = newPage.insertRecord(r);
-                    serialize(newPage ,tableName,pageIndex);
+        serialize(p,tableName, pageIndex);
+
+        while (overflow != null){
+            pageIndex++;
+            if(pageExists(tableName, pageIndex)){
+                Page nextP = deserialize(pageIndex,tableName);
+                overflow = nextP.insertRecord(overflow);
+                serialize(nextP,tableName, pageIndex);
+                if(overflow == null){
+                    return;
                 }
+            }else{
+                setNumberOfPagesForTable(tableName, pageIndex+1);
+                Page newPage = new Page();
+                overflow = newPage.insertRecord(overflow);
+                serialize(newPage ,tableName,pageIndex);
             }
         }
     }
