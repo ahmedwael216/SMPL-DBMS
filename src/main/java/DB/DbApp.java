@@ -171,7 +171,7 @@ public class DbApp {
                 in.close();
                 file.close();
 
-                table.insertIntoTable(strTableName,htblColNameValue);
+                table.insertIntoTable(strTableName, htblColNameValue);
 
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
@@ -216,7 +216,7 @@ public class DbApp {
 
                 in.close();
                 file.close();
-                table.updateTable(strTableName,htblColNameValue);
+                table.updateTable(strTableName, strClusteringKeyValue, htblColNameValue);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -265,7 +265,7 @@ public class DbApp {
                 in.close();
                 file.close();
 
-                table.deleteFromTable(strTableName,htblColNameValue);
+                table.deleteFromTable(strTableName, htblColNameValue);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -335,17 +335,19 @@ public class DbApp {
 //            htblColNameValue.put("gpa", 0.95);
 //            db.insertIntoTable(strTableName ,htblColNameValue);
 //        }
-        Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 0.95);
-        db.insertIntoTable(strTableName ,htblColNameValue);
+        db.insertIntoTable(strTableName, htblColNameValue);
 
-        htblColNameValue = new Hashtable<>( );
-        htblColNameValue.put("id", 0);
+        System.out.println(db.printTable(strTableName));
+
+        htblColNameValue = new Hashtable<>();
         htblColNameValue.put("name", "Hamada");
-        htblColNameValue.put("gpa", 0.95);
-        db.updateTable(strTableName ,htblColNameValue);
+        htblColNameValue.put("gpa", 1.0);
+        db.updateTable(strTableName, "0", htblColNameValue);
+        
         System.out.println(db.printTable(strTableName));
     }
 }

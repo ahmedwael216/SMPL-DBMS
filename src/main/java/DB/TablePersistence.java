@@ -123,6 +123,7 @@ public class TablePersistence {
         int pageIndex = findPageNumber(n, tableName, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex, tableName);
         p.updateRecord(record);
+        serialize(p, tableName, pageIndex);
     }
 
     public static String printTable(String tableName) throws IOException, ClassNotFoundException {

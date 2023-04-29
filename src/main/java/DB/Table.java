@@ -185,7 +185,6 @@ public class Table implements Serializable {
 
 
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
-            keyIndex++;
         }
 
         checkRecord(record);
@@ -221,17 +220,32 @@ public class Table implements Serializable {
         }
     }
 
-    public void updateTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
-        String clusteringKey = getClusteringKey(strTableName);
+    private Comparable getValue(String val, String type) {
+        if (type.equals("java.lang.Integer")) {
+            return Integer.parseInt(val);
+        } else if (type.equals("java.lang.double")) {
+            return Double.parseDouble(val);
+        } else if (type.equals("java.lang.Boolean")) {
+            return Boolean.parseBoolean(val);
+        } else if (type.equals("java.util.Date")) {
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            try {
+                return formatter.parse(val);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return val;
+    }
+    public void updateTable(String strTableName, String clusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
-        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
+        record.getDBVector().set(0, getValue(clusteringKeyValue, record.getDBVector().get(0).getClass().getName()));
 
 
         for (int keyIndex = 1; keyIndex < keys.length; keyIndex++) {
 
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
-            keyIndex++;
         }
 
         checkRecord(record);
