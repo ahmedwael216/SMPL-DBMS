@@ -31,8 +31,8 @@ public class Page implements Serializable, Comparable {
         return null;
     }
 
-    public void updateRecord(Record oldRecord, Record newRecord) throws DBAppException {
-        int index = records.binarySearch(oldRecord);
+    public void updateRecord(Record newRecord) throws DBAppException {
+        int index = records.binarySearch(newRecord);
         if (index >= 0) {
             records.set(index, newRecord);
             updateMinMax();

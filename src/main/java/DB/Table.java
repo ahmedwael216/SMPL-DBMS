@@ -221,7 +221,7 @@ public class Table implements Serializable {
         }
     }
 
-    public void updateTable(String strTableName, String strClusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException {
+    public void updateTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
         String clusteringKey = getClusteringKey(strTableName);
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
@@ -235,6 +235,7 @@ public class Table implements Serializable {
         }
 
         checkRecord(record);
+        TablePersistence.update(strTableName, record);
     }
 
     public static int getNumberOfPagesForTable(String name) {

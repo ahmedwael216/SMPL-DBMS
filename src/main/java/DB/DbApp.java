@@ -216,7 +216,7 @@ public class DbApp {
 
                 in.close();
                 file.close();
-                //table.updateTable(strTableName,strClusteringKeyValue,htblColNameValue);
+                table.updateTable(strTableName,htblColNameValue);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -226,6 +226,8 @@ public class DbApp {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
 //        catch (CloneNotSupportedException e) {
 //            e.printStackTrace();
@@ -326,19 +328,24 @@ public class DbApp {
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-        for(int i=0;i<=450;i++){
-            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
-            htblColNameValue.put("id", 500+i);
-            htblColNameValue.put("name", "Ahmed" + i);
-            htblColNameValue.put("gpa", 0.95);
-            db.insertIntoTable(strTableName ,htblColNameValue);
-        }
+//        for(int i=0;i<=450;i++){
+//            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+//            htblColNameValue.put("id", 500+i);
+//            htblColNameValue.put("name", "Ahmed" + i);
+//            htblColNameValue.put("gpa", 0.95);
+//            db.insertIntoTable(strTableName ,htblColNameValue);
+//        }
         Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 0.95);
         db.insertIntoTable(strTableName ,htblColNameValue);
 
+        htblColNameValue = new Hashtable<>( );
+        htblColNameValue.put("id", 0);
+        htblColNameValue.put("name", "Hamada");
+        htblColNameValue.put("gpa", 0.95);
+        db.updateTable(strTableName ,htblColNameValue);
         System.out.println(db.printTable(strTableName));
     }
 }
