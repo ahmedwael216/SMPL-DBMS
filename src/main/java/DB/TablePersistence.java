@@ -105,12 +105,19 @@ public class TablePersistence {
             Page p = deserialize(i, tableName);
             p.deleteLinear(r);
             if (p.isEmpty()) {
-                File f = new File(i + ".ser");
-                f.delete();
-                setNumberOfPagesForTable(tableName, n - 1);
+                deletePage(tableName, i, n);
+                n--;
             } else
                 serialize(p, tableName, i);
         }
+    }
+
+    private static void deletePage(String tableName, int pageIndex, int totalPages) throws IOException, ClassNotFoundException {
+        for (int i = pageIndex + 1; i < totalPages; i++) {
+            Page curr = deserialize(i, tableName);
+            serialize(curr, tableName, i - 1);
+        }
+        setNumberOfPagesForTable(tableName, totalPages - 1);
     }
 
     public static void delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
@@ -126,9 +133,7 @@ public class TablePersistence {
         Page p = deserialize(pageIndex, tableName);
         p.deleteRecord(record);
         if (p.isEmpty()) {
-            File f = new File(pageIndex + ".ser");
-            f.delete();
-            setNumberOfPagesForTable(tableName, n - 1);
+            deletePage(tableName, pageIndex, n);
         } else
             serialize(p, tableName, pageIndex);
     }
