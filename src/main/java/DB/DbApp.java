@@ -155,6 +155,9 @@ public class DbApp {
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
             throws DBAppException {
+        if (!htblColNameValue.containsKey(strTableName)) {
+            throw new DBAppException("the clustering key must be inserterd");
+        }
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -202,6 +205,9 @@ public class DbApp {
                             String strClusteringKeyValue,
                             Hashtable<String, Object> htblColNameValue)
             throws DBAppException {
+        if(strClusteringKeyValue.equals("null")){
+            throw new DBAppException("the clustering key must be inserterd");
+        }
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -248,6 +254,9 @@ public class DbApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
             throws DBAppException {
+        if (!htblColNameValue.containsKey(strTableName)) {
+            throw new DBAppException("the clustering key must be inserterd");
+        }
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
@@ -328,18 +337,18 @@ public class DbApp {
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-        for(int i=0;i<=200;i++){
-            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
-            htblColNameValue.put("id", 500+i);
-            htblColNameValue.put("name", "Ahmed" + i);
-            htblColNameValue.put("gpa", 0.95);
-            db.insertIntoTable(strTableName ,htblColNameValue);
-        }
+//        for(int i=0;i<=200;i++){
+//            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+//            htblColNameValue.put("id", 500+i);
+//            htblColNameValue.put("name", "Ahmed" + i);
+//            htblColNameValue.put("gpa", 0.95);
+//            db.insertIntoTable(strTableName ,htblColNameValue);
+//        }
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", 700);
+//        htblColNameValue.put("id", 700);
         htblColNameValue.put("name", "Ahmed199");
         htblColNameValue.put("gpa", 0.95);
-        db.deleteFromTable(strTableName, htblColNameValue);
+        db.insertIntoTable(strTableName, htblColNameValue);
 //
 //        System.out.println(db.printTable(strTableName));
 //
