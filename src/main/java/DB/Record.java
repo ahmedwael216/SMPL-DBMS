@@ -78,4 +78,18 @@ public class Record implements Cloneable, Comparable, Serializable {
     public int compareTo(Object o) {
         return ((Comparable) this.getItem(0)).compareTo(((Record) o).getItem(0));
     }
+
+    public boolean equals(Object o) {
+        for (int i = 0; i < this.tupleRow.size(); i++) {
+            if (this.getItem(i) == null && ((Record) o).getItem(i) == null)
+                continue;
+            if (this.getItem(i) == null)
+                return false;
+            if(((Record)o).getItem(i) == null)
+                continue;
+            if (!this.getItem(i).equals(((Record) o).getItem(i)))
+                return false;
+        }
+        return true;
+    }
 }

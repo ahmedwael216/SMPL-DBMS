@@ -21,18 +21,22 @@ public class Page implements Serializable, Comparable {
             index = -index - 1;
             records.add(index, record);
             int maxRecordsCountPage = DbApp.maxRecordsCountPage;
+            Record lastRecord = null;
             if (records.size() > maxRecordsCountPage) {
-                return records.remove(maxRecordsCountPage);
+                lastRecord = records.remove(maxRecordsCountPage);
             }
             updateMinMax();
+            return lastRecord;
         } else {
             throw new DBAppException("Record already exists!");
         }
-        return null;
     }
 
     public void updateRecord(Record newRecord) throws DBAppException {
         int index = records.binarySearch(newRecord);
+        if(!records.get(index).equals(newRecord)){
+            throw new DBAppException("Record not found!");
+        }
         if (index >= 0) {
             records.set(index, newRecord);
             updateMinMax();
@@ -41,8 +45,21 @@ public class Page implements Serializable, Comparable {
         }
     }
 
+    public void deleteLinear(Record r) {
+        for (int i = records.size() - 1; i >= 0; i--) {
+            if (records.get(i).equals(r)) {
+                records.remove(i);
+            }
+        }
+        if (!records.isEmpty())
+            updateMinMax();
+    }
+
     public void deleteRecord(Record record) throws DBAppException {
         int index = records.binarySearch(record);
+        if(!records.get(index).equals(record)){
+            throw new DBAppException("Record not found!");
+        }
         if (index >= 0) {
             records.remove(index);
             if (!records.isEmpty())
@@ -69,7 +86,7 @@ public class Page implements Serializable, Comparable {
     }
 
     public String toString() {
-        return records.toString();
+        return records.toString() + " " + minValue + " " + maxValue;
     }
 
     public boolean isEmpty() {

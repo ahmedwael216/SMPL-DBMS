@@ -99,7 +99,25 @@ public class TablePersistence {
         return p;
     }
 
+    private static void deleteLinear(Record r, String tableName) throws IOException, ClassNotFoundException, DBAppException {
+        int n = getNumberOfPagesForTable(tableName);
+        for (int i = 0; i < n; i++) {
+            Page p = deserialize(i, tableName);
+            p.deleteLinear(r);
+            if (p.isEmpty()) {
+                File f = new File(i + ".ser");
+                f.delete();
+                setNumberOfPagesForTable(tableName, n - 1);
+            } else
+                serialize(p, tableName, i);
+        }
+    }
+
     public static void delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
+        if (record.getPrimaryKey() == null) {
+            deleteLinear(record, tableName);
+            return;
+        }
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
             throw new DBAppException("Table is empty");

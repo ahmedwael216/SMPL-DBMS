@@ -40,6 +40,12 @@ public class Table implements Serializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        for(Map.Entry<String, String> entry : htblColNameType.entrySet()){
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
+                throw new DBAppException("Invalid Value for column " + key);
+        }
         writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName", "IndexType", "min", "max"});
 
         // add the primary key column
@@ -67,6 +73,33 @@ public class Table implements Serializable {
         }
         size = 0;
 
+    }
+
+    private boolean checkTypes(String type, String minVal, String maxVal){
+        if(type.equals("java.lang.Integer")){
+            try{
+                Integer.parseInt(minVal);
+                Integer.parseInt(maxVal);
+            }catch (Exception e){
+                return false;
+            }
+        }else if(type.equals("java.lang.double")){
+            try{
+                Double.parseDouble(minVal);
+                Double.parseDouble(maxVal);
+            }catch (Exception e){
+                return false;
+            }
+        }else if(type.equals("java.util.Date")){
+            try{
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                sdf.parse(minVal);
+                sdf.parse(maxVal);
+            }catch (Exception e){
+                return false;
+            }
+        }
+        return true;
     }
 
     public int getSize() {
@@ -112,69 +145,88 @@ public class Table implements Serializable {
     }
 
     // checker method to check if the inserted value in the valid range of the key
-    private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException {
+
+    private String getKeyType(String key){
+        String DBName = DbApp.selectedDBName;
+        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
+        BufferedReader br = null;
+        String line = "";
+        String cvsSplitBy = ",";
+        boolean skipFirstLine = true;
+        try {
+            br = new BufferedReader(new FileReader(csvFile));
+            while ((line = br.readLine()) != null) {
+                if (skipFirstLine) {
+                    skipFirstLine = false;
+                    continue;
+                }
+                String[] column = line.split(cvsSplitBy);
+                if (column[1].substring(1, column[1].length() - 1).equals(key)) {
+                    return column[2].substring(1, column[2].length() - 1);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException, DBAppException {
         String[] minAndMax = getMaxAndMinString(columnName);
 
-        String className = value.getClass().getName();
+        String className = getKeyType(columnName);
 
         String minValStr = minAndMax[0], maxValStr = minAndMax[1];
         Comparable minVal, maxVal;
         // get the value of the min and the max
-        if (className.equals("java.lang.Integer")) {
-            minVal = Integer.parseInt(minValStr);
-            maxVal = Integer.parseInt(maxValStr);
-        } else if (className.equals("java.lang.Date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
-            minVal = formatter.parse(minValStr);
-            maxVal = formatter.parse(maxValStr);
-        } else if (className.equals("java.lang.Double")) {
-            minVal = Double.parseDouble(minValStr);
-            maxVal = Double.parseDouble(maxValStr);
-        } else {
-            minVal = minValStr;
-            maxVal = maxValStr;
-        }
+        try {
+            if (className.toLowerCase().equals("java.lang.integer")) {
+                minVal = Integer.parseInt(minValStr);
+                maxVal = Integer.parseInt(maxValStr);
+            } else if (className.toLowerCase().equals("java.lang.date")) {
+                SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+                minVal = formatter.parse(minValStr);
+                maxVal = formatter.parse(maxValStr);
+            } else if (className.toLowerCase().equals("java.lang.double")) {
+                minVal = Double.parseDouble(minValStr);
+                maxVal = Double.parseDouble(maxValStr);
+            } else {
+                minVal = minValStr;
+                maxVal = maxValStr;
+            }
 
-        if (minVal.compareTo(value) > 0) {
-            return false;
+            if (minVal.compareTo(value) > 0) {
+                return false;
+            }
+            if (maxVal.compareTo(value) < 0) {
+                return false;
+            }
         }
-        if (maxVal.compareTo(value) < 0) {
-            return false;
+        catch (Exception e){
+            throw new DBAppException("Invalid value for column " + columnName);
         }
         return true;
     }
 
-    private String getClusteringKey(String tableName) throws IOException {
-        String DBName = DbApp.selectedDBName;
-        String csvFile = DBName + "/" + tableName + "/" + "Metadata.csv";
-        BufferedReader br = new BufferedReader(new FileReader(csvFile));
-
-        br.readLine();
-        String line = br.readLine();
-        String[] column = line.split(",");
-        if (column[3].substring(1, column[3].length() - 1).equals("True")) {
-            return column[1].substring(1, column[1].length() - 1);
-        }
-
-        return null;
-    }
-
-    private boolean checkRecord(Record r){
+    private boolean checkRecord(Record r) {
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
-                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
+                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i)) ) {
                     return false;
                 }
-            } catch (ParseException | ClassNotFoundException | IOException e) {
+            } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
                 e.printStackTrace();
             }
         }
         return true;
     }
+
     public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws
             DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
 
-        String clusteringKey = getClusteringKey(strTableName);
+        String clusteringKey = keys[0];
+        if (!htblColNameValue.containsKey(clusteringKey)) {
+            throw new DBAppException("the clustering key must be inserterd");
+        }
 
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
@@ -194,7 +246,8 @@ public class Table implements Serializable {
     }
 
     public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
-        String clusteringKey = getClusteringKey(strTableName);
+        String clusteringKey = keys[0];
+
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
@@ -237,6 +290,7 @@ public class Table implements Serializable {
         }
         return val;
     }
+
     public void updateTable(String strTableName, String clusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
@@ -248,8 +302,8 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
-        checkRecord(record);
         TablePersistence.update(strTableName, record);
+        checkRecord(record);
     }
 
     public static int getNumberOfPagesForTable(String name) {
