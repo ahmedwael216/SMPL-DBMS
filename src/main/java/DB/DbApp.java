@@ -331,25 +331,24 @@ public class DbApp {
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-        for (int i = 0; i < 200; i++) {
+        for (int i = 1000; i < 1; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i + 1);
             htblColNameValue.put("name", "Ahmed" + i % 2);
             htblColNameValue.put("gpa", 0.95);
             db.insertIntoTable(strTableName, htblColNameValue);
         }
+
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-//        htblColNameValue.put("id", 200);
-        htblColNameValue.put("name", "Ahmed0");
+        htblColNameValue.put("id", 1000 + 1);
+        htblColNameValue.put("name", "Ahmed" + 1000 % 2);
         htblColNameValue.put("gpa", 0.95);
-        db.deleteFromTable(strTableName, htblColNameValue);
-//
+        db.insertIntoTable(strTableName, htblColNameValue);
 //        System.out.println(db.printTable(strTableName));
 //
 //        htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("name", "Hamada");
 //        htblColNameValue.put("gpa", 1.0);
-        db.updateTable(strTableName, "0", htblColNameValue);
 
         System.out.println(db.printTable(strTableName));
     }

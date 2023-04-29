@@ -40,10 +40,10 @@ public class Table implements Serializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        for(Map.Entry<String, String> entry : htblColNameType.entrySet()){
+        for (Map.Entry<String, String> entry : htblColNameType.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if(!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
+            if (!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
                 throw new DBAppException("Invalid Value for column " + key);
         }
         writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName", "IndexType", "min", "max"});
@@ -75,27 +75,27 @@ public class Table implements Serializable {
 
     }
 
-    private boolean checkTypes(String type, String minVal, String maxVal){
-        if(type.equals("java.lang.Integer")){
-            try{
+    private boolean checkTypes(String type, String minVal, String maxVal) {
+        if (type.equals("java.lang.Integer")) {
+            try {
                 Integer.parseInt(minVal);
                 Integer.parseInt(maxVal);
-            }catch (Exception e){
+            } catch (Exception e) {
                 return false;
             }
-        }else if(type.equals("java.lang.double")){
-            try{
+        } else if (type.equals("java.lang.double")) {
+            try {
                 Double.parseDouble(minVal);
                 Double.parseDouble(maxVal);
-            }catch (Exception e){
+            } catch (Exception e) {
                 return false;
             }
-        }else if(type.equals("java.util.Date")){
-            try{
+        } else if (type.equals("java.util.Date")) {
+            try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 sdf.parse(minVal);
                 sdf.parse(maxVal);
-            }catch (Exception e){
+            } catch (Exception e) {
                 return false;
             }
         }
@@ -146,7 +146,7 @@ public class Table implements Serializable {
 
     // checker method to check if the inserted value in the valid range of the key
 
-    private String getKeyType(String key){
+    private String getKeyType(String key) {
         String DBName = DbApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
         BufferedReader br = null;
@@ -170,6 +170,7 @@ public class Table implements Serializable {
         }
         return null;
     }
+
     private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException, DBAppException {
         String[] minAndMax = getMaxAndMinString(columnName);
 
@@ -200,8 +201,7 @@ public class Table implements Serializable {
             if (maxVal.compareTo(value) < 0) {
                 return false;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new DBAppException("Invalid value for column " + columnName);
         }
         return true;
@@ -210,7 +210,7 @@ public class Table implements Serializable {
     private boolean checkRecord(Record r) {
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
-                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i)) ) {
+                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
             } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
@@ -239,7 +239,10 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
-        checkRecord(record);
+        if(!checkRecord(record)){
+            throw new DBAppException("Please enter valid data");
+        }
+
 
         TablePersistence.insert(strTableName, record);
         size++;
@@ -302,8 +305,12 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
+        if(!checkRecord(record)){
+            throw new DBAppException("Please enter valid data");
+        }
+
         TablePersistence.update(strTableName, record);
-        checkRecord(record);
+
     }
 
     public static int getNumberOfPagesForTable(String name) {
