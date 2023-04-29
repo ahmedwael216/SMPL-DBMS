@@ -90,8 +90,8 @@ public class Table implements Serializable {
                 continue;
             }
             String[] column = line.split(cvsSplitBy);
-            if (column[1].substring(1,column[1].length()-1).equals(columnName)) {
-                return new String[]{column[6].substring(1,column[6].length()-1), column[7].substring(1,column[7].length()-1)};
+            if (column[1].substring(1, column[1].length() - 1).equals(columnName)) {
+                return new String[]{column[6].substring(1, column[6].length() - 1), column[7].substring(1, column[7].length() - 1)};
             }
         }
 
@@ -99,7 +99,7 @@ public class Table implements Serializable {
     }
 
     private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
-        String [] res = new String[keysTypes.size()];
+        String[] res = new String[keysTypes.size()];
         res[0] = clusteringKey;
         int i = 1;
         for (String key : keysTypes.keySet()) {
@@ -152,13 +152,25 @@ public class Table implements Serializable {
         br.readLine();
         String line = br.readLine();
         String[] column = line.split(",");
-        if(column[3].substring(1,column[3].length()-1).equals("True")){
-            return column[1].substring(1,column[1].length()-1);
+        if (column[3].substring(1, column[3].length() - 1).equals("True")) {
+            return column[1].substring(1, column[1].length() - 1);
         }
 
         return null;
     }
 
+    private boolean checkRecord(Record r){
+        for (int i = 0; i < r.getDBVector().size(); i++) {
+            try {
+                if (!checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
+                    return false;
+                }
+            } catch (ParseException | ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
     public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws
             DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
 
@@ -168,21 +180,15 @@ public class Table implements Serializable {
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
 
-        int keyIndex = 1;
-        for (Map.Entry<String, Object> entry : htblColNameValue.entrySet()) {
-            //skipping clustering key
-            if (entry.getKey().equals(clusteringKey)){
-                continue;
-            }
-            record.getDBVector().set(keyIndex, entry.getValue());
+
+        for (int keyIndex = 1; keyIndex < keys.length; keyIndex++) {
+
+
+            record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
             keyIndex++;
         }
 
-        for (int i = 0; i < record.getDBVector().size(); i++) {
-            if (!checkValidity(keys[i], (Comparable) record.getDBVector().get(i))) {
-                throw new DBAppException("The value of the column " + keys[i] + " is not in the valid range");
-            }
-        }
+        checkRecord(record);
 
         TablePersistence.insert(strTableName, record);
         size++;
@@ -207,12 +213,28 @@ public class Table implements Serializable {
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
-            prop.setProperty(name+"TablePages", x + "");
+            prop.setProperty(name + "TablePages", x + "");
             FileOutputStream os = new FileOutputStream(fileName);
             prop.store(os, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateTable(String strTableName, String strClusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException {
+        String clusteringKey = getClusteringKey(strTableName);
+        // singleton design pattern constraint
+        Record record = (Record) prototype.clone();
+        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
+
+
+        for (int keyIndex = 1; keyIndex < keys.length; keyIndex++) {
+
+            record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
+            keyIndex++;
+        }
+
+        checkRecord(record);
     }
 
     public static int getNumberOfPagesForTable(String name) {
@@ -223,7 +245,7 @@ public class Table implements Serializable {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
 //            System.out.println(name+" "+prop.getProperty(name+"TablePages"));
-            return Integer.parseInt(prop.getProperty(name+"TablePages"));
+            return Integer.parseInt(prop.getProperty(name + "TablePages"));
         } catch (Exception e) {
             e.printStackTrace();
         }
