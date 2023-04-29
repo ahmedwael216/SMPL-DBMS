@@ -23,6 +23,7 @@ public class Table implements Serializable {
             throws DBAppException, RuntimeException, IOException {
 
         this.name = strTableName;
+        keys = getKeys(htblColNameType, strClusteringKeyColumn);
         String DBName = DbApp.selectedDBName;
 
         //Creating a Directory for the table
@@ -65,7 +66,6 @@ public class Table implements Serializable {
             System.out.println(e.getMessage());
         }
         size = 0;
-        keys = getKeys(htblColNameType.size());
 
     }
 
@@ -98,29 +98,17 @@ public class Table implements Serializable {
         return null;
     }
 
-    private String[] getKeys(int numberOfAttributes) throws IOException {
-        String DBName = DbApp.selectedDBName;
-        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
-        BufferedReader br = new BufferedReader(new FileReader(csvFile));
-        String line = "";
-        String cvsSplitBy = ",";
-        String[] keys = new String[numberOfAttributes];
-        int i = 0;
-//        while ((line = br.readLine()) != null) {
-//            String[] column = line.split(cvsSplitBy);
-//            if (column[3].substring(1,column[3].length()-1).equals("True")) {
-//                keys[i] = column[1].substring(1,column[1].length()-1);
-//                i++;
-//            }
-//        }
-        br.readLine();
-        while((line = br.readLine()) != null){
-            String[] column = line.split(cvsSplitBy);
-            keys[i] = column[1].substring(1,column[1].length()-1);
-            i++;
+    private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
+        String [] res = new String[keysTypes.size()];
+        res[0] = clusteringKey;
+        int i = 1;
+        for (String key : keysTypes.keySet()) {
+            if (!key.equals(clusteringKey)) {
+                res[i] = key;
+                i++;
+            }
         }
-
-        return keys;
+        return res;
     }
 
     // checker method to check if the inserted value in the valid range of the key
@@ -205,12 +193,8 @@ public class Table implements Serializable {
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
-        int keyIndex = 1;
-        for (Map.Entry<String, Object> entry : htblColNameValue.entrySet()) {
-            if (entry.getKey().equals(clusteringKey))
-                continue;
-            record.getDBVector().set(keyIndex, entry.getValue());
-            keyIndex++;
+        for (int keyIndex = 1; keyIndex < record.getDBVector().size(); keyIndex++) {
+            record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
         TablePersistence.delete(strTableName, record);
