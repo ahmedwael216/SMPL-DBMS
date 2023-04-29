@@ -101,7 +101,7 @@ public class TablePersistence {
 
     private static void deleteLinear(Record r, String tableName) throws IOException, ClassNotFoundException, DBAppException {
         int n = getNumberOfPagesForTable(tableName);
-        for (int i = 0; i < n; i++) {
+        for (int i = n - 1; i >= 0; i--) {
             Page p = deserialize(i, tableName);
             p.deleteLinear(r);
             if (p.isEmpty()) {
