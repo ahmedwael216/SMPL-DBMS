@@ -328,25 +328,25 @@ public class DbApp {
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-//        for(int i=0;i<=450;i++){
-//            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
-//            htblColNameValue.put("id", 500+i);
-//            htblColNameValue.put("name", "Ahmed" + i);
-//            htblColNameValue.put("gpa", 0.95);
-//            db.insertIntoTable(strTableName ,htblColNameValue);
-//        }
+        for(int i=0;i<=200;i++){
+            Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+            htblColNameValue.put("id", 500+i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 0.95);
+            db.insertIntoTable(strTableName ,htblColNameValue);
+        }
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", 0);
-//        htblColNameValue.put("name", "Ahmed");
-//        htblColNameValue.put("gpa", 0.95);
-        db.insertIntoTable(strTableName, htblColNameValue);
-
-        System.out.println(db.printTable(strTableName));
-
-        htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("name", "Hamada");
-        htblColNameValue.put("gpa", 1.0);
-        db.updateTable(strTableName, "0", htblColNameValue);
+        htblColNameValue.put("id", 700);
+        htblColNameValue.put("name", "Ahmed199");
+        htblColNameValue.put("gpa", 0.95);
+        db.deleteFromTable(strTableName, htblColNameValue);
+//
+//        System.out.println(db.printTable(strTableName));
+//
+//        htblColNameValue = new Hashtable<>();
+//        htblColNameValue.put("name", "Hamada");
+//        htblColNameValue.put("gpa", 1.0);
+//        db.updateTable(strTableName, "0", htblColNameValue);
 
         System.out.println(db.printTable(strTableName));
     }

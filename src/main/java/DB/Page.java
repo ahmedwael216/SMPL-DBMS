@@ -45,7 +45,8 @@ public class Page implements Serializable, Comparable {
         int index = records.binarySearch(record);
         if (index >= 0) {
             records.remove(index);
-            updateMinMax();
+            if (!records.isEmpty())
+                updateMinMax();
         } else {
             throw new DBAppException("Record not found!");
         }
