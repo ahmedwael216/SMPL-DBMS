@@ -337,7 +337,7 @@ public class DbApp {
 //        }
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
-        htblColNameValue.put("name", "Ahmed");
+//        htblColNameValue.put("name", "Ahmed");
 //        htblColNameValue.put("gpa", 0.95);
         db.insertIntoTable(strTableName, htblColNameValue);
 
