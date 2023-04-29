@@ -162,7 +162,7 @@ public class Table implements Serializable {
     private boolean checkRecord(Record r){
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
-                if (!checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
+                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
             } catch (ParseException | ClassNotFoundException | IOException e) {

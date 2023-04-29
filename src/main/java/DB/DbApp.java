@@ -338,7 +338,7 @@ public class DbApp {
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
-        htblColNameValue.put("gpa", 0.95);
+//        htblColNameValue.put("gpa", 0.95);
         db.insertIntoTable(strTableName, htblColNameValue);
 
         System.out.println(db.printTable(strTableName));
@@ -347,7 +347,7 @@ public class DbApp {
         htblColNameValue.put("name", "Hamada");
         htblColNameValue.put("gpa", 1.0);
         db.updateTable(strTableName, "0", htblColNameValue);
-        
+
         System.out.println(db.printTable(strTableName));
     }
 }

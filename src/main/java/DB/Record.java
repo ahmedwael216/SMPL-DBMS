@@ -51,7 +51,8 @@ public class Record implements Cloneable, Comparable, Serializable {
             case "java.util.Date":
                 return new Date();
             default:
-                return new Serializable() {};
+                return new Serializable() {
+                };
         }
     }
 
@@ -64,14 +65,17 @@ public class Record implements Cloneable, Comparable, Serializable {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        for( Serializable c : this.tupleRow){
-            s.append(c.toString()).append("| ");
+        for (Serializable c : this.tupleRow) {
+            if (c == null)
+                s.append("null").append("| ");
+            else
+                s.append(c.toString()).append("| ");
         }
         return s.toString();
     }
 
     @Override
     public int compareTo(Object o) {
-        return ((Comparable)this.getItem(0)).compareTo(((Record) o).getItem(0));
+        return ((Comparable) this.getItem(0)).compareTo(((Record) o).getItem(0));
     }
 }
