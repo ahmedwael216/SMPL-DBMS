@@ -34,7 +34,7 @@ public class TablePersistence {
                         return;
                     }
                 }else{
-                    setNumberOfPagesForTable(tableName, pageIndex);
+                    setNumberOfPagesForTable(tableName, pageIndex+1);
                     Page newPage = new Page();
                     overflow = newPage.insertRecord(r);
                     serialize(newPage ,tableName,pageIndex);
