@@ -9,12 +9,12 @@ import java.util.*;
 
 
 public class DbApp {
-    public static int maxRecordsCountPage;
+    public static int maxRecordsCountPage = 200;
     // Path to SMPL-DBMS
-    private String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
+    public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
-    public File currentDBFile = null;
-    public File currentConfigFile = null;
+    public static File currentDBFile = null;
+    public static File currentConfigFile = null;
 
     /**
      * Executes at application startup.
@@ -59,7 +59,7 @@ public class DbApp {
                 DBVector<String> lines = new DBVector<>();
                 lines.add("databaseName = " + selectedDBName);
                 lines.add("maximumNumberOfRows = 200");
-                File newConfig = new File(rootPath + File.separator + selectedDBName + File.separator + "DB.config");
+                File newConfig = new File(rootPath + File.separator + selectedDBName + File.separator + "DBApp.config");
                 try {
                     FileWriter fw = new FileWriter(newConfig);
                     for (String line : lines) {
@@ -74,7 +74,7 @@ public class DbApp {
             }
         }
         currentDBFile = new File(rootPath + File.separator + selectedDBName);
-        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DB.config");
+        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
     }
 
     /*
@@ -305,7 +305,6 @@ public class DbApp {
      *
      * @return index if found or null if not
      */
-    // TODO
     //public ??? findIndex(String strTableName,
     //                     String strColName)
     //                     throws DBAppException {}
@@ -327,12 +326,12 @@ public class DbApp {
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.double");
         db.createTable(strTableName, "id", htblColNameType, min, max);
-        Hashtable htblColNameValue = new Hashtable( );
-        htblColNameValue.put("id", new Integer( 2343432 ));
-        htblColNameValue.put("name", new String("Ahmed Noor" ) );
-        htblColNameValue.put("gpa", new Double( 0.95 ) );
+        Hashtable<String,Object> htblColNameValue = new Hashtable<>( );
+        htblColNameValue.put("id", 500);
+        htblColNameValue.put("name", "Ahmed Noor");
+        htblColNameValue.put("gpa", 0.95);
         db.insertIntoTable(strTableName ,htblColNameValue);
-        db.printTable(strTableName);
+        System.out.println(db.printTable(strTableName));
         //db.deleteFromTable( strTableName , htblColNameValue );
 
 

@@ -21,26 +21,24 @@ public class Table implements Serializable {
                  Hashtable<String, String> htblColNameMin,
                  Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
+
         this.name = strTableName;
         String DBName = DbApp.selectedDBName;
 
         //Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
+
         //Creating a Metadata file for the table
         CSVWriter writer;
-
         try {
             File metadata = new File(DBName + "/" + name + "/" + "Metadata.csv");
-
             // create FileWriter object with file as parameter
             FileWriter outputfile = new FileWriter(metadata);
-
             // create CSVWriter object filewriter object as parameter
             writer = new CSVWriter(outputfile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName", "IndexType", "min", "max"});
 
         // add the primary key column
@@ -48,16 +46,18 @@ public class Table implements Serializable {
                 "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn), htblColNameMax.get(strClusteringKeyColumn)});
 
         // add other columns
-
         Set<String> allColumns = htblColNameType.keySet();
         for (String columnName : allColumns) {
+            //skipping primary key (to not include it twice)
             if (columnName.equals(strClusteringKeyColumn)) {
                 continue;
             }
             writer.writeNext(new String[]{strTableName, columnName, htblColNameType.get(columnName),
                     "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName)});
         }
+        writer.close();
 
+        // prototype
         try {
             this.prototype = new Record(strClusteringKeyColumn, htblColNameType);
 
@@ -66,7 +66,7 @@ public class Table implements Serializable {
         }
         size = 0;
         keys = getKeys(htblColNameType.size());
-        setNumberOfPagesForTable(this.name, 0);
+
     }
 
     public int getSize() {
@@ -90,8 +90,8 @@ public class Table implements Serializable {
                 continue;
             }
             String[] column = line.split(cvsSplitBy);
-            if (column[1].equals(columnName)) {
-                return new String[]{column[6], column[7]};
+            if (column[1].substring(1,column[1].length()-1).equals(columnName)) {
+                return new String[]{column[6].substring(1,column[6].length()-1), column[7].substring(1,column[7].length()-1)};
             }
         }
 
@@ -106,12 +106,18 @@ public class Table implements Serializable {
         String cvsSplitBy = ",";
         String[] keys = new String[numberOfAttributes];
         int i = 0;
-        while ((line = br.readLine()) != null) {
+//        while ((line = br.readLine()) != null) {
+//            String[] column = line.split(cvsSplitBy);
+//            if (column[3].substring(1,column[3].length()-1).equals("True")) {
+//                keys[i] = column[1].substring(1,column[1].length()-1);
+//                i++;
+//            }
+//        }
+        br.readLine();
+        while((line = br.readLine()) != null){
             String[] column = line.split(cvsSplitBy);
-            if (column[3].equals("True")) {
-                keys[i] = column[1];
-                i++;
-            }
+            keys[i] = column[1].substring(1,column[1].length()-1);
+            i++;
         }
 
         return keys;
@@ -154,14 +160,12 @@ public class Table implements Serializable {
         String DBName = DbApp.selectedDBName;
         String csvFile = DBName + "/" + tableName + "/" + "Metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
-        String line = "";
-        String cvsSplitBy = ",";
 
-        while ((line = br.readLine()) != null) {
-            String[] column = line.split(cvsSplitBy);
-            if (column[3].equals("True")) {
-                return column[1];
-            }
+        br.readLine();
+        String line = br.readLine();
+        String[] column = line.split(",");
+        if(column[3].substring(1,column[3].length()-1).equals("True")){
+            return column[1].substring(1,column[1].length()-1);
         }
 
         return null;
@@ -169,14 +173,19 @@ public class Table implements Serializable {
 
     public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws
             DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
+
         String clusteringKey = getClusteringKey(strTableName);
+
         // singleton design pattern constraint
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
+
         int keyIndex = 1;
         for (Map.Entry<String, Object> entry : htblColNameValue.entrySet()) {
-            if (entry.getKey().equals(clusteringKey))
+            //skipping clustering key
+            if (entry.getKey().equals(clusteringKey)){
                 continue;
+            }
             record.getDBVector().set(keyIndex, entry.getValue());
             keyIndex++;
         }
@@ -210,11 +219,11 @@ public class Table implements Serializable {
 
     public static void setNumberOfPagesForTable(String name, int x) {
         Properties prop = new Properties();
-        String fileName = "src/main/java/DB/config/DBApp.config";
+        String fileName = DbApp.currentDBFile + File.separator + "DBApp.config";
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
-            prop.setProperty("NumberOfPagesOfTable" + name, x + "");
+            prop.setProperty(name+"TablePages", x + "");
             FileOutputStream os = new FileOutputStream(fileName);
             prop.store(os, null);
         } catch (Exception e) {
@@ -224,11 +233,13 @@ public class Table implements Serializable {
 
     public static int getNumberOfPagesForTable(String name) {
         Properties prop = new Properties();
-        String fileName = "src/main/java/DB/config/DBApp.config";
+        String DBName = DbApp.selectedDBName;
+        String fileName = DbApp.currentDBFile + File.separator + "DBApp.config";
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
-            return Integer.parseInt(prop.getProperty("NumberOfPagesOfTable" + name));
+//            System.out.println(name+" "+prop.getProperty(name+"TablePages"));
+            return Integer.parseInt(prop.getProperty(name+"TablePages"));
         } catch (Exception e) {
             e.printStackTrace();
         }

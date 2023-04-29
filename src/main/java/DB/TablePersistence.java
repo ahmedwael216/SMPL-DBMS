@@ -1,6 +1,5 @@
 package DB;
 import java.io.*;
-import java.util.Properties;
 
 public class TablePersistence {
     public static int getNumberOfPagesForTable(String name) {
@@ -14,30 +13,31 @@ public class TablePersistence {
         if(n == 0){
             Page p = new Page();
             p.insertRecord(r);
-            serialize(p,0);
+            serialize(p, tableName ,0);
+            setNumberOfPagesForTable(tableName, 1);
             return;
         }
-        int pageIndex = findPageNumber(n, (Comparable) r.getPrimaryKey());
-        Page p = deserialize(pageIndex);
+        int pageIndex = findPageNumber(n,tableName,(Comparable) r.getPrimaryKey());
+        Page p = deserialize(pageIndex,tableName);
         Record overflow = p.insertRecord(r);
         if(overflow == null){
-            serialize(p, pageIndex);
+            serialize(p,tableName, pageIndex);
             return;
         }else{
             while (overflow != null){
                 pageIndex++;
                 if(pageExists(tableName, pageIndex)){
-                    Page nextP = deserialize(pageIndex);
+                    Page nextP = deserialize(pageIndex,tableName);
                     overflow = nextP.insertRecord(r);
                     if(overflow == null){
-                        serialize(nextP, pageIndex);
+                        serialize(nextP,tableName, pageIndex);
                         return;
                     }
                 }else{
                     setNumberOfPagesForTable(tableName, pageIndex);
                     Page newPage = new Page();
                     overflow = newPage.insertRecord(r);
-                    serialize(newPage, pageIndex);
+                    serialize(newPage ,tableName,pageIndex);
                 }
             }
         }
@@ -48,13 +48,13 @@ public class TablePersistence {
               return false;
        return true;
     }
-    private static int findPageNumber(int n, Comparable pk) throws IOException, ClassNotFoundException {
+    private static int findPageNumber(int n, String tableName, Comparable pk) throws IOException, ClassNotFoundException {
         int low = 0;
         int high = n - 1;
 
         while (low <= high) {
             int mid = (low + high) >> 1;
-            Page midPage = deserialize(mid);
+            Page midPage = deserialize(mid,tableName);
             int cmp = ((Comparable) midPage).compareTo(pk);
             if (cmp < 0)
                 low = mid + 1;
@@ -65,8 +65,8 @@ public class TablePersistence {
         }
         return 0;
     }
-    private static void serialize(Page p, int pageIndex){
-        String filename = pageIndex+".ser";
+    private static void serialize(Page p,String tableName, int pageIndex){
+        String filename = DbApp.currentDBFile + File.separator + tableName + File.separator  + pageIndex+".ser";
         // Serialization
         try
         {
@@ -87,8 +87,8 @@ public class TablePersistence {
         }
     }
 
-    private static Page deserialize(int x) throws IOException, ClassNotFoundException {
-        String filename = x+".ser";
+    private static Page deserialize(int x , String tableName) throws IOException, ClassNotFoundException {
+        String filename = DbApp.currentDBFile + File.separator + tableName + File.separator  + x+".ser";
         FileInputStream file = new FileInputStream(filename);
         ObjectInputStream in = new ObjectInputStream(file);
 
@@ -105,8 +105,8 @@ public class TablePersistence {
         if(n == 0){
             throw new DBAppException("Table is empty");
         }
-        int pageIndex = findPageNumber(n, (Comparable) record.getPrimaryKey());
-        Page p = deserialize(pageIndex);
+        int pageIndex = findPageNumber(n, tableName ,(Comparable) record.getPrimaryKey());
+        Page p = deserialize(pageIndex,tableName);
         p.deleteRecord(record);
         if(p.isEmpty()){
             File f = new File(pageIndex+".ser");
@@ -114,15 +114,16 @@ public class TablePersistence {
             setNumberOfPagesForTable(tableName, n - 1);
         }
         else
-            serialize(p, pageIndex);
+            serialize(p,tableName, pageIndex);
     }
 
     public static String printTable(String tableName) throws IOException, ClassNotFoundException {
         int n = getNumberOfPagesForTable(tableName);
-        String s="";
+        StringBuilder s= new StringBuilder();
         for (int i = 0; i < n; i++) {
-            s+=deserialize(i).toString();
+            s.append("----Page ").append(i).append("----\n");
+            s.append(deserialize(i,tableName).toString());
         }
-        return s;
+        return s.toString();
     }
 }

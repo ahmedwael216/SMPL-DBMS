@@ -63,9 +63,11 @@ public class Record implements Cloneable, Comparable, Serializable {
 
     @Override
     public String toString() {
-        return "Record{" +
-                "tupleRow=" + tupleRow +
-                '}';
+        StringBuilder s = new StringBuilder();
+        for( Serializable c : this.tupleRow){
+            s.append(c.toString()).append("| ");
+        }
+        return s.toString();
     }
 
     @Override
