@@ -269,14 +269,15 @@ class DBAppTest {
     void updateTableInt() throws ParseException, DBAppException, IOException, ClassNotFoundException {
         String strTableName = "StudentInt";
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        //htblColNameValue.put("id", 0);
+        // htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
-        DbApp.updateTable(strTableName,"0" ,htblColNameValue);
-//        System.out.println(DbApp.printTable(strTableName));
+        DbApp.updateTable(strTableName, "0", htblColNameValue);
+        // System.out.println(DbApp.printTable(strTableName));
     }
+
     @Test
     @Order(21)
     void updateTableDouble() throws ParseException, DBAppException, IOException, ClassNotFoundException {
@@ -284,25 +285,27 @@ class DBAppTest {
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
-//        htblColNameValue.put("gpa", 0.0);
+        // htblColNameValue.put("gpa", 0.0);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
-        DbApp.updateTable(strTableName,"0.0" ,htblColNameValue);
+        DbApp.updateTable(strTableName, "0.0", htblColNameValue);
         System.out.println(DbApp.printTable(strTableName));
     }
+
     @Test
     @Order(22)
     void updateTableString() throws ParseException, DBAppException, IOException, ClassNotFoundException {
         String strTableName = "StudentString";
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
-//        htblColNameValue.put("name", "Ahmed Wael");
+        // htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
-        DbApp.updateTable(strTableName,"Ahmed0" ,htblColNameValue);
+        DbApp.updateTable(strTableName, "Ahmed0", htblColNameValue);
         System.out.println(DbApp.printTable(strTableName));
     }
+
     @Test
     @Order(23)
     void updateTableDate() throws DBAppException, IOException, ClassNotFoundException {
@@ -311,14 +314,37 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//        htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
-        DbApp.updateTable(strTableName,"2000-01-01" ,htblColNameValue);
-//        System.out.println(DbApp.printTable(strTableName));
+        // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        // htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
+        DbApp.updateTable(strTableName, "2000-01-01", htblColNameValue);
+        // System.out.println(DbApp.printTable(strTableName));
     }
 
     @Test
     @Order(24)
-    void deleteFromTable() {
+    void deleteRowFromTable() throws DBAppException, ParseException {
+        String strTableName = "StudentInt";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 1);
+        htblColNameValue.put("name", "Ahmed1");
+        htblColNameValue.put("gpa", 4.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        DbApp.deleteFromTable(strTableName, htblColNameValue);
+    }
+
+    @Test
+    @Order(25)
+    void deleteNoneExistingRowFromTable() throws DBAppException, ParseException {
+        String strTableName = "StudentInt";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 1);
+        htblColNameValue.put("name", "Ahmed1");
+        htblColNameValue.put("gpa", 4.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        Assertions.assertThrows(DBAppException.class, () -> {
+            DbApp.deleteFromTable(strTableName, htblColNameValue);
+        });
     }
 }
