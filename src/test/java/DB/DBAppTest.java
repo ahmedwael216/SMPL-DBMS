@@ -236,6 +236,35 @@ class DBAppTest {
     }
 
     @Test
+    @Order(18)
+    void insertIntoTableStringRowWithWrongDate() throws DBAppException, ParseException {
+        String strTableName = "StudentString";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 2);
+        htblColNameValue.put("name", 114); // wrong data type
+        htblColNameValue.put("gpa", 4.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-02"));
+        Assertions.assertThrows(DBAppException.class, () -> {
+            DbApp.insertIntoTable(strTableName, htblColNameValue);
+        });
+    }
+
+    @Test
+    @Order(19)
+    void insertIntoTableDateRowWithWrongDate() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 2);
+        htblColNameValue.put("name", "Ahmed");
+        htblColNameValue.put("gpa", 4.0);
+        htblColNameValue.put("birthday", "1/2/1967"); // wrong data type
+        Assertions.assertThrows(DBAppException.class, () -> {
+            DbApp.insertIntoTable(strTableName, htblColNameValue);
+        });
+    }
+
+    @Test
     @Order(20)
     void updateTableInt() throws ParseException, DBAppException, IOException, ClassNotFoundException {
         String strTableName = "StudentInt";
