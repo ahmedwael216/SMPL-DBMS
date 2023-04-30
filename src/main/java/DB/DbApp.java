@@ -310,7 +310,14 @@ public class DbApp {
 
         in.close();
         file.close();
-        return table.toString();
+        String ret = table.toString();
+
+        FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(table);
+        out.close();
+
+        return ret;
     }
 
     /*
