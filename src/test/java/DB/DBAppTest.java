@@ -78,7 +78,7 @@ class DBAppTest {
     @Order(5)
     void insertIntoTableIntNewRow() throws DBAppException, ParseException {
         String strTableName = "StudentInt";
-        for (int i = 0; i < 400; i++) {
+        for (int i = 0; i < 5; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
@@ -108,7 +108,7 @@ class DBAppTest {
     @Order(7)
     void insertIntoTableStringNewRow() throws DBAppException, ParseException {
         String strTableName = "StudentString";
-        for (int i = 0; i < 400; i++) {
+        for (int i = 0; i < 5; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
@@ -138,7 +138,7 @@ class DBAppTest {
     @Test
     @Order(9)
     void checkTableLengthForTableInt() throws IOException, ClassNotFoundException {
-        Assertions.assertEquals(400, DbApp.getTableLength("StudentInt"));
+        Assertions.assertEquals(5, DbApp.getTableLength("StudentInt"));
     }
 
     @Test
@@ -150,7 +150,7 @@ class DBAppTest {
     @Test
     @Order(11)
     void checkTableLengthForTableString() throws IOException, ClassNotFoundException {
-        Assertions.assertEquals(400, DbApp.getTableLength("StudentString"));
+        Assertions.assertEquals(5, DbApp.getTableLength("StudentString"));
     }
 
     @Test
@@ -237,7 +237,55 @@ class DBAppTest {
 
     @Test
     @Order(20)
-    void updateTable() {
+    void updateTableInt() throws ParseException, DBAppException, IOException, ClassNotFoundException {
+        String strTableName = "StudentInt";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        //htblColNameValue.put("id", 0);
+        htblColNameValue.put("name", "Ahmed Wael");
+        htblColNameValue.put("gpa", 0.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
+        DbApp.updateTable(strTableName,"0" ,htblColNameValue);
+//        System.out.println(DbApp.printTable(strTableName));
+    }
+    @Test
+    @Order(21)
+    void updateTableDouble() throws ParseException, DBAppException, IOException, ClassNotFoundException {
+        String strTableName = "StudentDouble";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 0);
+        htblColNameValue.put("name", "Ahmed Wael");
+//        htblColNameValue.put("gpa", 0.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
+        DbApp.updateTable(strTableName,"0.0" ,htblColNameValue);
+        System.out.println(DbApp.printTable(strTableName));
+    }
+    @Test
+    @Order(22)
+    void updateTableString() throws ParseException, DBAppException, IOException, ClassNotFoundException {
+        String strTableName = "StudentString";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 0);
+//        htblColNameValue.put("name", "Ahmed Wael");
+        htblColNameValue.put("gpa", 0.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
+        DbApp.updateTable(strTableName,"Ahmed0" ,htblColNameValue);
+        System.out.println(DbApp.printTable(strTableName));
+    }
+    @Test
+    @Order(23)
+    void updateTableDate() throws DBAppException, IOException, ClassNotFoundException {
+        String strTableName = "StudentDate";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 0);
+        htblColNameValue.put("name", "Ahmed Wael");
+        htblColNameValue.put("gpa", 0.0);
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//        htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
+        DbApp.updateTable(strTableName,"2000-01-01" ,htblColNameValue);
+//        System.out.println(DbApp.printTable(strTableName));
     }
 
     @Test

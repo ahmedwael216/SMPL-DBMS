@@ -277,7 +277,7 @@ public class Table implements Serializable {
         } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
         } else if (type.toLowerCase().equals("java.util.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 return formatter.parse(val);
             } catch (ParseException e) {
