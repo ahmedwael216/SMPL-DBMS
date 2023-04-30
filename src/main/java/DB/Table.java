@@ -208,13 +208,13 @@ public class Table implements Serializable {
         return true;
     }
 
-    private boolean checkRecord(Record r) {
+    private boolean checkRecord(Record r) throws DBAppException{
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
                 if (r.getItem(i) != null  && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
-            } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
+            } catch (ParseException | ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
