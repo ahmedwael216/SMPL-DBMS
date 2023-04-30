@@ -42,4 +42,4 @@ build/
 
 ### dbs ###
 /db*
-resources/
+/src/main/resources/*
