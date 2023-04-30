@@ -184,14 +184,8 @@ public class DBApp {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
-                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectInputStream in = new ObjectInputStream(file);
 
-                // Method for deserialization of object
-                Table table = (Table) in.readObject();
-
-                in.close();
-                file.close();
+                Table table = getTable(strTableName);
 
                 table.insertIntoTable(strTableName, htblColNameValue);
 
@@ -236,14 +230,8 @@ public class DBApp {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
-                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectInputStream in = new ObjectInputStream(file);
 
-                // Method for deserialization of object
-                Table table = (Table) in.readObject();
-
-                in.close();
-                file.close();
+                Table table = getTable(strTableName);
 
                 table.updateTable(strTableName, strClusteringKeyValue, htblColNameValue);
 
@@ -288,14 +276,8 @@ public class DBApp {
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
                 System.out.println(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectInputStream in = new ObjectInputStream(file);
 
-                // Method for deserialization of object
-                Table table = (Table) in.readObject();
-
-                in.close();
-                file.close();
+                Table table = getTable(strTableName);
 
                 table.deleteFromTable(strTableName, htblColNameValue);
 
@@ -320,15 +302,7 @@ public class DBApp {
     }
 
     public String printTable(String strTableName) throws IOException, ClassNotFoundException {
-        //TODO deserialize table method
-        FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-        ObjectInputStream in = new ObjectInputStream(file);
-
-        // Method for deserialization of object
-        Table table = (Table) in.readObject();
-
-        in.close();
-        file.close();
+        Table table = getTable(strTableName);
         String ret = table.toString();
 
         FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
@@ -403,5 +377,20 @@ public class DBApp {
 //        htblColNameValue.put("gpa", 1.0);
 
 //        System.out.println(db.printTable(strTableName));
+    }
+
+    public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
+        return this.getTable(tableName).getSize();
+    }
+
+    private Table getTable(String tableName) throws IOException, ClassNotFoundException {
+        FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+        ObjectInputStream in = new ObjectInputStream(file);
+
+        Table table = (Table) in.readObject();
+
+        in.close();
+        file.close();
+        return table;
     }
 }

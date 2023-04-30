@@ -183,7 +183,7 @@ public class Table implements Serializable {
             if (className.toLowerCase().equals("java.lang.integer")) {
                 minVal = Integer.parseInt(minValStr);
                 maxVal = Integer.parseInt(maxValStr);
-            } else if (className.toLowerCase().equals("java.lang.date")) {
+            } else if (className.toLowerCase().equals("java.util.date")) {
                 SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
                 minVal = formatter.parse(minValStr);
                 maxVal = formatter.parse(maxValStr);
