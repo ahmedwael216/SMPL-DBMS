@@ -1,7 +1,6 @@
 package DB;
 
 import com.opencsv.CSVWriter;
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
 
 import java.io.*;
 import java.text.ParseException;
@@ -342,5 +341,27 @@ public class Table implements Serializable {
         } catch (DBAppException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    public int[] getAllMaxValuesString() throws IOException {
+        String DBName = DBApp.selectedDBName;
+        String csvFile = DBName + "/" + name + "/" + "metadata.csv";
+        BufferedReader br = new BufferedReader(new FileReader(csvFile));
+        String line;
+        String cvsSplitBy = ",";
+        ArrayList<Integer> integerArrayList = new ArrayList<>();
+        boolean skipFirstLine = true;
+        while ((line = br.readLine()) != null) {
+            if (skipFirstLine) {
+                skipFirstLine = false;
+                continue;
+            }
+            String[] column = line.split(cvsSplitBy);
+            integerArrayList.add(column[7].length());
+        }
+        int[] max = new int[integerArrayList.size()];
+        for (int i = 0; i < integerArrayList.size(); i++) {
+            max[i]=integerArrayList.get(i);
+        }
+        return max;
     }
 }

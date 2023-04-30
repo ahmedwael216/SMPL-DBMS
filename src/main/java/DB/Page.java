@@ -1,6 +1,7 @@
 package DB;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Page implements Serializable, Comparable {
     DBVector<Record> records;
@@ -95,5 +96,37 @@ public class Page implements Serializable, Comparable {
 
     public boolean isEmpty() {
         return records.isEmpty();
+    }
+    public String printWithLength(int[] max) {
+        StringBuilder sb =new StringBuilder();
+        for( Record r: records){
+            for (int i=0;i<r.getDBVector().size();i++){
+                Object o= r.getDBVector().get(i);
+                StringBuilder element;
+                switch (o.getClass().getSimpleName()){
+                    case "Integer":
+                        element = new StringBuilder((Integer)o +"");
+                        break;
+                    case "Double":
+                        element = new StringBuilder((Double)o +"");
+                        break;
+                    case "Date":
+                        element = new StringBuilder((Date)o +"");
+                        break;
+                    default:
+                        element = new StringBuilder((String)o);
+                        break;
+                }
+                while(element.length()<max[i]){
+                    element.append(" ");
+                }
+                sb.append(element);
+                if(i!=r.getDBVector().size()-1){
+                    sb.append("│");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

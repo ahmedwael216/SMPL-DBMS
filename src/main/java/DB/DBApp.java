@@ -346,36 +346,16 @@ public class DBApp {
 //        htblColNameType.put("name", "java.lang.String");
 //        htblColNameType.put("gpa", "java.lang.Double");
 //        db.createTable(strTableName, "id", htblColNameType, min, max);
-        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("id", 510);
-        htblColNameValue.put("name", "Ahmed" + 510);
-        htblColNameValue.put("gpa", 0.95);
-        db.insertIntoTable(strTableName, htblColNameValue);
-//        System.out.println(db.printTable(strTableName));
-////        System.out.println("-------------------------------------");
+//
 //        for (int i = 200; i < 400; i++) {
-//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-//            htblColNameValue.put("id", i);
-//            db.deleteFromTable(strTableName, htblColNameValue);
-//        }
-//
-//        System.out.println(db.printTable(strTableName));
-
-
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-//        htblColNameValue.put("id", 1000 + 1);
-//        htblColNameValue.put("name", "Ahmed Wael");
+//        htblColNameValue.put("id", i);
+//        htblColNameValue.put("name", "Ahmed" + i);
 //        htblColNameValue.put("gpa", 4.0);
-//        db.updateTable(strTableName,"1", htblColNameValue);
-
 //        db.insertIntoTable(strTableName, htblColNameValue);
-//        System.out.println(db.printTable(strTableName));
-//
-//        htblColNameValue = new Hashtable<>();
-//        htblColNameValue.put("name", "Hamada");
-//        htblColNameValue.put("gpa", 1.0);
+//        }
 
-//        System.out.println(db.printTable(strTableName));
+        System.out.println(db.printTable(strTableName));
     }
 
     public int getTableLength(String tableName) throws IOException, ClassNotFoundException {

@@ -1,6 +1,7 @@
 package DB;
 
 import java.io.*;
+import java.util.LinkedList;
 
 public class TablePersistence {
     public static int getNumberOfPagesForTable(String name) {
@@ -153,12 +154,51 @@ public class TablePersistence {
     }
 
     public static String printTable(String tableName) throws IOException, ClassNotFoundException {
+        FileInputStream file = new FileInputStream(DBApp.currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+        ObjectInputStream in = new ObjectInputStream(file);
+        Table table = (Table) in.readObject();
+        in.close();
+        file.close();
+        int[] max = table.getAllMaxValuesString();
+
         int n = getNumberOfPagesForTable(tableName);
         StringBuilder s = new StringBuilder();
-        System.out.println("\t page number = " + n);
+        LinkedList<String> pages = new LinkedList<>();
         for (int i = 0; i < n; i++) {
-            s.append("----Page ").append(i).append("----\n");
-            s.append(deserialize(i, tableName).toString());
+            pages.add(deserialize(i, tableName).printWithLength(max));
+        }
+
+        StringBuilder upDashes= new StringBuilder("┌");
+        StringBuilder dashes = new StringBuilder("├");
+        StringBuilder downDashes = new StringBuilder("└");
+
+        for (int i = 0; i < max.length; i++) {
+            int x = max[i];
+            upDashes.append("─".repeat(x));
+            dashes.append("─".repeat(x));
+            downDashes.append("─".repeat(x));
+            if(i!=max.length-1){
+                upDashes.append("┬");
+                dashes.append("┼");
+                downDashes.append("┴");
+            }
+        }
+        upDashes.append("┐\n");
+        dashes.append("┤\n");
+        downDashes.append("┘\n");
+
+
+        for (String page : pages){
+            s.append(upDashes);
+            String[] lines = page.split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                s.append("│").append(lines[i]).append("│\n");
+                if(i!=lines.length-1){
+                    s.append(dashes);
+                }else{
+                    s.append(downDashes);
+                }
+            }
         }
         return s.toString();
     }
