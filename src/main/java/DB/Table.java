@@ -14,7 +14,7 @@ public class Table implements Serializable {
     private int size;
 
     private String[] keys;
-// TODO rename file to metadata.csv
+
     public Table(String strTableName,
                  String strClusteringKeyColumn,
                  Hashtable<String, String> htblColNameType,
@@ -32,7 +32,7 @@ public class Table implements Serializable {
         //Creating a Metadata file for the table
         CSVWriter writer;
         try {
-            File metadata = new File(DBName + "/" + name + "/" + "Metadata.csv");
+            File metadata = new File(DBName + "/" + name + "/" + "metadata.csv");
             // create FileWriter object with file as parameter
             FileWriter outputfile = new FileWriter(metadata);
             // create CSVWriter object filewriter object as parameter
@@ -76,21 +76,21 @@ public class Table implements Serializable {
     }
 
     private boolean checkTypes(String type, String minVal, String maxVal) {
-        if (type.equals("java.lang.Integer")) {
+        if (type.toLowerCase().equals("java.lang.integer")) {
             try {
                 Integer.parseInt(minVal);
                 Integer.parseInt(maxVal);
             } catch (Exception e) {
                 return false;
             }
-        } else if (type.equals("java.lang.double")) {
+        } else if (type.toLowerCase().equals("java.lang.double")) {
             try {
                 Double.parseDouble(minVal);
                 Double.parseDouble(maxVal);
             } catch (Exception e) {
                 return false;
             }
-        } else if (type.equals("java.util.Date")) {
+        } else if (type.toLowerCase().equals("java.util.date")) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 sdf.parse(minVal);
@@ -112,7 +112,7 @@ public class Table implements Serializable {
 
     private String[] getMaxAndMinString(String columnName) throws IOException {
         String DBName = DBApp.selectedDBName;
-        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
+        String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
         String line = "";
         String cvsSplitBy = ",";
@@ -148,7 +148,7 @@ public class Table implements Serializable {
 
     private String getKeyType(String key) {
         String DBName = DBApp.selectedDBName;
-        String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
+        String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
@@ -276,13 +276,11 @@ public class Table implements Serializable {
     }
 
     private Comparable getValue(String val, String type) {
-        if (type.equals("java.lang.Integer")) {
+        if (type.toLowerCase().equals("java.lang.integer")) {
             return Integer.parseInt(val);
-        } else if (type.equals("java.lang.double")) {
+        } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
-        } else if (type.equals("java.lang.Boolean")) {
-            return Boolean.parseBoolean(val);
-        } else if (type.equals("java.util.Date")) {
+        } else if (type.toLowerCase().equals("java.util.date")) {
             SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             try {
                 return formatter.parse(val);

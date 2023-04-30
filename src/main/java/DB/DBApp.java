@@ -380,7 +380,8 @@ public class DBApp {
     }
 
     public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
-        return this.getTable(tableName).getSize();
+        int res = this.getTable(tableName).getSize();
+        return res;
     }
 
     private Table getTable(String tableName) throws IOException, ClassNotFoundException {
