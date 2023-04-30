@@ -136,6 +136,7 @@ public class TablePersistence {
         int del = p.deleteRecord(record);
         if (p.isEmpty()) {
             deletePage(tableName, pageIndex, n);
+            //TODO rename all pages
         } else
             serialize(p, tableName, pageIndex);
         return del;

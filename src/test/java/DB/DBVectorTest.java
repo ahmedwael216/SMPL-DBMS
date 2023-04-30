@@ -49,7 +49,6 @@ class DBVectorTest {
     @Test
     @Disabled("TODO: Complete this test")
     void testBinarySearch4() {
-        // TODO: Complete this test.
         //   Reason: R013 No inputs found that don't throw a trivial exception.
         //   Diffblue Cover tried to run the arrange/act section, but the method under
         //   test threw

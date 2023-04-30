@@ -34,9 +34,11 @@ public class Page implements Serializable, Comparable {
 
     public void updateRecord(Record newRecord) throws DBAppException {
         int index = records.binarySearch(newRecord);
-        if(!records.get(index).equals(newRecord)){
-            throw new DBAppException("Record not found!");
-        }
+
+        // this is update record of course the records won't be equal
+//        if(!records.get(index).equals(newRecord)){
+//            throw new DBAppException("Record not found!");
+//        }
         if (index >= 0) {
             records.set(index, newRecord);
             updateMinMax();
@@ -60,7 +62,8 @@ public class Page implements Serializable, Comparable {
 
     public int deleteRecord(Record record) throws DBAppException {
         int index = records.binarySearch(record);
-        if(!records.get(index).equals(record)){
+
+        if(index<0 || !records.get(index).equals(record)){
             throw new DBAppException("Record not found!");
         }
         if (index >= 0) {

@@ -9,7 +9,7 @@ import java.util.*;
 
 
 public class DbApp {
-    public static int maxRecordsCountPage = 200;
+    public static int maxRecordsCountPage;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
@@ -23,58 +23,86 @@ public class DbApp {
      * @throws IOException if an error occurred while inputting or outputting
      */
     public void init() throws FileNotFoundException, IOException {
-        //TODO hard code a single database to remove prompting before university tests
-        // TODO read available databases doesn't work
-        // Store currently available database names
-        DBVector<String> availableDatabases = new DBVector<>();
-        DBVector<String> excludedDirectories = new DBVector<>();
-        Collections.addAll(excludedDirectories, ".metadata", ".git", "src", "target");
-        File rootFile = new File(rootPath);
-        String[] rootContents = rootFile.list();
-        for (String fileName : rootContents) {
-            File file = new File(rootPath + File.separator + fileName);
-            if (file.isDirectory() && !excludedDirectories.contains(fileName)) {
-                availableDatabases.add(fileName.toLowerCase()); // toLowerCase to avoid logic errors because Windows file system is case insensitive
-            }
-        }
-
-        // Prompt user for database name
-        System.out.println("\nHello " + System.getProperty("user.name") + ", welcome to our Simple Database Management System!");
-        System.out.println("Please enter the database name you would like to load.");
-        System.out.println("Allowed characters: A-Z, 0-9, underscore (case in-sensitive)\n\n");
-        Scanner sc = new Scanner(System.in);
-        do {
-            System.out.print("Load database: ");
-            selectedDBName = sc.nextLine();
-        } while (selectedDBName == null || !selectedDBName.matches("^[a-zA-Z0-9_]+")); // ensure proper naming of input database name
-        sc.close();
-
-        // Moving to selected database
-        if (availableDatabases.contains(selectedDBName.toLowerCase())) {
-            System.out.println("Switching context to exisitng database: \"" + selectedDBName + "\"");
-        } else {
-            System.out.println("Creating new database: \"" + selectedDBName + "\"");
-            File newDatabase = new File(rootPath + File.separator + selectedDBName);
-            if (newDatabase.mkdir()) {
-                DBVector<String> lines = new DBVector<>();
-                lines.add("databaseName = " + selectedDBName);
-                lines.add("maximumNumberOfRows = 200");
-                File newConfig = new File(rootPath + File.separator + selectedDBName + File.separator + "DBApp.config");
-                try {
-                    FileWriter fw = new FileWriter(newConfig);
-                    for (String line : lines) {
-                        fw.append(line + "\n");
-                    }
-                    fw.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                System.err.println("Could not create the directory \"" + newDatabase.getAbsolutePath() + "\"");
-            }
-        }
+//        // read available databases doesn't work
+//        // Store currently available database names
+//        DBVector<String> availableDatabases = new DBVector<>();
+//        DBVector<String> excludedDirectories = new DBVector<>();
+//        Collections.addAll(excludedDirectories, ".metadata", ".git", "src", "target");
+//        File rootFile = new File(rootPath);
+//        String[] rootContents = rootFile.list();
+//        for (String fileName : rootContents) {
+//            File file = new File(rootPath + File.separator + fileName);
+//            if (file.isDirectory() && !excludedDirectories.contains(fileName)) {
+//                availableDatabases.add(fileName.toLowerCase()); // toLowerCase to avoid logic errors because Windows file system is case insensitive
+//            }
+//        }
+//
+//        // Prompt user for database name
+//        System.out.println("\nHello " + System.getProperty("user.name") + ", welcome to our Simple Database Management System!");
+//        System.out.println("Please enter the database name you would like to load.");
+//        System.out.println("Allowed characters: A-Z, 0-9, underscore (case in-sensitive)\n\n");
+//        Scanner sc = new Scanner(System.in);
+//        do {
+//            System.out.print("Load database: ");
+//            selectedDBName = sc.nextLine();
+//        } while (selectedDBName == null || !selectedDBName.matches("^[a-zA-Z0-9_]+")); // ensure proper naming of input database name
+//        sc.close();
+//
+//        // Moving to selected database
+//        if (availableDatabases.contains(selectedDBName.toLowerCase())) {
+//            System.out.println("Switching context to exisitng database: \"" + selectedDBName + "\"");
+//        } else {
+//            System.out.println("Creating new database: \"" + selectedDBName + "\"");
+//            File newDatabase = new File(rootPath + File.separator + selectedDBName);
+//            if (newDatabase.mkdir()) {
+//                DBVector<String> lines = new DBVector<>();
+//                lines.add("databaseName = " + selectedDBName);
+//                lines.add("maximumNumberOfRows = 200");
+//                File newConfig = new File(rootPath + File.separator + selectedDBName + File.separator + "DBApp.config");
+//                try {
+//                    FileWriter fw = new FileWriter(newConfig);
+//                    for (String line : lines) {
+//                        fw.append(line + "\n");
+//                    }
+//                    fw.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            } else {
+//                System.err.println("Could not create the directory \"" + newDatabase.getAbsolutePath() + "\"");
+//            }
+//        }
+//        currentDBFile = new File(rootPath + File.separator + selectedDBName);
+//        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
+    }
+    public DbApp(){
+        selectedDBName = "src/main/resources";
         currentDBFile = new File(rootPath + File.separator + selectedDBName);
+//        System.out.println(currentDBFile.getAbsolutePath());
+
         currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
+//        System.out.println(currentConfigFile.getAbsolutePath());
+
+        if(currentConfigFile.exists()){
+            System.out.println("Switching context to existing database: ");
+            getMaximumRecordsCountinPage();
+        }else{
+            System.out.println("creating database in resources folder");
+
+            DBVector<String> lines = new DBVector<>();
+            lines.add("databaseName = " + selectedDBName);
+            lines.add("maximumNumberOfRows = 200");
+            maxRecordsCountPage = 200;
+            try {
+                FileWriter fw = new FileWriter(currentConfigFile);
+                for (String line : lines) {
+                    fw.append(line).append("\n");
+                }
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /*
@@ -102,10 +130,8 @@ public class DbApp {
                 System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
             } else {
                 prop.setProperty(strTableName + "TablePages", "0"); // Initialize the new table with 0 pages in config of current DB
-                //TODO name the property right
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Created " + strTableName + " table");
                 Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
-                //TODO fix this thing
                 FileOutputStream file = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(file);
                 out.writeObject(t);
@@ -159,9 +185,7 @@ public class DbApp {
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
-                // TODO Insert into table
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
-                // TODO fix path
                 FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectInputStream in = new ObjectInputStream(file);
 
@@ -214,7 +238,6 @@ public class DbApp {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
-                // TODO fix path
                 FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectInputStream in = new ObjectInputStream(file);
 
@@ -265,9 +288,7 @@ public class DbApp {
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
-                // TODO delete from table
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
-                // TODO fix path
                 System.out.println(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectInputStream in = new ObjectInputStream(file);
@@ -337,43 +358,45 @@ public class DbApp {
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DbApp db = new DbApp();
-        db.init();
         //creating table
         String strTableName = "Student";
-        Hashtable<String, String> min = new Hashtable<>();
-        min.put("id", "0");
-        min.put("name", "A");
-        min.put("gpa", "0.0");
-        Hashtable<String, String> max = new Hashtable<>();
-        max.put("id", "1000");
-        max.put("name", "zzzzzzzzzzzzz");
-        max.put("gpa", "4.0");
-        Hashtable<String, String> htblColNameType = new Hashtable<>();
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
-        db.createTable(strTableName, "id", htblColNameType, min, max);
-        for (int i = 0; i < 400; i++) {
-            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-            htblColNameValue.put("id", i + 1);
-            htblColNameValue.put("name", "Ahmed" + i % 2);
-            htblColNameValue.put("gpa", 0.95);
-            db.insertIntoTable(strTableName, htblColNameValue);
-        }
-
-        for (int i = 25; i < 160; i++) {
-            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-            htblColNameValue.put("id", i + 1);
-            db.deleteFromTable(strTableName, htblColNameValue);
-        }
+//        Hashtable<String, String> min = new Hashtable<>();
+//        min.put("id", "0");
+//        min.put("name", "A");
+//        min.put("gpa", "0.0");
+//        Hashtable<String, String> max = new Hashtable<>();
+//        max.put("id", "1000");
+//        max.put("name", "zzzzzzzzzzzzz");
+//        max.put("gpa", "4.0");
+//        Hashtable<String, String> htblColNameType = new Hashtable<>();
+//        htblColNameType.put("id", "java.lang.Integer");
+//        htblColNameType.put("name", "java.lang.String");
+//        htblColNameType.put("gpa", "java.lang.double");
+//        db.createTable(strTableName, "id", htblColNameType, min, max);
+//        for (int i = 0; i < 400; i++) {
+//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+//            htblColNameValue.put("id", i + 1);
+//            htblColNameValue.put("name", "Ahmed" + i % 2);
+//            htblColNameValue.put("gpa", 0.95);
+//            db.insertIntoTable(strTableName, htblColNameValue);
+//        }
+//
+//        for (int i = 1; i < 400; i++) {
+//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+//            htblColNameValue.put("id", i + 1);
+//            db.deleteFromTable(strTableName, htblColNameValue);
+//        }
 
         System.out.println(db.printTable(strTableName));
 
 
-//        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("id", 1000 + 1);
-//        htblColNameValue.put("name", "Ahmed" + 1000 % 2);
-//        htblColNameValue.put("gpa", 0.95);
+        htblColNameValue.put("name", "Ahmed Wael");
+        htblColNameValue.put("gpa", 4.0);
+        db.updateTable(strTableName,"1", htblColNameValue);
+        System.out.println(db.printTable(strTableName));
+
 //        db.insertIntoTable(strTableName, htblColNameValue);
 //        System.out.println(db.printTable(strTableName));
 //
