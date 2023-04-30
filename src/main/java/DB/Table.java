@@ -14,7 +14,7 @@ public class Table implements Serializable {
     private int size;
 
     private String[] keys;
-
+// TODO rename file to metadata.csv
     public Table(String strTableName,
                  String strClusteringKeyColumn,
                  Hashtable<String, String> htblColNameType,
