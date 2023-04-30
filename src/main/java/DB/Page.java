@@ -63,9 +63,9 @@ public class Page implements Serializable, Comparable {
     public int deleteRecord(Record record) throws DBAppException {
         int index = records.binarySearch(record);
 
-        if(index<0 || !records.get(index).equals(record)){
-            throw new DBAppException("Record not found!");
-        }
+        // if(index<0 || !records.get(index).equals(record)){
+        //     throw new DBAppException("Record not found!");
+        // }
         if (index >= 0) {
             records.remove(index);
             if (!records.isEmpty())

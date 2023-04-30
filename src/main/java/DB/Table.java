@@ -209,13 +209,13 @@ public class Table implements Serializable {
         return true;
     }
 
-    private boolean checkRecord(Record r) {
+    private boolean checkRecord(Record r) throws DBAppException{
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
                 if (r.getItem(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
-            } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
+            } catch (ParseException | ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -281,7 +281,7 @@ public class Table implements Serializable {
         } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
         } else if (type.toLowerCase().equals("java.util.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 return formatter.parse(val);
             } catch (ParseException e) {

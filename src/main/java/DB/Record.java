@@ -41,14 +41,15 @@ public class Record implements Cloneable, Comparable, Serializable {
     }
 
     public static Serializable emptyInstanceFromClass(String ClassName) {
+        ClassName = ClassName.toLowerCase();
         switch (ClassName) {
-            case "java.lang.Integer":
+            case "java.lang.integer":
                 return new Integer(0);
-            case "java.lang.Double":
+            case "java.lang.double":
                 return new Double(0);
-            case "java.lang.String":
+            case "java.lang.string":
                 return new String();
-            case "java.util.Date":
+            case "java.util.date":
                 return new Date();
             default:
                 return new Serializable() {
