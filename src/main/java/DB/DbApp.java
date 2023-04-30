@@ -173,6 +173,10 @@ public class DbApp {
 
                 table.insertIntoTable(strTableName, htblColNameValue);
 
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(table);
+                out.close();
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -219,7 +223,13 @@ public class DbApp {
 
                 in.close();
                 file.close();
+
                 table.updateTable(strTableName, strClusteringKeyValue, htblColNameValue);
+
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(table);
+                out.close();
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -269,6 +279,11 @@ public class DbApp {
                 file.close();
 
                 table.deleteFromTable(strTableName, htblColNameValue);
+
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(table);
+                out.close();
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -338,11 +353,16 @@ public class DbApp {
             htblColNameValue.put("gpa", 0.95);
             db.insertIntoTable(strTableName, htblColNameValue);
         }
-        for(int i = 0; i < 200; i++){
+
+        for (int i = 25; i < 160; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i + 1);
             db.deleteFromTable(strTableName, htblColNameValue);
         }
+
+        System.out.println(db.printTable(strTableName));
+
+
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("id", 1000 + 1);
 //        htblColNameValue.put("name", "Ahmed" + 1000 % 2);
@@ -354,6 +374,6 @@ public class DbApp {
 //        htblColNameValue.put("name", "Hamada");
 //        htblColNameValue.put("gpa", 1.0);
 
-        System.out.println(db.printTable(strTableName));
+//        System.out.println(db.printTable(strTableName));
     }
 }

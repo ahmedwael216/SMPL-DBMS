@@ -239,7 +239,7 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
-        if(!checkRecord(record)){
+        if (!checkRecord(record)) {
             throw new DBAppException("Please enter valid data");
         }
 
@@ -258,8 +258,7 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
-        TablePersistence.delete(strTableName, record);
-        size--;
+        size -= TablePersistence.delete(strTableName, record);
     }
 
     public static void setNumberOfPagesForTable(String name, int x) {
@@ -305,7 +304,7 @@ public class Table implements Serializable {
             record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
         }
 
-        if(!checkRecord(record)){
+        if (!checkRecord(record)) {
             throw new DBAppException("Please enter valid data");
         }
 
@@ -331,7 +330,7 @@ public class Table implements Serializable {
     @Override
     public String toString() {
         try {
-            return TablePersistence.printTable(this.name);
+            return TablePersistence.printTable(this.name) + "\n size = " + size;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {

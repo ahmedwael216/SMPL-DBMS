@@ -45,17 +45,20 @@ public class Page implements Serializable, Comparable {
         }
     }
 
-    public void deleteLinear(Record r) {
+    public int deleteLinear(Record r) {
+        int cntDel = 0;
         for (int i = records.size() - 1; i >= 0; i--) {
             if (records.get(i).equals(r)) {
                 records.remove(i);
+                cntDel++;
             }
         }
         if (!records.isEmpty())
             updateMinMax();
+        return cntDel;
     }
 
-    public void deleteRecord(Record record) throws DBAppException {
+    public int deleteRecord(Record record) throws DBAppException {
         int index = records.binarySearch(record);
         if(!records.get(index).equals(record)){
             throw new DBAppException("Record not found!");
@@ -67,6 +70,7 @@ public class Page implements Serializable, Comparable {
         } else {
             throw new DBAppException("Record not found!");
         }
+        return 1;
     }
 
     public void updateMinMax() {

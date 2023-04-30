@@ -99,17 +99,19 @@ public class TablePersistence {
         return p;
     }
 
-    private static void deleteLinear(Record r, String tableName) throws IOException, ClassNotFoundException, DBAppException {
+    private static int deleteLinear(Record r, String tableName) throws IOException, ClassNotFoundException, DBAppException {
         int n = getNumberOfPagesForTable(tableName);
+        int totDel = 0;
         for (int i = n - 1; i >= 0; i--) {
             Page p = deserialize(i, tableName);
-            p.deleteLinear(r);
+            totDel += p.deleteLinear(r);
             if (p.isEmpty()) {
                 deletePage(tableName, i, n);
                 n--;
             } else
                 serialize(p, tableName, i);
         }
+        return totDel;
     }
 
     private static void deletePage(String tableName, int pageIndex, int totalPages) throws IOException, ClassNotFoundException {
@@ -120,22 +122,23 @@ public class TablePersistence {
         setNumberOfPagesForTable(tableName, totalPages - 1);
     }
 
-    public static void delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
+    public static int delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
         if (record.getPrimaryKey() == null) {
-            deleteLinear(record, tableName);
-            return;
+            return deleteLinear(record, tableName);
         }
+
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
             throw new DBAppException("Table is empty");
         }
         int pageIndex = findPageNumber(n, tableName, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex, tableName);
-        p.deleteRecord(record);
+        int del = p.deleteRecord(record);
         if (p.isEmpty()) {
             deletePage(tableName, pageIndex, n);
         } else
             serialize(p, tableName, pageIndex);
+        return del;
     }
 
     public static void update(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
