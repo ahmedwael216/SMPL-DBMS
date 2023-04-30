@@ -69,7 +69,7 @@ public class TablePersistence {
     }
 
     private static void serialize(Page p, String tableName, int pageIndex) {
-        String filename = DbApp.currentDBFile + File.separator + tableName + File.separator + pageIndex + ".ser";
+        String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + pageIndex + ".ser";
         // Serialization
         try {
             //Saving of object in a file
@@ -87,7 +87,7 @@ public class TablePersistence {
     }
 
     private static Page deserialize(int x, String tableName) throws IOException, ClassNotFoundException {
-        String filename = DbApp.currentDBFile + File.separator + tableName + File.separator + x + ".ser";
+        String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + x + ".ser";
         FileInputStream file = new FileInputStream(filename);
         ObjectInputStream in = new ObjectInputStream(file);
 
@@ -136,7 +136,6 @@ public class TablePersistence {
         int del = p.deleteRecord(record);
         if (p.isEmpty()) {
             deletePage(tableName, pageIndex, n);
-            //TODO rename all pages
         } else
             serialize(p, tableName, pageIndex);
         return del;

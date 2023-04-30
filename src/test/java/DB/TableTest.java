@@ -55,12 +55,12 @@ class TableTest {
         Hashtable<String, String> htblColNameType = new Hashtable<>(), htblColNameMin = new Hashtable<>(),
                 htblColNameMax = new Hashtable<>();
 
-        DbApp db = new DbApp();
+        DBApp db = new DBApp();
         db.init();
         Constructor con = cl.getConstructor(String.class, String.class, Hashtable.class, Hashtable.class,
                 Hashtable.class);
         Object obj = con.newInstance(tableName, "id", htblColNameType, htblColNameType, htblColNameType);
-        String metaDataFilePath = DbApp.selectedDBName + "/" + tableName + "/Metadata.csv";
+        String metaDataFilePath = DBApp.selectedDBName + "/" + tableName + "/Metadata.csv";
         if (!Files.exists(Paths.get(metaDataFilePath))) {
             fail("No metadata file found");
         }

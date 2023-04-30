@@ -20,7 +20,7 @@ public class Page implements Serializable, Comparable {
         if (index < 0) {
             index = -index - 1;
             records.add(index, record);
-            int maxRecordsCountPage = DbApp.maxRecordsCountPage;
+            int maxRecordsCountPage = DBApp.maxRecordsCountPage;
             Record lastRecord = null;
             if (records.size() > maxRecordsCountPage) {
                 lastRecord = records.remove(maxRecordsCountPage);

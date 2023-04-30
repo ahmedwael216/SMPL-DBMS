@@ -1,14 +1,12 @@
 package DB;
 
-import DB.DBVector;
-
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 //import java.util.Iterator;
 
 
-public class DbApp {
+public class DBApp {
     public static int maxRecordsCountPage;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
@@ -22,7 +20,7 @@ public class DbApp {
      *
      * @throws IOException if an error occurred while inputting or outputting
      */
-    public void init() throws FileNotFoundException, IOException {
+    public void init() {
 //        // read available databases doesn't work
 //        // Store currently available database names
 //        DBVector<String> availableDatabases = new DBVector<>();
@@ -75,7 +73,7 @@ public class DbApp {
 //        currentDBFile = new File(rootPath + File.separator + selectedDBName);
 //        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
     }
-    public DbApp(){
+    public DBApp(){
         selectedDBName = "src/main/resources";
         currentDBFile = new File(rootPath + File.separator + selectedDBName);
 //        System.out.println(currentDBFile.getAbsolutePath());
@@ -357,7 +355,7 @@ public class DbApp {
     //                     String strColName)
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
-        DbApp db = new DbApp();
+        DBApp db = new DBApp();
         //creating table
         String strTableName = "Student";
 //        Hashtable<String, String> min = new Hashtable<>();
@@ -373,29 +371,29 @@ public class DbApp {
 //        htblColNameType.put("name", "java.lang.String");
 //        htblColNameType.put("gpa", "java.lang.double");
 //        db.createTable(strTableName, "id", htblColNameType, min, max);
-//        for (int i = 0; i < 400; i++) {
-//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-//            htblColNameValue.put("id", i + 1);
-//            htblColNameValue.put("name", "Ahmed" + i % 2);
-//            htblColNameValue.put("gpa", 0.95);
-//            db.insertIntoTable(strTableName, htblColNameValue);
-//        }
-//
-//        for (int i = 1; i < 400; i++) {
-//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-//            htblColNameValue.put("id", i + 1);
-//            db.deleteFromTable(strTableName, htblColNameValue);
-//        }
+        for (int i = 0; i < 600; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i );
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 0.95);
+            db.insertIntoTable(strTableName, htblColNameValue);
+        }
+        System.out.println(db.printTable(strTableName));
+        System.out.println("-------------------------------------");
+        for (int i = 200; i < 400; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            db.deleteFromTable(strTableName, htblColNameValue);
+        }
 
         System.out.println(db.printTable(strTableName));
 
 
-        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+//        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("id", 1000 + 1);
-        htblColNameValue.put("name", "Ahmed Wael");
-        htblColNameValue.put("gpa", 4.0);
-        db.updateTable(strTableName,"1", htblColNameValue);
-        System.out.println(db.printTable(strTableName));
+//        htblColNameValue.put("name", "Ahmed Wael");
+//        htblColNameValue.put("gpa", 4.0);
+//        db.updateTable(strTableName,"1", htblColNameValue);
 
 //        db.insertIntoTable(strTableName, htblColNameValue);
 //        System.out.println(db.printTable(strTableName));

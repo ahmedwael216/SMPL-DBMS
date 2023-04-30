@@ -24,7 +24,7 @@ public class Table implements Serializable {
 
         this.name = strTableName;
         keys = getKeys(htblColNameType, strClusteringKeyColumn);
-        String DBName = DbApp.selectedDBName;
+        String DBName = DBApp.selectedDBName;
 
         //Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
@@ -111,7 +111,7 @@ public class Table implements Serializable {
     }
 
     private String[] getMaxAndMinString(String columnName) throws IOException {
-        String DBName = DbApp.selectedDBName;
+        String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
         String line = "";
@@ -147,7 +147,7 @@ public class Table implements Serializable {
     // checker method to check if the inserted value in the valid range of the key
 
     private String getKeyType(String key) {
-        String DBName = DbApp.selectedDBName;
+        String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "Metadata.csv";
         BufferedReader br = null;
         String line = "";
@@ -263,7 +263,7 @@ public class Table implements Serializable {
 
     public static void setNumberOfPagesForTable(String name, int x) {
         Properties prop = new Properties();
-        String fileName = DbApp.currentDBFile + File.separator + "DBApp.config";
+        String fileName = DBApp.currentDBFile + File.separator + "DBApp.config";
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
@@ -314,8 +314,8 @@ public class Table implements Serializable {
 
     public static int getNumberOfPagesForTable(String name) {
         Properties prop = new Properties();
-        String DBName = DbApp.selectedDBName;
-        String fileName = DbApp.currentDBFile + File.separator + "DBApp.config";
+        String DBName = DBApp.selectedDBName;
+        String fileName = DBApp.currentDBFile + File.separator + "DBApp.config";
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
