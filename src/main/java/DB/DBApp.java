@@ -343,9 +343,9 @@ public class DBApp {
 //        Hashtable<String, String> htblColNameType = new Hashtable<>();
 //        htblColNameType.put("id", "java.lang.Integer");
 //        htblColNameType.put("name", "java.lang.String");
-//        htblColNameType.put("gpa", "java.lang.double");
+//        htblColNameType.put("gpa", "java.lang.Double");
 //        db.createTable(strTableName, "id", htblColNameType, min, max);
-        for (int i = 0; i < 600; i++) {
+        for (int i = 20; i < 500; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i );
             htblColNameValue.put("name", "Ahmed" + i);
@@ -353,7 +353,7 @@ public class DBApp {
             db.insertIntoTable(strTableName, htblColNameValue);
         }
         System.out.println(db.printTable(strTableName));
-        System.out.println("-------------------------------------");
+//        System.out.println("-------------------------------------");
         for (int i = 200; i < 400; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
@@ -382,10 +382,6 @@ public class DBApp {
     public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
         Table table = getTable(tableName);
         int res = table.getSize();
-        FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
-        ObjectOutputStream out = new ObjectOutputStream(fileOut);
-        out.writeObject(table);
-        out.close();
         return res;
     }
 

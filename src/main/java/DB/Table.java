@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
 public class Table implements Serializable {
     private String name;
     private Record prototype;
@@ -210,7 +211,7 @@ public class Table implements Serializable {
     private boolean checkRecord(Record r) {
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
-                if ((Comparable) r.getDBVector().get(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
+                if (r.getItem(i) != null  && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
             } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
@@ -218,6 +219,17 @@ public class Table implements Serializable {
             }
         }
         return true;
+    }
+
+    private Record getRecord(Hashtable<String, Object> htblColNameValue) throws DBAppException, CloneNotSupportedException {
+        Record record = (Record) prototype.clone();
+        for (int keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+            if (!htblColNameValue.containsKey(keys[keyIndex])) {
+                record.setItem(keyIndex, null);
+            } else
+                record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
+        }
+        return record;
     }
 
     public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws
@@ -228,35 +240,19 @@ public class Table implements Serializable {
             throw new DBAppException("the clustering key must be inserterd");
         }
 
-        // singleton design pattern constraint
-        Record record = (Record) prototype.clone();
-        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
-
-
-        for (int keyIndex = 1; keyIndex < keys.length; keyIndex++) {
-
-
-            record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
-        }
+        Record record = getRecord(htblColNameValue);
 
         if (!checkRecord(record)) {
             throw new DBAppException("Please enter valid data");
         }
-
 
         TablePersistence.insert(strTableName, record);
         size++;
     }
 
     public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
-        String clusteringKey = keys[0];
 
-        // singleton design pattern constraint
-        Record record = (Record) prototype.clone();
-        record.getDBVector().set(0, htblColNameValue.get(clusteringKey));
-        for (int keyIndex = 1; keyIndex < record.getDBVector().size(); keyIndex++) {
-            record.getDBVector().set(keyIndex, htblColNameValue.get(keys[keyIndex]));
-        }
+        Record record = getRecord(htblColNameValue);
 
         size -= TablePersistence.delete(strTableName, record);
     }
@@ -292,7 +288,7 @@ public class Table implements Serializable {
     }
 
     public void updateTable(String strTableName, String clusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
-        // singleton design pattern constraint
+
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, getValue(clusteringKeyValue, record.getDBVector().get(0).getClass().getName()));
 
