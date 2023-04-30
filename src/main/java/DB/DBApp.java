@@ -380,7 +380,12 @@ public class DBApp {
     }
 
     public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
-        int res = this.getTable(tableName).getSize();
+        Table table = getTable(tableName);
+        int res = table.getSize();
+        FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(table);
+        out.close();
         return res;
     }
 
