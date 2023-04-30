@@ -42,4 +42,5 @@ build/
 
 ### dbs ###
 /db*
-resources/
+/src/main/resources/*
+!/src/main/resources/README.md
