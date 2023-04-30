@@ -76,31 +76,32 @@ public class Table implements Serializable {
 
     }
 
-    private boolean checkTypes(String type, String minVal, String maxVal) {
+    private boolean checkValidType(String type, String val) {
         if (type.toLowerCase().equals("java.lang.integer")) {
             try {
-                Integer.parseInt(minVal);
-                Integer.parseInt(maxVal);
+                Integer.parseInt(val);
             } catch (Exception e) {
                 return false;
             }
         } else if (type.toLowerCase().equals("java.lang.double")) {
             try {
-                Double.parseDouble(minVal);
-                Double.parseDouble(maxVal);
+                Double.parseDouble(val);
             } catch (Exception e) {
                 return false;
             }
         } else if (type.toLowerCase().equals("java.util.date")) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                sdf.parse(minVal);
-                sdf.parse(maxVal);
+                sdf.parse(val);
             } catch (Exception e) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean checkTypes(String type, String minVal, String maxVal) {
+        return checkValidType(type, minVal) && checkValidType(type, maxVal);
     }
 
     public int getSize() {
@@ -211,7 +212,7 @@ public class Table implements Serializable {
     private boolean checkRecord(Record r) {
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
-                if (r.getItem(i) != null  && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
+                if (r.getItem(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
                     return false;
                 }
             } catch (ParseException | ClassNotFoundException | IOException | DBAppException e) {
@@ -271,7 +272,10 @@ public class Table implements Serializable {
         }
     }
 
-    private Comparable getValue(String val, String type) {
+    private Comparable getValue(String val, String type) throws DBAppException {
+        if(!checkValidType(type, val))
+            throw new DBAppException("Invalid value for type " + type + " : " + val);
+
         if (type.toLowerCase().equals("java.lang.integer")) {
             return Integer.parseInt(val);
         } else if (type.toLowerCase().equals("java.lang.double")) {

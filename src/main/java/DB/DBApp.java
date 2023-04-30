@@ -73,7 +73,8 @@ public class DBApp {
 //        currentDBFile = new File(rootPath + File.separator + selectedDBName);
 //        currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
     }
-    public DBApp(){
+
+    public DBApp() {
         selectedDBName = "src/main/resources";
         currentDBFile = new File(rootPath + File.separator + selectedDBName);
 //        System.out.println(currentDBFile.getAbsolutePath());
@@ -81,10 +82,10 @@ public class DBApp {
         currentConfigFile = new File(currentDBFile.getAbsolutePath() + File.separator + "DBApp.config");
 //        System.out.println(currentConfigFile.getAbsolutePath());
 
-        if(currentConfigFile.exists()){
+        if (currentConfigFile.exists()) {
             System.out.println("Switching context to existing database: ");
             getMaximumRecordsCountinPage();
-        }else{
+        } else {
             System.out.println("creating database in resources folder");
 
             DBVector<String> lines = new DBVector<>();
@@ -345,22 +346,20 @@ public class DBApp {
 //        htblColNameType.put("name", "java.lang.String");
 //        htblColNameType.put("gpa", "java.lang.Double");
 //        db.createTable(strTableName, "id", htblColNameType, min, max);
-        for (int i = 20; i < 500; i++) {
-            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-            htblColNameValue.put("id", i );
-            htblColNameValue.put("name", "Ahmed" + i);
-            htblColNameValue.put("gpa", 0.95);
-            db.insertIntoTable(strTableName, htblColNameValue);
-        }
-        System.out.println(db.printTable(strTableName));
-//        System.out.println("-------------------------------------");
-        for (int i = 200; i < 400; i++) {
-            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-            htblColNameValue.put("id", i);
-            db.deleteFromTable(strTableName, htblColNameValue);
-        }
-
-        System.out.println(db.printTable(strTableName));
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 510);
+        htblColNameValue.put("name", "Ahmed" + 510);
+        htblColNameValue.put("gpa", 0.95);
+        db.insertIntoTable(strTableName, htblColNameValue);
+//        System.out.println(db.printTable(strTableName));
+////        System.out.println("-------------------------------------");
+//        for (int i = 200; i < 400; i++) {
+//            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+//            htblColNameValue.put("id", i);
+//            db.deleteFromTable(strTableName, htblColNameValue);
+//        }
+//
+//        System.out.println(db.printTable(strTableName));
 
 
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
