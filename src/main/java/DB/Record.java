@@ -1,72 +1,96 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Hashtable;
 
-public class Record implements Cloneable,Comparable {
-    private DBVector<Comparable> tupleRow;
+public class Record implements Cloneable, Comparable, Serializable {
+    private DBVector<Serializable> tupleRow;
 
-
-    public Record(String ClusteringKey, Hashtable <String,String> schema){
-        tupleRow = new DBVector<Comparable>();
+    public Record(String ClusteringKey, Hashtable<String, String> schema) {
+        tupleRow = new DBVector<Serializable>();
         tupleRow.add(emptyInstanceFromClass(schema.get(ClusteringKey)));
-        schema.remove(ClusteringKey);
-        for(String fieldName: schema.keySet()) tupleRow.add(emptyInstanceFromClass(schema.get(fieldName)));
+        for (String fieldName : schema.keySet())
+            if (!fieldName.equals(ClusteringKey))
+                tupleRow.add(emptyInstanceFromClass(schema.get(fieldName)));
     }
-    public Record(DBVector<Comparable>  schema){
+
+    public Record(DBVector<Serializable> schema) {
         tupleRow = schema;
     }
 
+    public DBVector getDBVector() {
+        return tupleRow;
+    }
 
-    private DBVector<Comparable> getTupleRow() {
+    private DBVector<Serializable> getTupleRow() {
         return tupleRow;
     }
 
 
-
-    public Comparable getItem(int i) {
+    public Serializable getItem(int i) {
         return tupleRow.get(i);
     }
 
-    public Comparable getPrimaryKey() {
+    public Serializable getPrimaryKey() {
         return this.getItem(0);
     }
 
-    public Comparable setItem(int i,Comparable val) {
-        return tupleRow.set(i,val);
+    public Serializable setItem(int i, Serializable val) {
+        return tupleRow.set(i, val);
     }
 
-    public static Comparable emptyInstanceFromClass(String ClassName)  {
-        switch (ClassName){
-            case "java.lang.Integer": return new Integer(0);
-            case  "java.lang.Double": return new Double(0);
-            case "java.lang.String": return new String();
-            case "java.util.Date":return new Date();
-            default: return new Comparable() {
-                @Override
-                public int compareTo(Object o) {
-                    return 0;
-                }
-            };
+    public static Serializable emptyInstanceFromClass(String ClassName) {
+        ClassName = ClassName.toLowerCase();
+        switch (ClassName) {
+            case "java.lang.integer":
+                return new Integer(0);
+            case "java.lang.double":
+                return new Double(0);
+            case "java.lang.string":
+                return new String();
+            case "java.util.date":
+                return new Date();
+            default:
+                return new Serializable() {
+                };
         }
     }
 
     protected Object clone() throws CloneNotSupportedException {
-        DBVector<Comparable> schema = (DBVector<Comparable>) this.getTupleRow().clone();
+        DBVector<Serializable> schema = (DBVector<Serializable>) this.getTupleRow().clone();
         return new Record(schema);
     }
 
 
-
     @Override
     public String toString() {
-        return "Record{" +
-                "tupleRow=" + tupleRow +
-                '}';
+        StringBuilder s = new StringBuilder();
+        for (Serializable c : this.tupleRow) {
+            if (c == null)
+                s.append("null").append("| ");
+            else
+                s.append(c.toString()).append("| ");
+        }
+        return s.toString();
     }
 
     @Override
     public int compareTo(Object o) {
-        return this.getItem(0).compareTo(((Record) o).getItem(0));
+        return ((Comparable) this.getItem(0)).compareTo(((Record) o).getItem(0));
+    }
+
+    public boolean equals(Object o) {
+        for (int i = 0; i < this.tupleRow.size(); i++) {
+            if (this.getItem(i) == null && ((Record) o).getItem(i) == null)
+                continue;
+            if (this.getItem(i) == null)
+                return false;
+            if(((Record)o).getItem(i) == null)
+                continue;
+            if (!this.getItem(i).equals(((Record) o).getItem(i)))
+                return false;
+        }
+        return true;
     }
 }

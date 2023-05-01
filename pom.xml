@@ -19,6 +19,11 @@
             <artifactId>junit-jupiter</artifactId>
             <version>5.9.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.1</version>
+        </dependency>
     </dependencies>
 
 </project>
