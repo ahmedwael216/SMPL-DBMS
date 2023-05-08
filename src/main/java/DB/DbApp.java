@@ -26,7 +26,7 @@ public class DbApp {
      * Executes at application startup.
      * Prompts user to enter name of database to use.
      *
-     * @throws FileNotFoundException    if an error occurred while manipulating files
+     * @throws FielNotFoundException    if an error occurred while manipulating files
      * @throws IOException              if an error occurred while inputting or outputting
      */
     public void init() throws FileNotFoundException, IOException {
