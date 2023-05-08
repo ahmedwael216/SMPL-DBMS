@@ -39,3 +39,8 @@ build/
 ### Mac OS ###
 .DS_Store
 /.idea/
+
+### dbs ###
+/db*
+/src/main/resources/*
+!/src/main/resources/README.md

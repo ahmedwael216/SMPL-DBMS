@@ -1,8 +1,9 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.Vector;
 
-public class DBVector<T> extends Vector<T> implements Cloneable {
+public class DBVector<T> extends Vector<T> implements Cloneable, Serializable {
     public Object clone() {
         return super.clone();
     }
@@ -24,5 +25,14 @@ public class DBVector<T> extends Vector<T> implements Cloneable {
         }
 
         return -(low + 1);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        for (T record : this) {
+            res.append(record).append("\n");
+        }
+        return res.toString();
     }
 }
