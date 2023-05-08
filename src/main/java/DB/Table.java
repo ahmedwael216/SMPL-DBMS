@@ -364,4 +364,13 @@ public class Table implements Serializable {
         }
         return max;
     }
+
+    public Iterator select(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, ParseException, IOException, ClassNotFoundException {
+        for(SQLTerm term:arrSQLTerms){
+            if(!checkValidity(term._strColumnName, (Comparable) term._objValue)){
+                throw new DBAppException("Invalid value for column " + term._strColumnName + " : " + term._objValue);
+            }
+        }
+        return TablePersistence.select(this.getName(),arrSQLTerms, strarrOperators);
+    }
 }

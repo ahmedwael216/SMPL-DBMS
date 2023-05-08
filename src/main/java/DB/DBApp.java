@@ -14,6 +14,8 @@ public class DBApp {
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
 
+    //TODO refactor all exceptions. DBApp methods =should throw DBApp Exceptions only
+
     /**
      * Executes at application startup.
      * Prompts user to enter name of database to use.
@@ -314,12 +316,27 @@ public class DBApp {
         return ret;
     }
 
-    /*
-     * public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-     * String[] strarrOperators)
-     * throws DBAppException{}
-     */
-    //TODO create SQL Term class
+
+      public Iterator selectFromTable(SQLTerm[] arrSQLTerms,String[] strarrOperators) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+          //insuring that the table name is consistent
+          String tableName = arrSQLTerms[0]._strTableName;
+          for(SQLTerm term:arrSQLTerms){
+              if(!term._strTableName.equals(tableName)){
+                  throw new DBAppException("The table names are not consistant");
+              }
+          }
+
+          // insuring that the starrOperators are right
+          for(String s: strarrOperators){
+              if(!(s.equals("OR") || s.equals("AND") ||s.equals("XOR"))){
+                  throw new DBAppException("The "+s+" starrOperators is invalid");
+              }
+          }
+
+          Table t = getTable(tableName);
+          return t.select(arrSQLTerms,strarrOperators);
+      }
+
 
     /**
      * Helper function to check if the column has an index or not.
