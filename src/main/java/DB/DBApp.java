@@ -8,12 +8,13 @@ import java.util.*;
 
 public class DBApp {
     public static int maxRecordsCountPage;
+    public static int maxEntriesCountNode;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
-
+    
     /**
      * Executes at application startup.
      * Prompts user to enter name of database to use.
@@ -84,7 +85,8 @@ public class DBApp {
 
         if (currentConfigFile.exists()) {
             System.out.println("Switching context to existing database: ");
-            getMaximumRecordsCountinPage();
+            getMaximumRecordsCountPage();
+            getmaxEntriesCountNode();
         } else {
             System.out.println("creating database in resources folder");
 
@@ -147,11 +149,23 @@ public class DBApp {
         }
     }
 
-    public void getMaximumRecordsCountinPage() {
+    public void getMaximumRecordsCountPage() {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             maxRecordsCountPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getmaxEntriesCountNode() {
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            maxEntriesCountNode = Integer.parseInt(prop.getProperty("maxEntriesCountNode"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
