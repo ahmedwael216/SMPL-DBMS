@@ -8,10 +8,13 @@ import java.util.*;
 
 public class DBApp {
     public static int maxRecordsCountPage;
+    // TODO: get the value of maxEntriesCountNode and change it
     public static int maxEntriesCountNode = 4;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
+
+    public static String DATE_FORMAT = "YYYY-MM-DD";
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
     

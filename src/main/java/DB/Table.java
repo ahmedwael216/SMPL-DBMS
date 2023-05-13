@@ -90,7 +90,7 @@ public class Table implements Serializable {
             }
         } else if (type.toLowerCase().equals("java.util.date")) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
                 sdf.parse(val);
             } catch (Exception e) {
                 return false;
@@ -280,7 +280,7 @@ public class Table implements Serializable {
         } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
         } else if (type.toLowerCase().equals("java.util.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             try {
                 return formatter.parse(val);
             } catch (ParseException e) {
