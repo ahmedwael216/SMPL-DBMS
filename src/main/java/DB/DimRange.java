@@ -2,9 +2,9 @@ package DB;
 
 import java.util.Date;
 
-public class DimRange {
-    Comparable min;
-    Comparable max;
+public class    DimRange {
+    private Comparable min;
+    private Comparable max;
 
     public DimRange(Comparable min, Comparable max) {
         this.min = min;
@@ -16,10 +16,12 @@ public class DimRange {
             return splitInteger((int) min, (int) max);
         } else if (min instanceof String) {
             return splitString((String) min, (String) max, Math.min(((String) min).length(), ((String) max).length()));
-        } else {
+        } else if(min instanceof Date){
             return splitDate((Date) min, (Date) max);
         }
-
+        else{
+            return splitDouble((double) min, (double) max);
+        }
     }
 
     public DimRange[] splitInteger(int min, int max) {
@@ -82,4 +84,27 @@ public class DimRange {
         return resRanges;
     }
 
+    public DimRange[] splitDouble(double min, double max) {
+        double mid = (min + max) / 2;
+        DimRange[] resRanges = new DimRange[2];
+        resRanges[0] = new DimRange(min, mid);
+        resRanges[1] = new DimRange(mid, max);
+        return resRanges;
+    }
+
+    public boolean inRange(Comparable value) {
+        return min.compareTo(value) <= 0 && max.compareTo(value) > 0;
+    }
+
+    public boolean equals(DimRange other) {
+        return min.equals(other.min) && max.equals(other.max);
+    }
+
+    public Comparable getMin() {
+        return min;
+    }
+
+    public Comparable getMax() {
+        return max;
+    }
 }
