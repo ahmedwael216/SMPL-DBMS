@@ -8,7 +8,7 @@ import java.util.*;
 
 public class DBApp {
     public static int maxRecordsCountPage;
-    public static int maxEntriesCountNode;
+    public static int maxEntriesCountNode = 4;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;

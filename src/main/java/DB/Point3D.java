@@ -37,10 +37,13 @@ public class Point3D<T> {
         references.remove(pageName);
     }
 
-    public boolean equals(Point3D<T> point) {
-        return this.xDim.equals(point.xDim) && this.yDim.equals(point.yDim) && this.zDim.equals(point.zDim);
+    @Override
+    public boolean equals(Object p) {
+        Point3D point = (Point3D) p;
+        return this.xDim.compareTo(point.xDim) == 0 && this.yDim.compareTo(point.yDim) == 0 && this.zDim.compareTo(point.zDim) == 0;
     }
 
+    @Override
     public String toString() {
         return "(" + xDim + ", " + yDim + ", " + zDim + ")";
     }
