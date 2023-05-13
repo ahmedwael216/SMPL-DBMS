@@ -19,9 +19,9 @@ public class Node<T> {
 
     public void insert(Point3D point, int pageNumber) throws DBAppException {
         if(children == null){  // this is a leaf
-            int indexOfValue = points.indexOf(point);
-            if(indexOfValue != -1){
-                points.get(indexOfValue).addReference(pageNumber);
+            int index = points.indexOf(point);
+            if(index != -1){
+                points.get(index).addReference(pageNumber);
                 return;
             }
             points.add(point);
@@ -39,7 +39,7 @@ public class Node<T> {
                 return;
             }
         }
-        throw new DBAppException("The inserted point is out of range of the node " + point.toString());
+        throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
     }
 
 
@@ -61,14 +61,63 @@ public class Node<T> {
 
         this.points.clear();
     }
-    public DBVector<String> search() {
-        return null;
+    public DBVector<Integer> search(Point3D point) {
+        if(children == null){
+            int index = points.indexOf(point);
+            if(index == -1){
+                return new DBVector<>();
+            }
+            return (DBVector<Integer>) points.get(index).getReferences().clone();
+        }
+
+        DBVector<Integer> result = new DBVector<>();
+        for(int i = 0; i < children.length; i++){
+            if(children[i].inRange(point)){
+                result = children[i].search(point);
+                break;
+            }
+        }
+
+        return result;
     }
 
-    public void delete() {
-
+    public void delete(Point3D point) throws DBAppException {
+        deleteHelper(point, null);
     }
+    private boolean canBeMerged(){
+        int size = 0;
+        for(int i = 0; i < children.length; i++){
+            size += children[i].points.size();
+        }
 
+        return size <= maxCapacity;
+    }
+    private void merge(){
+        for(int i = 0; i < children.length; i++){
+            points.addAll(children[i].points);
+        }
+        children = null;
+    }
+    private void deleteHelper(Point3D point, Node parent) throws DBAppException {
+        if(children == null){
+            int index = points.indexOf(point);
+            if(index == -1){
+                throw new DBAppException("The point to be deleted is not found");
+            }
+            points.remove(index);
+            if(parent != null && parent.canBeMerged()){
+                parent.merge();
+            }
+            return;
+        }
+
+        for(int i = 0; i < children.length; i++){
+            if(children[i].inRange(point)){
+                children[i].deleteHelper(point, this);
+                return;
+            }
+        }
+    }
     private boolean inRange(Point3D point) {
         return xRange.inRange(point.getXDim()) && yRange.inRange(point.getYDim()) && zRange.inRange(point.getZDim());
     }
