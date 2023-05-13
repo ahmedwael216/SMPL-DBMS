@@ -1,5 +1,8 @@
 package DB;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class Node<T> {
     private Node[] children;
     DimRange xRange;
@@ -63,6 +66,13 @@ public class Node<T> {
     }
 
     public DBVector<Integer> search(DimRange x, DimRange y, DimRange z) {
+        HashSet<Integer> temp = new HashSet<>(searchHelper(x, y, z));
+        DBVector<Integer> res = new DBVector<>();
+        res.addAll(temp);
+        return res;
+    }
+
+    private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z) {
         if (children == null) {
             DBVector<Integer> result = new DBVector<>();
             for(Point3D point : points) {
