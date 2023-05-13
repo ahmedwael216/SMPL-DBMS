@@ -2,6 +2,8 @@ package DB;
 
 import java.util.Date;
 
+import java.util.*;
+
 public class    DimRange {
     private Comparable min;
     private Comparable max;
@@ -106,5 +108,16 @@ public class    DimRange {
 
     public Comparable getMax() {
         return max;
+    }
+
+    public String toString(){
+        return min + " " + max;
+    }
+
+    public boolean intersect(DimRange other) {
+        if (min.compareTo(other.max) > 0 || max.compareTo(other.min) < 0) {
+            return false;
+        }
+        return true;
     }
 }

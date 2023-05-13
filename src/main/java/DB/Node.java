@@ -62,20 +62,21 @@ public class Node<T> {
         this.points.clear();
     }
 
-    public DBVector<Integer> search(Point3D point) {
+    public DBVector<Integer> search(DimRange x, DimRange y, DimRange z) {
         if (children == null) {
-            int index = points.indexOf(point);
-            if (index == -1) {
-                return new DBVector<>();
+            DBVector<Integer> result = new DBVector<>();
+            for(Point3D point : points) {
+                if(x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
+                    result.addAll(point.getReferences());
+                }
             }
-            return (DBVector<Integer>) points.get(index).getReferences().clone();
+            return result;
         }
 
         DBVector<Integer> result = new DBVector<>();
         for (int i = 0; i < children.length; i++) {
-            if (children[i].inRange(point)) {
-                result = children[i].search(point);
-                break;
+            if (xRange.intersect(x) && yRange.intersect(y) && zRange.intersect(z)) {
+                result.addAll(children[i].search(x, y, z));
             }
         }
 
@@ -109,7 +110,7 @@ public class Node<T> {
                 throw new DBAppException("The point to be deleted is not found");
             }
             points.get(index).removeReference(pageNumber);
-            if(points.get(index).getReferences().isEmpty()){
+            if (points.get(index).getReferences().isEmpty()) {
                 points.remove(index);
                 if (parent != null && parent.canBeMerged()) {
                     parent.merge();
@@ -126,38 +127,53 @@ public class Node<T> {
         }
     }
 
+    public void update(Point3D point, int oldPageNumber, int newPageNumnber) throws DBAppException {
+        delete(point, oldPageNumber);
+        insert(point, newPageNumnber);
+    }
+
+    public String toString() {
+        return "Node{" +
+                "xRange=" + xRange +
+                ", yRange=" + yRange +
+                ", zRange=" + zRange +
+                ", points=" + points +
+                '}';
+    }
+
     private boolean inRange(Point3D point) {
         return xRange.inRange(point.getXDim()) && yRange.inRange(point.getYDim()) && zRange.inRange(point.getZDim());
+    }
+
+    private void printComplete() {
+        if (this != null)
+            System.out.println(this.toString());
+        if (children == null) {
+            return;
+        }
+
+        for (int i = 0; i < children.length; i++) {
+            children[i].printComplete();
+        }
+
     }
 
     public static void main(String[] args) throws DBAppException {
         Node root = new Node(0, 0, 0, 8, 8, 8);
 
         root.insert(new Point3D(1, 1, 1), 1);
-        root.insert(new Point3D(1, 1, 1), 3);
         root.insert(new Point3D(2, 2, 2), 2);
         root.insert(new Point3D(3, 3, 3), 3);
         root.insert(new Point3D(4, 4, 4), 4);
         root.insert(new Point3D(5, 5, 5), 5);
-        root.insert(new Point3D(6, 6, 6), 6);
-        root.insert(new Point3D(7, 7, 7), 7);
-        root.insert(new Point3D(8, 8, 8), 8);
 
-        DBVector<Integer> result = root.search(new Point3D(1, 1, 1));
-
-
-        System.out.println(result.toString());
+        root.printComplete();
 
         root.delete(new Point3D(1, 1, 1), 1);
 
-        result = root.search(new Point3D(1, 1, 1));
+        System.out.println("-----------------------------");
 
-        System.out.println(result.toString());
+        root.printComplete();
 
-        root.delete(new Point3D(1, 1, 1), 3);
-
-        result = root.search(new Point3D(1, 1, 1));
-
-        System.out.println(result.toString());
     }
 }
