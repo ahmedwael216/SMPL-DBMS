@@ -319,6 +319,33 @@ public class DBApp {
         }
     }
 
+    public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
+                                    String[] strarrOperators) throws DBAppException{
+        String strTableName = arrSQLTerms[0]._strTableName;
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Select From " + strTableName + " table");
+                System.out.println(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+
+                Table table = getTable(strTableName);
+
+                // return table.selectFromTable(strTableName, arrSQLTerms, strarrOperator);
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public String printTable(String strTableName) throws IOException, ClassNotFoundException {
         Table table = getTable(strTableName);
         String ret = table.toString();
