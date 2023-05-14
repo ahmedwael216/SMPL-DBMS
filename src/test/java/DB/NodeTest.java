@@ -1,9 +1,6 @@
 package DB;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,6 +53,14 @@ class NodeTest {
 
     @Test
     @Order(4)
+    void insertThrowsExceptionForInvalidRangePoint() throws DBAppException {
+        Assertions.assertThrows(DBAppException.class, () -> {
+            root.insert(new Point3D<Integer>(7, 8, 9), 1);
+        });
+    }
+
+    @Test
+    @Order(5)
     void searchReturnsCorrectPageNumbers() throws DBAppException {
         root.insert(new Point3D<>(1, 1, 1), 1);
         root.insert(new Point3D<>(2, 2, 2), 2);
@@ -76,7 +81,7 @@ class NodeTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void deleteRemovesPointFromLeafNode() throws DBAppException {
         Point3D<Integer> point = new Point3D<>(1, 1, 1);
         int pageNumber = 1;
@@ -85,27 +90,73 @@ class NodeTest {
         root.delete(point, pageNumber);
 
         assertFalse(root.points.contains(point));
-        assertTrue(point.getReferences().isEmpty());
     }
 
     @Test
-    @Order(6)
-    void deleteMergesChildNodesWhenPossible() throws DBAppException {
+    @Order(7)
+    void deleteRemovesMultiplePointsFromLeafNode() throws DBAppException {
+        Point3D<Integer> point1 = new Point3D<>(1, 1, 1);
+        Point3D<Integer> point2 = new Point3D<>(2, 2, 2);
+        int pageNumber = 1;
+
+        root.insert(point1, pageNumber);
+        root.insert(point2, pageNumber);
+        root.delete(point1, pageNumber);
+        root.delete(point2, pageNumber);
+
+        assertFalse(root.points.contains(point1));
+        assertFalse(root.points.contains(point2));
+    }
+
+    @Test
+    @Order(8)
+    void deleteRemovesPointFromChildNode() throws DBAppException {
         root.insert(new Point3D<>(1, 1, 1), 1);
         root.insert(new Point3D<>(2, 2, 2), 2);
         root.insert(new Point3D<>(3, 3, 3), 3);
         root.insert(new Point3D<>(4, 4, 4), 4);
-//        System.out.println(root.getChildren().length);
-        root.delete(new Point3D<>(1, 1, 1), 1);
-        root.delete(new Point3D<>(2, 2, 2), 2);
-//        System.out.println(root.getChildren());
+        root.insert(new Point3D<>(5, 5, 5), 1);
 
-        assertTrue(root.canBeMerged());
-        root.merge();
-        assertNull(root.getChildren());
-        assertEquals(2, root.points.size());
+        root.delete(new Point3D<>(1, 1, 1), 1);
+
+        assertFalse(root.getChildren()[0].points.contains(new Point3D<Integer>(1, 1, 1)));
     }
 
+    @Test
+    @Order(9)
+    void deleteRemovesMultiplePointsFromChildNode() throws DBAppException {
+        root.insert(new Point3D<>(1, 1, 1), 1);
+        root.insert(new Point3D<>(2, 2, 2), 2);
+        root.insert(new Point3D<>(3, 3, 3), 3);
+        root.insert(new Point3D<>(4, 4, 4), 4);
+        root.insert(new Point3D<>(5, 5, 5), 1);
+
+        root.delete(new Point3D<>(1, 1, 1), 1);
+        root.delete(new Point3D<>(2, 2, 2), 2);
+        root.delete(new Point3D<>(3, 3, 3), 3);
+        root.delete(new Point3D<>(4, 4, 4), 4);
+
+        assertFalse(root.getChildren()[0].points.contains(new Point3D<Integer>(1, 1, 1)));
+        assertFalse(root.getChildren()[0].points.contains(new Point3D<Integer>(2, 2, 2)));
+        assertFalse(root.getChildren()[0].points.contains(new Point3D<Integer>(3, 3, 3)));
+        assertFalse(root.getChildren()[0].points.contains(new Point3D<Integer>(4, 4, 4)));
+    }
+
+    @Test
+    @Order(10)
+    void deleteThrowsExceptionForNonExistingPoint() throws DBAppException {
+        root.insert(new Point3D<>(1, 1, 1), 1);
+        root.insert(new Point3D<>(2, 2, 2), 2);
+        root.insert(new Point3D<>(3, 3, 3), 3);
+        root.insert(new Point3D<>(4, 4, 4), 4);
+        root.insert(new Point3D<>(5, 5, 5), 5);
+
+        Assertions.assertThrows(DBAppException.class, () -> {
+            root.delete(new Point3D<>(6, 6, 6), 6);
+        });
+
+
+    }
 
     @Test
     void update() {

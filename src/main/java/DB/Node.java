@@ -38,6 +38,8 @@ public class Node<T> {
 
     public void insert(Point3D point, int pageNumber) throws DBAppException {
         if (children == null) {  // this is a leaf
+            if(!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
+                throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
             int index = points.indexOf(point);
             if (index != -1) {
                 points.get(index).addReference(pageNumber);
@@ -58,6 +60,7 @@ public class Node<T> {
                 return;
             }
         }
+
         throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
     }
 
@@ -135,6 +138,7 @@ public class Node<T> {
             if (children[i].inRange(point)) {
                 System.out.println("Child: "+ children[i].toString() + " " + children[i].getChildren());
                 children[i].deleteHelper(point, this, pageNumber);
+                return;
             }
         }
 
@@ -172,7 +176,7 @@ public class Node<T> {
         return xRange.inRange(point.getXDim()) && yRange.inRange(point.getYDim()) && zRange.inRange(point.getZDim());
     }
 
-    private void printComplete() {
+    public void printComplete() {
         if (this != null)
             System.out.println(this.toString());
         if (children == null) {
