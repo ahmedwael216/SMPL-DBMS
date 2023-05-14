@@ -51,7 +51,7 @@ public class TablePersistence {
         return true;
     }
 
-    private static int findPageNumber(int n, String tableName, Comparable pk) throws IOException, ClassNotFoundException {
+    public static int findPageNumber(int n, String tableName, Comparable pk) throws IOException, ClassNotFoundException {
         int low = 0;
         int high = n - 1;
 
@@ -87,7 +87,7 @@ public class TablePersistence {
         }
     }
 
-    private static Page deserialize(int x, String tableName) throws IOException, ClassNotFoundException {
+    public static Page deserialize(int x, String tableName) throws IOException, ClassNotFoundException {
         String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + x + ".ser";
         FileInputStream file = new FileInputStream(filename);
         ObjectInputStream in = new ObjectInputStream(file);

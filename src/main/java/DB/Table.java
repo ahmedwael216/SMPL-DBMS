@@ -15,6 +15,7 @@ public class Table implements Serializable {
 
     private String[] keys;
 
+
     public Table(String strTableName,
                  String strClusteringKeyColumn,
                  Hashtable<String, String> htblColNameType,
