@@ -119,6 +119,10 @@ public class Table implements Serializable {
         return this.indexCols;
     }
 
+    public void setIndexCols(String[] indexCols) {
+        this.indexCols = indexCols;
+    }
+
     public Node getIndexRoot() {
         return this.indexRoot;
     }
@@ -462,7 +466,8 @@ public class Table implements Serializable {
                 root.insert(point, i);
             }
         }
- 
+        
+        table.setIndexCols(strarrColName);
         table.setIndexRoot(root);
     }
 
