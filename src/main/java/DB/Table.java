@@ -123,7 +123,7 @@ public class Table implements Serializable {
         return this.indexRoot;
     }
 
-    private String[] getMaxAndMinString(String columnName) throws IOException {
+    public String[] getMaxAndMinString(String columnName) throws IOException {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));

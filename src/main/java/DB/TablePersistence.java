@@ -153,6 +153,18 @@ public class TablePersistence {
         serialize(p, tableName, pageIndex);
     }
 
+
+    public static void createIndex(String strTableName,
+                            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException {
+        Table table = DBApp.getTable(strTableName);
+        String[] col1MinMax = table.getMaxAndMinString(strarrColName[0]);
+        String[] col2MinMax = table.getMaxAndMinString(strarrColName[1]);
+        String[] col3MinMax = table.getMaxAndMinString(strarrColName[2]);
+
+        Node root = new Node<>(col1MinMax[0],col2MinMax[0],col3MinMax[0],col1MinMax[1],col2MinMax[1],col3MinMax[1]);
+
+    }
+
     public static String printTable(String tableName) throws IOException, ClassNotFoundException {
         FileInputStream file = new FileInputStream(DBApp.currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
         ObjectInputStream in = new ObjectInputStream(file);

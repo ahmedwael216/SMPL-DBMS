@@ -182,8 +182,11 @@ public class DBApp {
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
                             String[] strarrColName)
-            throws DBAppException {
+            throws DBAppException, IOException, ClassNotFoundException {
+        if(strarrColName.length != 3)
+            throw new DBAppException("There must be three columns in order to create the index.");
 
+        TablePersistence.createIndex(strTableName,strarrColName);
     }
 
     /**
@@ -344,6 +347,7 @@ public class DBApp {
             e.printStackTrace();
         }
 
+        return null;
     }
 
     public String printTable(String strTableName) throws IOException, ClassNotFoundException {
@@ -408,7 +412,7 @@ public class DBApp {
         return res;
     }
 
-    private Table getTable(String tableName) throws IOException, ClassNotFoundException {
+    public static Table getTable(String tableName) throws IOException, ClassNotFoundException {
         FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
         ObjectInputStream in = new ObjectInputStream(file);
 
