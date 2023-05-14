@@ -31,7 +31,7 @@ public class DBVector<T> extends Vector<T> implements Cloneable, Serializable {
     public String toString() {
         StringBuilder res = new StringBuilder();
         for (T record : this) {
-            res.append(record).append("\n");
+            res.append(record).append(" ");
         }
         return res.toString();
     }
