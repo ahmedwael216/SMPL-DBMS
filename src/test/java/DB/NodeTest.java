@@ -30,7 +30,7 @@ class NodeTest {
 
     @Test
     @Order(2)
-    void insertDoesNotDuplicatePointsInLeafNode() throws DBAppException {
+    void insertDoesNotDuplicatePointsInLeafNodeButReferences() throws DBAppException {
         Point3D point = new Point3D(1, 1, 1);
         int pageNumber = 1;
 
@@ -38,12 +38,12 @@ class NodeTest {
         root.insert(point, pageNumber);
 
         assertEquals(1, root.points.size());
-        assertEquals(1, point.getReferences().size());
+        assertEquals(2, point.getReferences().size());
     }
 
     @Test
     @Order(3)
-    void insert_SplitsLeafNodeWhenCapacityExceeded() throws DBAppException {
+    void insertSplitsLeafNodeWhenCapacityExceeded() throws DBAppException {
         root.insert(new Point3D<Integer>(1, 1, 1), 1);
         root.insert(new Point3D<Integer>(2, 2, 2), 2);
         root.insert(new Point3D<Integer>(3, 3, 3), 3);

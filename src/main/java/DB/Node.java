@@ -40,7 +40,7 @@ public class Node<T> {
         if (children == null) {  // this is a leaf
             int index = points.indexOf(point);
             if (index != -1) {
-//                points.get(index).addReference(pageNumber);
+                points.get(index).addReference(pageNumber);
                 return;
             }
             points.add(point);
