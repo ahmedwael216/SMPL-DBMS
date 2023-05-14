@@ -177,10 +177,26 @@ class NodeTest {
         root.insert(new Point3D<>(4, 4, 4), 4);
         root.insert(new Point3D<>(5, 5, 5), 5);
 
+
         Assertions.assertThrows(DBAppException.class, () -> {
-            root.delete(new Point3D<>(6, 6, 6),false,6);
+            root.delete(new Point3D<>(6, 6, 6),true,6);
         });
 
+    }
+
+    @Test
+    @Order(10)
+    void deleteThrowsExceptionInValidPointRange() throws DBAppException {
+        root.insert(new Point3D<>(1, 1, 1), 1);
+        root.insert(new Point3D<>(2, 2, 2), 2);
+        root.insert(new Point3D<>(3, 3, 3), 3);
+        root.insert(new Point3D<>(4, 4, 4), 4);
+        root.insert(new Point3D<>(5, 5, 5), 5);
+
+
+        Assertions.assertThrows(DBAppException.class, () -> {
+            root.delete(new Point3D<>(100, 100, 100),true,6);
+        });
 
     }
 

@@ -114,8 +114,11 @@ public class Node<T> {
 
     public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
-        if (leaf == null)
-            return;
+        if (leaf == null){
+            throw new DBAppException("The point is out of valid range, the point: " + point.toString());
+        }
+        leaf.printComplete();
+        System.out.println("Leaf: ___________________________________");
         int index = leaf.points.indexOf(point);
         if (index == -1) {
             System.out.println(point.toString());
@@ -177,7 +180,7 @@ public class Node<T> {
     public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
         if(leaf == null){
-            return;
+            throw new DBAppException("The point to be deleted is not found");
         }
 
         for(int i = 0; i < leaf.points.size(); i++){
