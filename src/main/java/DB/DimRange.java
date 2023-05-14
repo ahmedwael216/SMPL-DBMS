@@ -1,10 +1,10 @@
 package DB;
 
 import java.util.Date;
-
+import java.io.Serializable;
 import java.util.*;
 
-public class    DimRange {
+public class DimRange implements Serializable{
     private Comparable min;
     private Comparable max;
 
@@ -18,10 +18,9 @@ public class    DimRange {
             return splitInteger((int) min, (int) max);
         } else if (min instanceof String) {
             return splitString((String) min, (String) max, Math.min(((String) min).length(), ((String) max).length()));
-        } else if(min instanceof Date){
+        } else if (min instanceof Date) {
             return splitDate((Date) min, (Date) max);
-        }
-        else{
+        } else {
             return splitDouble((double) min, (double) max);
         }
     }
@@ -110,7 +109,7 @@ public class    DimRange {
         return max;
     }
 
-    public String toString(){
+    public String toString() {
         return min + " " + max;
     }
 

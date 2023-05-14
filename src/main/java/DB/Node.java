@@ -1,9 +1,10 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Node<T> {
+public class Node<T> implements Serializable{
     private Node<T>[] children;
     private DimRange xRange;
     private DimRange yRange;

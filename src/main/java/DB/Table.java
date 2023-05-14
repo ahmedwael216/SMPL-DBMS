@@ -387,7 +387,7 @@ public class Table implements Serializable {
     }
 
     public static Comparable[] getMinMaxType(String[] colMinMax, String className) throws ParseException {
-        Comparable min = null, max = null;
+        Comparable min = colMinMax[0], max = colMinMax[1];
 
         if (className.toLowerCase().equals("java.lang.integer")) {
             min = Integer.parseInt(colMinMax[0]);
@@ -462,7 +462,7 @@ public class Table implements Serializable {
                 root.insert(point, i);
             }
         }
-
+ 
         table.setIndexRoot(root);
     }
 
