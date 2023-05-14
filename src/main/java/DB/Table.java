@@ -13,7 +13,9 @@ public class Table implements Serializable {
     private Record prototype;
     private int size;
 
-    private String[] keys;
+    private String[] indexCols;
+    private Node indexRoot;
+
 
 
     public Table(String strTableName,
@@ -110,6 +112,14 @@ public class Table implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String[] getIndexCols() {
+        return this.indexCols;
+    }
+
+    public Node getIndexRoot() {
+        return this.indexRoot;
     }
 
     private String[] getMaxAndMinString(String columnName) throws IOException {
