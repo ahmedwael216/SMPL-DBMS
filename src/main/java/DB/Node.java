@@ -113,7 +113,7 @@ public class Node<T> {
     }
 
     public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
-        Node leaf = getLeaf(point);
+        Node<T> leaf = getLeaf(point);
         if (leaf == null)
             return;
         int index = leaf.points.indexOf(point);
@@ -123,7 +123,7 @@ public class Node<T> {
         }
 
         for (int i = 0; i < leaf.points.size(); i++) {
-            Point3D<T> p = (Point3D<T>) leaf.points.get(i);
+            Point3D<T> p = leaf.points.get(i);
             if (p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())) {
                 if (deleteSingle) {
                     p.removeReference(pageNumber);
@@ -132,25 +132,9 @@ public class Node<T> {
                 } else {
                     leaf.points.remove(i);
                 }
-                return;
-            }
-        }
-
-    }
-
-
-    private Node getLeaf(Point3D<T> point) throws DBAppException {
-        if (children == null) {
-            return this;
-        }
-
-        for (int i = 0; i < children.length; i++) {
-            if (children[i].inRange(point)) {
-                System.out.println("Child: " + children[i].toString() + " " + children[i].getChildren());
-                Node res = children[i].getLeaf(point);
 
                 boolean emptyChildren = true;
-                for (Node child : children) {
+                for (Node<T> child : children) {
                     if (child.children != null) {
                         emptyChildren = false;
                         break;
@@ -163,6 +147,23 @@ public class Node<T> {
 
                 if (emptyChildren)
                     children = null;
+
+                return;
+            }
+        }
+
+    }
+
+
+    private Node<T> getLeaf(Point3D<T> point) throws DBAppException {
+        if (children == null) {
+            return this;
+        }
+
+        for (int i = 0; i < children.length; i++) {
+            if (children[i].inRange(point)) {
+                System.out.println("Child: " + children[i].toString() + " " + children[i].getChildren());
+                Node<T> res = children[i].getLeaf(point);
 
                 return res;
             }
@@ -232,6 +233,13 @@ public class Node<T> {
         root.insert(new Point3D(5, 5, 5), 5);
 
         root.printComplete();
+
+        root.delete(new Point3D(1, 1, 1),true,1);
+        root.delete(new Point3D(2,2, 2),true,2);
+        root.delete(new Point3D(3, 3, 3),true,3);
+        root.delete(new Point3D(4, 4, 4),true,4);
+        root.delete(new Point3D(3, 5, 5),true,5);
+        root.delete(new Point3D(5, 5, 5),true,5);
 
         System.out.println("-----------------------------");
 
