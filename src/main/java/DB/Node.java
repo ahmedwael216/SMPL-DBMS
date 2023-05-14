@@ -138,23 +138,23 @@ public class Node<T> {
             if (children[i].inRange(point)) {
                 System.out.println("Child: "+ children[i].toString() + " " + children[i].getChildren());
                 children[i].deleteHelper(point, this, pageNumber);
+
+                boolean emptyChildren = true;
+                for(Node child: children) {
+                    if (child.children != null)
+                        return;
+                    if(child.points.size() != 0) {
+                        emptyChildren = false;
+                        break;
+                    }
+                }
+
+                if(emptyChildren)
+                    children = null;
+
                 return;
             }
         }
-
-        boolean emptyChildren = true;
-        for(Node child: children) {
-            if (child.children != null)
-                return;
-            if(child.points.size() != 0) {
-                emptyChildren = false;
-                break;
-            }
-        }
-
-        if(emptyChildren)
-            children = null;
-
 
     }
 

@@ -49,6 +49,7 @@ class NodeTest {
 
         assertNotNull(root.getChildren());
         assertEquals(8, root.getChildren().length);
+        assertEquals(0,root.points.size());
     }
 
     @Test
@@ -144,6 +145,25 @@ class NodeTest {
 
     @Test
     @Order(10)
+    void deleteMergesChildNodesWhenAllChildrenAreEmpty() throws DBAppException {
+        root.insert(new Point3D<>(1, 1, 1), 1);
+        root.insert(new Point3D<>(2, 2, 2), 2);
+        root.insert(new Point3D<>(3, 3, 3), 3);
+        root.insert(new Point3D<>(4, 4, 4), 4);
+        root.insert(new Point3D<>(5, 5, 5), 5);
+
+        root.delete(new Point3D<>(1, 1, 1), 1);
+        root.delete(new Point3D<>(2, 2, 2), 2);
+        root.delete(new Point3D<>(3, 3, 3), 3);
+        root.delete(new Point3D<>(4, 4, 4), 4);
+        root.delete(new Point3D<>(5, 5, 5), 5);
+
+        assertNull(root.getChildren());
+        assertEquals(0, root.points.size());
+    }
+
+    @Test
+    @Order(11)
     void deleteThrowsExceptionForNonExistingPoint() throws DBAppException {
         root.insert(new Point3D<>(1, 1, 1), 1);
         root.insert(new Point3D<>(2, 2, 2), 2);
@@ -159,8 +179,17 @@ class NodeTest {
     }
 
     @Test
-    void update() {
-    }
+    @Order(12)
+    void updateMovesPointToNewPageNumber() throws DBAppException {
+        Point3D point = new Point3D(1, 1, 1);
+        int oldPageNumber = 1;
+        int newPageNumber = 2;
 
+        root.insert(point, oldPageNumber);
+        root.update(point, oldPageNumber, newPageNumber);
+
+        assertTrue(root.points.contains(point));
+        assertTrue(point.getReferences().contains(newPageNumber));
+    }
 
 }
