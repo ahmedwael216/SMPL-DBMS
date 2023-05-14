@@ -133,6 +133,9 @@ public class Node<T> {
                     leaf.points.remove(i);
                 }
 
+                if(children == null)
+                    continue;
+
                 boolean emptyChildren = true;
                 for (Node<T> child : children) {
                     if (child.children != null) {
@@ -172,13 +175,13 @@ public class Node<T> {
     }
 
     public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
-        Node leaf = getLeaf(point);
+        Node<T> leaf = getLeaf(point);
         if(leaf == null){
             return;
         }
 
         for(int i = 0; i < leaf.points.size(); i++){
-            Point3D p = (Point3D) leaf.points.get(i);
+            Point3D<T> p = leaf.points.get(i);
             if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())){
                 if(updateSingle){
                     p.removeReference(oldPageNumber);
@@ -186,7 +189,7 @@ public class Node<T> {
                 }
                 else{
                    for(int j = 0; j < p.getReferences().size(); j++){
-                       if((Integer)p.getReferences().get(j) == oldPageNumber){
+                       if(p.getReferences().get(j) == oldPageNumber){
                            p.getReferences().set(j,newPageNumber);
                        }
                    }
