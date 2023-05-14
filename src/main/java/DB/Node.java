@@ -38,7 +38,7 @@ public class Node<T> {
 
     public void insert(Point3D point, int pageNumber) throws DBAppException {
         if (children == null) {  // this is a leaf
-            if(!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
+            if (!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
                 throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
             int index = points.indexOf(point);
             if (index != -1) {
@@ -94,8 +94,8 @@ public class Node<T> {
     private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z) {
         if (children == null) {
             DBVector<Integer> result = new DBVector<>();
-            for(Point3D point : points) {
-                if(x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
+            for (Point3D point : points) {
+                if (x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
                     result.addAll(point.getReferences());
                 }
             }
@@ -112,55 +112,87 @@ public class Node<T> {
         return result;
     }
 
-    public void delete(Point3D<T> point, int pageNumber) throws DBAppException {
-        deleteHelper(point, null, pageNumber);
-    }
-
-
-    private void deleteHelper(Point3D<T> point, Node<T> parent, int pageNumber) throws DBAppException {
-        if (children == null) {
-            int index = points.indexOf(point);
-            if (index == -1) {
-                System.out.println(point.toString());
-                throw new DBAppException("The point to be deleted is not found");
-            }
-
-            for(int i=0;i<points.size();i++) {
-                Point3D<T> p = points.get(i);
-                if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim()))
-                    points.remove(i);
-            }
-
+    public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
+        Node leaf = getLeaf(point);
+        if (leaf == null)
             return;
+        int index = leaf.points.indexOf(point);
+        if (index == -1) {
+            System.out.println(point.toString());
+            throw new DBAppException("The point to be deleted is not found");
         }
 
-        for (int i = 0; i < children.length; i++) {
-            if (children[i].inRange(point)) {
-                System.out.println("Child: "+ children[i].toString() + " " + children[i].getChildren());
-                children[i].deleteHelper(point, this, pageNumber);
-
-                boolean emptyChildren = true;
-                for(Node child: children) {
-                    if (child.children != null)
-                        return;
-                    if(child.points.size() != 0) {
-                        emptyChildren = false;
-                        break;
-                    }
+        for (int i = 0; i < leaf.points.size(); i++) {
+            Point3D<T> p = (Point3D<T>) leaf.points.get(i);
+            if (p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())) {
+                if (deleteSingle) {
+                    p.removeReference(pageNumber);
+                    if (p.getReferences().size() == 0)
+                        leaf.points.remove(i);
+                } else {
+                    leaf.points.remove(i);
                 }
-
-                if(emptyChildren)
-                    children = null;
-
                 return;
             }
         }
 
     }
 
-    public void update(Point3D<T> point, int oldPageNumber, int newPageNumber) throws DBAppException {
-        delete(point, oldPageNumber);
-        insert(point, newPageNumber);
+
+    private Node getLeaf(Point3D<T> point) throws DBAppException {
+        if (children == null) {
+            return this;
+        }
+
+        for (int i = 0; i < children.length; i++) {
+            if (children[i].inRange(point)) {
+                System.out.println("Child: " + children[i].toString() + " " + children[i].getChildren());
+                Node res = children[i].getLeaf(point);
+
+                boolean emptyChildren = true;
+                for (Node child : children) {
+                    if (child.children != null) {
+                        emptyChildren = false;
+                        break;
+                    }
+                    if (child.points.size() != 0) {
+                        emptyChildren = false;
+                        break;
+                    }
+                }
+
+                if (emptyChildren)
+                    children = null;
+
+                return res;
+            }
+        }
+        return null;
+    }
+
+    public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
+        Node leaf = getLeaf(point);
+        if(leaf == null){
+            return;
+        }
+
+        for(int i = 0; i < leaf.points.size(); i++){
+            Point3D p = (Point3D) leaf.points.get(i);
+            if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())){
+                if(updateSingle){
+                    p.removeReference(oldPageNumber);
+                    p.addReference(newPageNumber);
+                }
+                else{
+                   for(int j = 0; j < p.getReferences().size(); j++){
+                       if((Integer)p.getReferences().get(j) == oldPageNumber){
+                           p.getReferences().set(j,newPageNumber);
+                       }
+                   }
+                }
+                return;
+            }
+        }
     }
 
     public String toString() {
@@ -200,13 +232,6 @@ public class Node<T> {
         root.insert(new Point3D(5, 5, 5), 5);
 
         root.printComplete();
-
-        root.delete(new Point3D(1, 1, 1), 1);
-        root.delete(new Point3D(2, 2, 2), 2);
-        root.delete(new Point3D(3, 3, 3), 3);
-        root.delete(new Point3D(3, 5, 5), 5);
-        root.delete(new Point3D(5, 5, 5), 5);
-        root.delete(new Point3D(4, 4, 4), 4);
 
         System.out.println("-----------------------------");
 
