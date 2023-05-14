@@ -109,53 +109,54 @@ public class Node<T> {
         return result;
     }
 
-    public void delete(Point3D point, int pageNumber) throws DBAppException {
+    public void delete(Point3D<T> point, int pageNumber) throws DBAppException {
         deleteHelper(point, null, pageNumber);
     }
 
-    private boolean canBeMerged() {
-        int size = 0;
-        for (int i = 0; i < children.length; i++) {
-            size += children[i].points.size();
-        }
 
-        return size <= maxCapacity;
-    }
-
-    private void merge() {
-        for (int i = 0; i < children.length; i++) {
-            points.addAll(children[i].points);
-        }
-        children = null;
-    }
-
-    private void deleteHelper(Point3D point, Node parent, int pageNumber) throws DBAppException {
+    private void deleteHelper(Point3D<T> point, Node<T> parent, int pageNumber) throws DBAppException {
         if (children == null) {
             int index = points.indexOf(point);
             if (index == -1) {
+                System.out.println(point.toString());
                 throw new DBAppException("The point to be deleted is not found");
             }
-            points.get(index).removeReference(pageNumber);
-            if (points.get(index).getReferences().isEmpty()) {
-                points.remove(index);
-                if (parent != null && parent.canBeMerged()) {
-                    parent.merge();
-                }
+
+            for(int i=0;i<points.size();i++) {
+                Point3D<T> p = points.get(i);
+                if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim()))
+                    points.remove(i);
             }
+
             return;
         }
 
         for (int i = 0; i < children.length; i++) {
             if (children[i].inRange(point)) {
+                System.out.println("Child: "+ children[i].toString() + " " + children[i].getChildren());
                 children[i].deleteHelper(point, this, pageNumber);
-                return;
             }
         }
+
+        boolean emptyChildren = true;
+        for(Node child: children) {
+            if (child.children != null)
+                return;
+            if(child.points.size() != 0) {
+                emptyChildren = false;
+                break;
+            }
+        }
+
+        if(emptyChildren)
+            children = null;
+
+
     }
 
-    public void update(Point3D point, int oldPageNumber, int newPageNumnber) throws DBAppException {
+    public void update(Point3D<T> point, int oldPageNumber, int newPageNumber) throws DBAppException {
         delete(point, oldPageNumber);
-        insert(point, newPageNumnber);
+        insert(point, newPageNumber);
     }
 
     public String toString() {
@@ -191,15 +192,20 @@ public class Node<T> {
         root.insert(new Point3D(2, 2, 2), 2);
         root.insert(new Point3D(3, 3, 3), 3);
         root.insert(new Point3D(4, 4, 4), 4);
+        root.insert(new Point3D(3, 5, 5), 5);
         root.insert(new Point3D(5, 5, 5), 5);
 
         root.printComplete();
 
         root.delete(new Point3D(1, 1, 1), 1);
+        root.delete(new Point3D(2, 2, 2), 2);
+        root.delete(new Point3D(3, 3, 3), 3);
+        root.delete(new Point3D(3, 5, 5), 5);
+        root.delete(new Point3D(5, 5, 5), 5);
+        root.delete(new Point3D(4, 4, 4), 4);
 
         System.out.println("-----------------------------");
 
         root.printComplete();
-
     }
 }

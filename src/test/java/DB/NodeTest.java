@@ -74,9 +74,38 @@ class NodeTest {
         assertTrue(result.contains(2));
         assertTrue(result.contains(3));
     }
+
     @Test
-    void delete() {
+    @Order(5)
+    void deleteRemovesPointFromLeafNode() throws DBAppException {
+        Point3D<Integer> point = new Point3D<>(1, 1, 1);
+        int pageNumber = 1;
+
+        root.insert(point, pageNumber);
+        root.delete(point, pageNumber);
+
+        assertFalse(root.points.contains(point));
+        assertTrue(point.getReferences().isEmpty());
     }
+
+    @Test
+    @Order(6)
+    void deleteMergesChildNodesWhenPossible() throws DBAppException {
+        root.insert(new Point3D<>(1, 1, 1), 1);
+        root.insert(new Point3D<>(2, 2, 2), 2);
+        root.insert(new Point3D<>(3, 3, 3), 3);
+        root.insert(new Point3D<>(4, 4, 4), 4);
+//        System.out.println(root.getChildren().length);
+        root.delete(new Point3D<>(1, 1, 1), 1);
+        root.delete(new Point3D<>(2, 2, 2), 2);
+//        System.out.println(root.getChildren());
+
+        assertTrue(root.canBeMerged());
+        root.merge();
+        assertNull(root.getChildren());
+        assertEquals(2, root.points.size());
+    }
+
 
     @Test
     void update() {

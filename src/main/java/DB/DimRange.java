@@ -95,7 +95,7 @@ public class    DimRange {
     }
 
     public boolean inRange(Comparable value) {
-        return min.compareTo(value) <= 0 && max.compareTo(value) >= 0;
+        return min.compareTo(value) < 0 && max.compareTo(value) >= 0;
     }
 
     public boolean equals(DimRange other) {
