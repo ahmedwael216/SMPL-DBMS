@@ -36,7 +36,7 @@ public class Node<T> {
     }
 
 
-    public void insert(Point3D point, int pageNumber) throws DBAppException {
+    public void insert(Point3D<T> point, int pageNumber) throws DBAppException {
         if (children == null) {  // this is a leaf
             if (!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
                 throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
@@ -70,9 +70,9 @@ public class Node<T> {
 
         children = new Node[8];
         for (int i = 0; i < 8; i++) {
-            children[i] = new Node(newRangeX[(i >> 2) & 1].getMin(), newRangeY[(i >> 1) & 1].getMin(), newRangeZ[i & 1].getMin(), newRangeX[(i >> 2) & 1].getMax(), newRangeY[(i >> 1) & 1].getMax(), newRangeZ[i & 1].getMax());
+            children[i] = new Node<>(newRangeX[(i >> 2) & 1].getMin(), newRangeY[(i >> 1) & 1].getMin(), newRangeZ[i & 1].getMin(), newRangeX[(i >> 2) & 1].getMax(), newRangeY[(i >> 1) & 1].getMax(), newRangeZ[i & 1].getMax());
         }
-        for (Point3D point : this.points) {
+        for (Point3D<T> point : this.points) {
             for (int i = 0; i < 8; i++) {
                 if (children[i].inRange(point)) {
                     children[i].points.add(point);
@@ -94,7 +94,7 @@ public class Node<T> {
     private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z) {
         if (children == null) {
             DBVector<Integer> result = new DBVector<>();
-            for (Point3D point : points) {
+            for (Point3D<T> point : points) {
                 if (x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
                     result.addAll(point.getReferences());
                 }
@@ -114,14 +114,13 @@ public class Node<T> {
 
     public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
+
         if (leaf == null){
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
-        leaf.printComplete();
-        System.out.println("Leaf: ___________________________________");
+
         int index = leaf.points.indexOf(point);
         if (index == -1) {
-            System.out.println(point.toString());
             throw new DBAppException("The point to be deleted is not found");
         }
 
@@ -168,10 +167,7 @@ public class Node<T> {
 
         for (int i = 0; i < children.length; i++) {
             if (children[i].inRange(point)) {
-                System.out.println("Child: " + children[i].toString() + " " + children[i].getChildren());
-                Node<T> res = children[i].getLeaf(point);
-
-                return res;
+                return children[i].getLeaf(point);
             }
         }
         return null;
@@ -230,27 +226,4 @@ public class Node<T> {
 
     }
 
-    public static void main(String[] args) throws DBAppException {
-        Node root = new Node(0, 0, 0, 8, 8, 8);
-
-        root.insert(new Point3D(1, 1, 1), 1);
-        root.insert(new Point3D(2, 2, 2), 2);
-        root.insert(new Point3D(3, 3, 3), 3);
-        root.insert(new Point3D(4, 4, 4), 4);
-        root.insert(new Point3D(3, 5, 5), 5);
-        root.insert(new Point3D(5, 5, 5), 5);
-
-        root.printComplete();
-
-        root.delete(new Point3D(1, 1, 1),true,1);
-        root.delete(new Point3D(2,2, 2),true,2);
-        root.delete(new Point3D(3, 3, 3),true,3);
-        root.delete(new Point3D(4, 4, 4),true,4);
-        root.delete(new Point3D(3, 5, 5),true,5);
-        root.delete(new Point3D(5, 5, 5),true,5);
-
-        System.out.println("-----------------------------");
-
-        root.printComplete();
-    }
 }

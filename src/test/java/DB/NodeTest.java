@@ -28,7 +28,7 @@ class NodeTest {
     @Test
     @Order(2)
     void insertDoesNotDuplicatePointsInLeafNodeButReferences() throws DBAppException {
-        Point3D point = new Point3D(1, 1, 1);
+        Point3D<Integer> point = new Point3D<>(1, 1, 1);
         int pageNumber = 1;
 
         root.insert(point, pageNumber);
@@ -88,7 +88,7 @@ class NodeTest {
 
         root.insert(point, 1);
         root.insert(point, 2);
-        root.printComplete();
+
         root.delete(point, true,1);
 
         assertTrue(root.points.contains(point));
