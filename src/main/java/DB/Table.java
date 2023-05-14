@@ -123,7 +123,7 @@ public class Table implements Serializable {
         return this.indexRoot;
     }
 
-    private String[] getMaxAndMinString(String columnName) throws IOException {
+    public String[] getMaxAndMinString(String columnName) throws IOException {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
@@ -144,6 +144,25 @@ public class Table implements Serializable {
         return null;
     }
 
+    public static Comparable[] getMinMaxType(String[] colMinMax, String className) throws ParseException {
+        Comparable min = colMinMax[0], max = colMinMax[1];
+
+        if (className.toLowerCase().equals("java.lang.integer")) {
+            min = Integer.parseInt(colMinMax[0]);
+            max = Integer.parseInt(colMinMax[1]);
+        } else if (className.toLowerCase().equals("java.lang.double")) {
+            min = Double.parseDouble(colMinMax[0]);
+            max = Double.parseDouble(colMinMax[1]);
+        } else if (className.toLowerCase().equals("java.lang.date")) {
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            min = formatter.parse(colMinMax[0]);
+            max = formatter.parse(colMinMax[1]);
+        }
+
+        return new Comparable[] { min, max };
+    }
+
+
     private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
         String[] res = new String[keysTypes.size()];
         res[0] = clusteringKey;
@@ -159,7 +178,7 @@ public class Table implements Serializable {
 
     // checker method to check if the inserted value in the valid range of the key
 
-    private String getKeyType(String key) {
+    public String getKeyType(String key) {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = null;
@@ -377,10 +396,98 @@ public class Table implements Serializable {
         return max;
     }
 
+// TODO: SelectFromTable
 
-    public DBVector<Record> selectFromTable(String strTableName,SQLTerm[] arrSQLTerms,String[] strarrOperators){
-        
+//    public DBVector<Record> selectFromTable(String strTableName,SQLTerm[] arrSQLTerms,String[] strarrOperators){
+//
+//        String[] fullquery = new String[arrSQLTerms.length+strarrOperators.length];
+//        for(int i=0;i<fullquery.length;i++){
+//            if(i%2==0){
+//                fullquery[i] = arrSQLTerms[i/2]._strColumnName;
+//            }
+//            else fullquery[i] = strarrOperators[(i/2)];
+//        }
+//
+//        int index = this.useOcttree(fullquery);
+//
+//        if(index == -1){
+//
+//        }
+//        else {
+//            SQLTerm firstQuery = arrSQLTerms[index/2];
+//            SQLTerm secondQuery = arrSQLTerms[(index/2)+1];
+//            SQLTerm thirdQuery = arrSQLTerms[(index/2)+2];
+//            DBVector<Record> indexResult = OctTreeIndexSearch.Search(new SQLTerm[]{firstQuery,secondQuery,thirdQuery});
+//
+//            String leftoperator = null;
+//            String rightoperator = null;
+//
+//            arrSQLTerms[index/2] = null;
+//            arrSQLTerms[index/2+1] = null;
+//            arrSQLTerms[index/2+2] = null;
+//
+//            SQLTerm[] linearsearchterms = new SQLTerm[arrSQLTerms.length-3];
+//
+//            for()
+//
+//
+//
+//        }
+//    }
+//    public DBVector<Record> selectFromTable2(String strTableName,SQLTerm[] arrSQLTerms,String[] strarrOperators){
+//
+//    }
+//    public DBVector<Record> selecthelper(int x){
+//        if(true){
+//            // octtree
+//
+//
+//            x+3;
+//        }
+//        else if{
+//            // cluteringkey
+//
+//
+//            x+1;
+//        }
+//        else {
+//            //linersearch
+//
+//            x+1;
+//        }
+//    }
+
+    public int useOcttree(String[] fullquery){
+        String[] indexCols = this.indexCols;
+        int i =0;
+        int j = 2;
+        int k = 4;
+
+        HashSet<String> hs = new HashSet<>();
+        hs.add(indexCols[0]);
+        hs.add(indexCols[1]);
+        hs.add(indexCols[2]);
+
+
+        while (k<fullquery.length){
+            if(fullquery[i+1].equals("AND") && fullquery[j+1].equals("AND")){
+                hs.remove(fullquery[i]);
+                hs.remove(fullquery[j]);
+                hs.remove(fullquery[k]);
+                if(hs.size()==0) return i;
+                else{
+                    hs.add(indexCols[0]);
+                    hs.add(indexCols[1]);
+                    hs.add(indexCols[2]);
+                }
+            }
+            i+=2;
+            j+=2;
+            k+=2;
+        }
+        return -1;
     }
+
 
     public DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
         HashSet<Record> FirstSetHashTable = new HashSet<Record>();
