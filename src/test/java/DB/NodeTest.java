@@ -237,9 +237,8 @@ class NodeTest {
     @Test
     @Order(14)
     void updateThrowsExceptionForNoneExistingPoint() throws DBAppException {
-
         Assertions.assertThrows(DBAppException.class, () -> {
-            root.update(new Point3D<>(1, 1, 1),false, 2, 5);
+            root.update(new Point3D<>(100, 100, 100),false, 2, 5);
         });
     }
 
