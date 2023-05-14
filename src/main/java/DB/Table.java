@@ -376,4 +376,49 @@ public class Table implements Serializable {
         }
         return max;
     }
+
+
+    public DBVector<Record> selectFromTable(String strTableName,SQLTerm[] arrSQLTerms,String[] strarrOperators){
+        
+    }
+
+    public DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> FirstSetHashTable = new HashSet<Record>();
+        DBVector<Record> result = new DBVector<Record>();
+
+        for(Record record:FirstSet)FirstSetHashTable.add(record);
+        for(Record record:SecondSet)if(FirstSetHashTable.contains(record))result.add(record);
+        return result;
+    }
+
+    public DBVector<Record> or(DBVector<Record> FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) resultHashSet.add(record);
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+    public DBVector<Record> xor(DBVector<Record> FirstSet, DBVector<Record> SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) {
+            if(resultHashSet.contains(record))resultHashSet.remove(record);
+            else resultHashSet.add(record);
+        }
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+
+
+
+
+
 }
