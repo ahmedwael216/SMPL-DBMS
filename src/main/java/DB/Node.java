@@ -180,7 +180,7 @@ public class Node<T> {
     public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
         if(leaf == null){
-            throw new DBAppException("The point to be deleted is not found");
+            throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
 
         for(int i = 0; i < leaf.points.size(); i++){
@@ -200,6 +200,8 @@ public class Node<T> {
                 return;
             }
         }
+
+        throw new DBAppException("The point to be updated is not found");
     }
 
     public String toString() {

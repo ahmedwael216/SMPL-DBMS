@@ -185,7 +185,7 @@ class NodeTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void deleteThrowsExceptionInValidPointRange() throws DBAppException {
         root.insert(new Point3D<>(1, 1, 1), 1);
         root.insert(new Point3D<>(2, 2, 2), 2);
@@ -237,7 +237,7 @@ class NodeTest {
     @Test
     @Order(14)
     void updateThrowsExceptionForNoneExistingPoint() throws DBAppException {
-        root.printComplete();
+
         Assertions.assertThrows(DBAppException.class, () -> {
             root.update(new Point3D<>(1, 1, 1),false, 2, 5);
         });
