@@ -4,19 +4,35 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Node<T> {
-    private Node[] children;
-    DimRange xRange;
-    DimRange yRange;
-    DimRange zRange;
+    private Node<T>[] children;
+    private DimRange xRange;
+    private DimRange yRange;
+    private DimRange zRange;
     private static int maxCapacity;
-    DBVector<Point3D> points;
+    DBVector<Point3D<T>> points;
 
     public Node(Comparable minX, Comparable minY, Comparable minZ, Comparable maxX, Comparable maxY, Comparable maxZ) {
         this.xRange = new DimRange(minX, maxX);
         this.yRange = new DimRange(minY, maxY);
         this.zRange = new DimRange(minZ, maxZ);
         this.maxCapacity = DBApp.maxEntriesCountNode;
-        this.points = new DBVector<Point3D>();
+        this.points = new DBVector<>();
+    }
+
+    public Node<T>[] getChildren() {
+        return this.children;
+    }
+
+    public DimRange getXRange() {
+        return this.xRange;
+    }
+
+    public DimRange getYRange() {
+        return this.yRange;
+    }
+
+    public DimRange getZRange() {
+        return this.zRange;
     }
 
 
@@ -24,7 +40,7 @@ public class Node<T> {
         if (children == null) {  // this is a leaf
             int index = points.indexOf(point);
             if (index != -1) {
-                points.get(index).addReference(pageNumber);
+//                points.get(index).addReference(pageNumber);
                 return;
             }
             points.add(point);
