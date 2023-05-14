@@ -13,6 +13,7 @@ public class Table implements Serializable {
     private Record prototype;
     private int size;
 
+    private String[] keys;
     private String[] indexCols;
     private Node indexRoot;
 
