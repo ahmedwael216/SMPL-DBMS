@@ -114,8 +114,8 @@ public class DimRange implements Serializable {
     }
 
     public boolean intersect(DimRange other, boolean includeL, boolean includeR) {
-        if ((includeL ? min.compareTo(other.max) > 0 : min.compareTo(other.max) >= 0)
-                || (includeR ? max.compareTo(other.min) < 0 : max.compareTo(other.min) <= 0)) {
+        if ((includeR ? min.compareTo(other.max) > 0 : min.compareTo(other.max) >= 0)
+                || (includeL ? max.compareTo(other.min) < 0 : max.compareTo(other.min) <= 0)) {
             return false;
         }
         return true;
