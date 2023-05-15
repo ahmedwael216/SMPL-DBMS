@@ -1,10 +1,10 @@
 package DB;
 
 import java.util.Date;
-
+import java.io.Serializable;
 import java.util.*;
 
-public class    DimRange {
+public class DimRange implements Serializable {
     private Comparable min;
     private Comparable max;
 
@@ -18,10 +18,9 @@ public class    DimRange {
             return splitInteger((int) min, (int) max);
         } else if (min instanceof String) {
             return splitString((String) min, (String) max, Math.min(((String) min).length(), ((String) max).length()));
-        } else if(min instanceof Date){
+        } else if (min instanceof Date) {
             return splitDate((Date) min, (Date) max);
-        }
-        else{
+        } else {
             return splitDouble((double) min, (double) max);
         }
     }
@@ -110,14 +109,25 @@ public class    DimRange {
         return max;
     }
 
-    public String toString(){
+    public String toString() {
         return min + " " + max;
     }
 
-    public boolean intersect(DimRange other) {
-        if (min.compareTo(other.max) > 0 || max.compareTo(other.min) < 0) {
+    public boolean intersect(DimRange other, boolean includeL, boolean includeR) {
+        if ((includeR ? min.compareTo(other.max) > 0 : min.compareTo(other.max) >= 0)
+                || (includeL ? max.compareTo(other.min) < 0 : max.compareTo(other.min) <= 0)) {
             return false;
         }
         return true;
+    }
+
+    public static void main(String[] args) {
+        DimRange r = new DimRange(1, 4);
+        DimRange t = new DimRange(2, 5);
+        System.out.println(r.intersect(t, true, true));
+        System.out.println(r.intersect(t, false, true));
+        System.out.println(r.intersect(t, true, false));
+        System.out.println(r.intersect(t, false, false));
+
     }
 }

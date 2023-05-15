@@ -1,9 +1,10 @@
 package DB;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Node<T> {
+public class Node<T> implements Serializable{
     private Node<T>[] children;
     private DimRange xRange;
     private DimRange yRange;
@@ -36,9 +37,9 @@ public class Node<T> {
     }
 
 
-    public void insert(Point3D point, int pageNumber) throws DBAppException {
+    public void insert(Point3D<T> point, int pageNumber) throws DBAppException {
         if (children == null) {  // this is a leaf
-            if(!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
+            if (!this.xRange.inRange(point.getXDim()) || !this.yRange.inRange(point.getYDim()) || !this.zRange.inRange(point.getZDim()))
                 throw new DBAppException("The inserted point is out of valid range, the point: " + point.toString());
             int index = points.indexOf(point);
             if (index != -1) {
@@ -70,9 +71,9 @@ public class Node<T> {
 
         children = new Node[8];
         for (int i = 0; i < 8; i++) {
-            children[i] = new Node(newRangeX[(i >> 2) & 1].getMin(), newRangeY[(i >> 1) & 1].getMin(), newRangeZ[i & 1].getMin(), newRangeX[(i >> 2) & 1].getMax(), newRangeY[(i >> 1) & 1].getMax(), newRangeZ[i & 1].getMax());
+            children[i] = new Node<>(newRangeX[(i >> 2) & 1].getMin(), newRangeY[(i >> 1) & 1].getMin(), newRangeZ[i & 1].getMin(), newRangeX[(i >> 2) & 1].getMax(), newRangeY[(i >> 1) & 1].getMax(), newRangeZ[i & 1].getMax());
         }
-        for (Point3D point : this.points) {
+        for (Point3D<T> point : this.points) {
             for (int i = 0; i < 8; i++) {
                 if (children[i].inRange(point)) {
                     children[i].points.add(point);
@@ -84,18 +85,18 @@ public class Node<T> {
         this.points.clear();
     }
 
-    public DBVector<Integer> search(DimRange x, DimRange y, DimRange z) {
-        HashSet<Integer> temp = new HashSet<>(searchHelper(x, y, z));
+    public DBVector<Integer> search(DimRange x, DimRange y, DimRange z, boolean includeXL, boolean includeYL, boolean includeZL, boolean includeXR, boolean includeYR, boolean includeZR) {
+        HashSet<Integer> temp = new HashSet<>(searchHelper(x, y, z, includeXL, includeYL, includeZL, includeXR, includeYR, includeZR));
         DBVector<Integer> res = new DBVector<>();
         res.addAll(temp);
         return res;
     }
 
-    private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z) {
+    private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z, boolean includeXL, boolean includeYL, boolean includeZL, boolean includeXR, boolean includeYR, boolean includeZR) {
         if (children == null) {
             DBVector<Integer> result = new DBVector<>();
-            for(Point3D point : points) {
-                if(x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
+            for (Point3D<T> point : points) {
+                if (x.inRange(point.getXDim()) && y.inRange(point.getYDim()) && z.inRange(point.getZDim())) {
                     result.addAll(point.getReferences());
                 }
             }
@@ -104,52 +105,53 @@ public class Node<T> {
 
         DBVector<Integer> result = new DBVector<>();
         for (int i = 0; i < children.length; i++) {
-            if (xRange.intersect(x) && yRange.intersect(y) && zRange.intersect(z)) {
-                result.addAll(children[i].search(x, y, z));
+            if (xRange.intersect(x, includeXL, includeXR) && yRange.intersect(y, includeYL, includeYR) && zRange.intersect(z, includeZL, includeZR)) {
+                result.addAll(children[i].search(x, y, z, includeXL, includeYL, includeZL, includeXR, includeYR, includeZR));
             }
         }
 
         return result;
     }
 
-    public void delete(Point3D<T> point, int pageNumber) throws DBAppException {
-        deleteHelper(point, null, pageNumber);
-    }
+    public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
+        Node<T> leaf = getLeaf(point);
 
-
-    private void deleteHelper(Point3D<T> point, Node<T> parent, int pageNumber) throws DBAppException {
-        if (children == null) {
-            int index = points.indexOf(point);
-            if (index == -1) {
-                System.out.println(point.toString());
-                throw new DBAppException("The point to be deleted is not found");
-            }
-
-            for(int i=0;i<points.size();i++) {
-                Point3D<T> p = points.get(i);
-                if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim()))
-                    points.remove(i);
-            }
-
-            return;
+        if (leaf == null){
+            throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
 
-        for (int i = 0; i < children.length; i++) {
-            if (children[i].inRange(point)) {
-                System.out.println("Child: "+ children[i].toString() + " " + children[i].getChildren());
-                children[i].deleteHelper(point, this, pageNumber);
+        int index = leaf.points.indexOf(point);
+        if (index == -1) {
+            throw new DBAppException("The point to be deleted is not found");
+        }
+
+        for (int i = 0; i < leaf.points.size(); i++) {
+            Point3D<T> p = leaf.points.get(i);
+            if (p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())) {
+                if (deleteSingle) {
+                    p.removeReference(pageNumber);
+                    if (p.getReferences().size() == 0)
+                        leaf.points.remove(i);
+                } else {
+                    leaf.points.remove(i);
+                }
+
+                if(children == null)
+                    continue;
 
                 boolean emptyChildren = true;
-                for(Node child: children) {
-                    if (child.children != null)
-                        return;
-                    if(child.points.size() != 0) {
+                for (Node<T> child : children) {
+                    if (child.children != null) {
+                        emptyChildren = false;
+                        break;
+                    }
+                    if (child.points.size() != 0) {
                         emptyChildren = false;
                         break;
                     }
                 }
 
-                if(emptyChildren)
+                if (emptyChildren)
                     children = null;
 
                 return;
@@ -158,9 +160,45 @@ public class Node<T> {
 
     }
 
-    public void update(Point3D<T> point, int oldPageNumber, int newPageNumber) throws DBAppException {
-        delete(point, oldPageNumber);
-        insert(point, newPageNumber);
+
+    private Node<T> getLeaf(Point3D<T> point) throws DBAppException {
+        if (children == null) {
+            return this;
+        }
+
+        for (int i = 0; i < children.length; i++) {
+            if (children[i].inRange(point)) {
+                return children[i].getLeaf(point);
+            }
+        }
+        return null;
+    }
+
+    public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
+        Node<T> leaf = getLeaf(point);
+        if(leaf == null){
+            throw new DBAppException("The point is out of valid range, the point: " + point.toString());
+        }
+
+        for(int i = 0; i < leaf.points.size(); i++){
+            Point3D<T> p = leaf.points.get(i);
+            if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())){
+                if(updateSingle){
+                    p.removeReference(oldPageNumber);
+                    p.addReference(newPageNumber);
+                }
+                else{
+                   for(int j = 0; j < p.getReferences().size(); j++){
+                       if(p.getReferences().get(j) == oldPageNumber){
+                           p.getReferences().set(j,newPageNumber);
+                       }
+                   }
+                }
+                return;
+            }
+        }
+
+        throw new DBAppException("The point to be updated is not found");
     }
 
     public String toString() {
@@ -189,27 +227,4 @@ public class Node<T> {
 
     }
 
-    public static void main(String[] args) throws DBAppException {
-        Node root = new Node(0, 0, 0, 8, 8, 8);
-
-        root.insert(new Point3D(1, 1, 1), 1);
-        root.insert(new Point3D(2, 2, 2), 2);
-        root.insert(new Point3D(3, 3, 3), 3);
-        root.insert(new Point3D(4, 4, 4), 4);
-        root.insert(new Point3D(3, 5, 5), 5);
-        root.insert(new Point3D(5, 5, 5), 5);
-
-        root.printComplete();
-
-        root.delete(new Point3D(1, 1, 1), 1);
-        root.delete(new Point3D(2, 2, 2), 2);
-        root.delete(new Point3D(3, 3, 3), 3);
-        root.delete(new Point3D(3, 5, 5), 5);
-        root.delete(new Point3D(5, 5, 5), 5);
-        root.delete(new Point3D(4, 4, 4), 4);
-
-        System.out.println("-----------------------------");
-
-        root.printComplete();
-    }
 }

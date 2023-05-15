@@ -1,6 +1,8 @@
 package DB;
 
-public class Point3D<T> {
+import java.io.Serializable;
+
+public class Point3D<T> implements Serializable {
     private Comparable xDim;
     private Comparable yDim;
     private Comparable zDim;

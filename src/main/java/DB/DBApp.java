@@ -96,6 +96,7 @@ public class DBApp {
             DBVector<String> lines = new DBVector<>();
             lines.add("databaseName = " + selectedDBName);
             lines.add("maximumNumberOfRows = 200");
+            lines.add("maxEntriesCountNode = 4");
             maxRecordsCountPage = 200;
             try {
                 FileWriter fw = new FileWriter(currentConfigFile);
@@ -182,8 +183,11 @@ public class DBApp {
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
                             String[] strarrColName)
-            throws DBAppException {
+            throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        if(strarrColName.length != 3)
+            throw new DBAppException("There must be three columns in order to create the index.");
 
+        Table.createIndex(strTableName,strarrColName);
     }
 
     /**

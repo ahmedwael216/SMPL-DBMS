@@ -69,7 +69,7 @@ public class TablePersistence {
         return 0;
     }
 
-    private static void serialize(Page p, String tableName, int pageIndex) {
+    public static void serialize(Page p, String tableName, int pageIndex) {
         String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + pageIndex + ".ser";
         // Serialization
         try {
