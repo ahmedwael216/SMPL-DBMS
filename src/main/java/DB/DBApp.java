@@ -1,5 +1,12 @@
 package DB;
 
+import grammar.SQLiteLexer;
+import grammar.SQLiteParser;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
@@ -338,6 +345,12 @@ public class DBApp {
       }
 
 
+
+    public Iterator parseSQL( StringBuffer strbufSQL ) throws DBAppException{
+        return SQLParser.parse(strbufSQL);
+    }
+
+
     /**
      * Helper function to check if the column has an index or not.
      *
@@ -348,8 +361,12 @@ public class DBApp {
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
+        StringBuffer sb =new StringBuffer();
+        sb.append("SELECT * FROM STUDENTS;");
+        sb.append("Create Table STUDENTS");
+        db.parseSQL(sb);
         //creating table
-        String strTableName = "Student";
+//        String strTableName = "Student";
 //        Hashtable<String, String> min = new Hashtable<>();
 //        min.put("id", "0");
 //        min.put("name", "A");
@@ -372,7 +389,7 @@ public class DBApp {
 //        db.insertIntoTable(strTableName, htblColNameValue);
 //        }
 
-        System.out.println(db.printTable(strTableName));
+//        System.out.println(db.printTable(strTableName));
     }
 
     public int getTableLength(String tableName) throws IOException, ClassNotFoundException {

@@ -173,6 +173,7 @@ public class SQLiteParserBaseListener implements SQLiteParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterCreate_table_stmt(SQLiteParser.Create_table_stmtContext ctx) {
+		System.out.println("in create");
 //		ctx.table_name().getText();
 	}
 	/**
@@ -498,7 +499,9 @@ public class SQLiteParserBaseListener implements SQLiteParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSelect_stmt(SQLiteParser.Select_stmtContext ctx) { }
+	@Override public void enterSelect_stmt(SQLiteParser.Select_stmtContext ctx) {
+		System.out.println("in select");
+	}
 	/**
 	 * {@inheritDoc}
 	 *
