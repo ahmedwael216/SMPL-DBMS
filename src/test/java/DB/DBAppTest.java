@@ -42,7 +42,7 @@ class DBAppTest {
 
     @Test
     @Order(1)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyInt() throws DBAppException {
         String strTableName = "StudentInt";
         DbApp.createTable(strTableName, "id", htblColNameType, min, max);
@@ -50,7 +50,7 @@ class DBAppTest {
 
     @Test
     @Order(2)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyDouble() throws DBAppException {
         String strTableName = "StudentDouble";
         DbApp.createTable(strTableName, "gpa", htblColNameType, min, max);
@@ -58,7 +58,7 @@ class DBAppTest {
 
     @Test
     @Order(3)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyString() throws DBAppException {
         String strTableName = "StudentString";
         DbApp.createTable(strTableName, "name", htblColNameType, min, max);
@@ -67,7 +67,7 @@ class DBAppTest {
 
     @Test
     @Order(4)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyDate() throws DBAppException {
         String strTableName = "StudentDate";
         DbApp.createTable(strTableName, "birthday", htblColNameType, min, max);
@@ -351,5 +351,194 @@ class DBAppTest {
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.deleteFromTable(strTableName, htblColNameValue);
         });
+    }
+
+    @Test
+    @Order(26)
+    void insertIntoTableIntAboveMax() throws ParseException {
+        String strTableName = "StudentInt";
+        for (int i = 0; i < 5; i++) {
+            int random = (int) Math.random() * 9999;
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", 1000 + random);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(27)
+    void insertIntoTableIntBelowMin() throws ParseException {
+        String strTableName = "StudentInt";
+        for (int i = 0; i < 5; i++) {
+            int random = (int) Math.random() * 9999;
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", -1 * random);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(28)
+    void insertIntoTableDoubleAboveMax() throws ParseException {
+        String strTableName = "StudentDouble";
+        for (int i = 0; i <= 4; i++) {
+            int random = (int) Math.random() * 9999;
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0 + random);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(28)
+    void insertIntoTableDoubleBelowMin() throws ParseException {
+        String strTableName = "StudentDouble";
+        for (int i = 0; i <= 4; i++) {
+            int random = (int) Math.random() * 9999;
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 0.0 - random);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(29)
+    void insertIntoTableEmptyString() throws DBAppException, ParseException {
+        String strTableName = "StudentString";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 6);
+        htblColNameValue.put("name", "");
+        htblColNameValue.put("gpa", 3.2);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        assertThrows(DBAppException.class, () -> {
+            DbApp.insertIntoTable(strTableName, htblColNameValue);
+        });
+    }
+
+    @Test
+    @Order(30)
+    void insertIntoTableStringAboveMax() throws DBAppException, ParseException {
+        String strTableName = "StudentString";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 6);
+        htblColNameValue.put("name", "zzzzzzzzzzzzza");
+        htblColNameValue.put("gpa", 3.2);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        assertThrows(DBAppException.class, () -> {
+            DbApp.insertIntoTable(strTableName, htblColNameValue);
+        });
+    }
+
+    @Test
+    @Order(31)
+    void insertIntoTableDateAboveMax() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        for (int i = 1; i <= 9; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2030-01-0" + i));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+
+    }
+
+    @Test
+    @Order(32)
+    void insertIntoTableDateBelowMin() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        for (int i = 1; i <= 9; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("1030-01-0" + i));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+
+    }
+
+    @Test
+    @Order(33)
+    void insertIntoTableDateInvalidYear() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        for (int i = 3; i <= 9; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse(i + "020-01-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(34)
+    void insertIntoTableDateInvalidMonth() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        for (int i = 4; i <= 9; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("220-" + i + "1-01"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
+    }
+
+    @Test
+    @Order(35)
+    void insertIntoTableDateInvalidDay() throws DBAppException, ParseException {
+        String strTableName = "StudentDate";
+        for (int i = 4; i <= 9; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("220-01-" + i + "1"));
+            assertThrows(DBAppException.class, () -> {
+                DbApp.insertIntoTable(strTableName, htblColNameValue);
+            });
+        }
     }
 }
