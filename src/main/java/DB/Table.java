@@ -17,10 +17,10 @@ public class Table implements Serializable {
     private Node indexRoot;
 
     public Table(String strTableName,
-            String strClusteringKeyColumn,
-            Hashtable<String, String> htblColNameType,
-            Hashtable<String, String> htblColNameMin,
-            Hashtable<String, String> htblColNameMax)
+                 String strClusteringKeyColumn,
+                 Hashtable<String, String> htblColNameType,
+                 Hashtable<String, String> htblColNameMin,
+                 Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
 
         this.name = strTableName;
@@ -47,14 +47,14 @@ public class Table implements Serializable {
             if (!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
                 throw new DBAppException("Invalid Value for column " + key);
         }
-        writer.writeNext(new String[] { "TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
-                "IndexType", "min", "max" });
+        writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
+                "IndexType", "min", "max"});
 
         // add the primary key column
         writer.writeNext(
-                new String[] { strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
+                new String[]{strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
                         "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn),
-                        htblColNameMax.get(strClusteringKeyColumn) });
+                        htblColNameMax.get(strClusteringKeyColumn)});
 
         // add other columns
         Set<String> allColumns = htblColNameType.keySet();
@@ -63,8 +63,8 @@ public class Table implements Serializable {
             if (columnName.equals(strClusteringKeyColumn)) {
                 continue;
             }
-            writer.writeNext(new String[] { strTableName, columnName, htblColNameType.get(columnName),
-                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName) });
+            writer.writeNext(new String[]{strTableName, columnName, htblColNameType.get(columnName),
+                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName)});
         }
         writer.close();
 
@@ -145,8 +145,8 @@ public class Table implements Serializable {
             }
             String[] column = line.split(cvsSplitBy);
             if (column[1].substring(1, column[1].length() - 1).equals(columnName)) {
-                return new String[] { column[6].substring(1, column[6].length() - 1),
-                        column[7].substring(1, column[7].length() - 1) };
+                return new String[]{column[6].substring(1, column[6].length() - 1),
+                        column[7].substring(1, column[7].length() - 1)};
             }
         }
 
@@ -193,11 +193,10 @@ public class Table implements Serializable {
         return null;
     }
 
-    private boolean checkValidity(String columnName, Comparable value)
-            throws ParseException, ClassNotFoundException, IOException, DBAppException {
-        String[] minAndMax = getMaxAndMinString(columnName);
+    private static Comparable[] getMinMaxComparable(String columnName, Table table) throws IOException, ParseException, DBAppException {
+        String[] minAndMax = table.getMaxAndMinString(columnName);
 
-        String className = getKeyType(columnName);
+        String className = table.getKeyType(columnName);
 
         String minValStr = minAndMax[0], maxValStr = minAndMax[1];
         Comparable minVal, maxVal;
@@ -217,7 +216,18 @@ public class Table implements Serializable {
                 minVal = minValStr;
                 maxVal = maxValStr;
             }
+        } catch (Exception e) {
+            throw new DBAppException("Invalid Value for column " + columnName);
+        }
+        return new Comparable[]{minVal, maxVal};
+    }
 
+    private boolean checkValidity(String columnName, Comparable value)
+            throws ParseException, ClassNotFoundException, IOException, DBAppException {
+        // get the value of the min and the max
+        try {
+            Comparable[] minMax = getMinMaxComparable(columnName, this);
+            Comparable minVal = minMax[0], maxVal = minMax[1];
             if (minVal.compareTo(value) > 0) {
                 return false;
             }
@@ -405,10 +415,10 @@ public class Table implements Serializable {
             max = formatter.parse(colMinMax[1]);
         }
 
-        return new Comparable[] { min, max };
+        return new Comparable[]{min, max};
     }
 
-    public static Node createRootNode(Table table, String[] strarrColName) throws IOException, ParseException {
+    public static Node createRootNode(Table table, String[] strarrColName) throws IOException, ParseException, DBAppException {
         String[] colXMinMax = table.getMaxAndMinString(strarrColName[0]);
         String[] colYMinMax = table.getMaxAndMinString(strarrColName[1]);
         String[] colZMinMax = table.getMaxAndMinString(strarrColName[2]);
@@ -417,9 +427,9 @@ public class Table implements Serializable {
         String colYClassName = table.getKeyType(strarrColName[1]);
         String colZClassName = table.getKeyType(strarrColName[2]);
 
-        Comparable[] minMaxX = getMinMaxType(colXMinMax, colXClassName);
-        Comparable[] minMaxY = getMinMaxType(colYMinMax, colYClassName);
-        Comparable[] minMaxZ = getMinMaxType(colZMinMax, colZClassName);
+        Comparable[] minMaxX = getMinMaxComparable(strarrColName[0], table);
+        Comparable[] minMaxY = getMinMaxComparable(strarrColName[1], table);
+        Comparable[] minMaxZ = getMinMaxComparable(strarrColName[2], table);
 
         return new Node(minMaxX[0], minMaxY[0], minMaxZ[0], minMaxX[1], minMaxY[1], minMaxZ[1]);
     }
@@ -459,20 +469,21 @@ public class Table implements Serializable {
 
         int n = Table.getNumberOfPagesForTable(strTableName);
         for (int i = 0; i < n; i++) {
-            Page p = TablePersistence.deserialize(0, strTableName);
+            Page p = TablePersistence.deserialize(i, strTableName);
             DBVector<Record> records = p.getRecords();
             for (Record r : records) {
                 Point3D point = createPoint(table, r, strarrColName);
                 root.insert(point, i);
             }
+            TablePersistence.serialize(p, strTableName, i);
         }
-        
+
         table.setIndexCols(strarrColName);
         table.setIndexRoot(root);
     }
 
     public static void createIndex(String strTableName,
-            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+                                   String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
 
         insertLinearIntoIndex(strTableName, null, strarrColName);
 

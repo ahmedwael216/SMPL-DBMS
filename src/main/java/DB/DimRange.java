@@ -120,4 +120,14 @@ public class DimRange implements Serializable {
         }
         return true;
     }
+
+    public static void main(String[] args) {
+        DimRange r = new DimRange(1, 4);
+        DimRange t = new DimRange(2, 5);
+        System.out.println(r.intersect(t, true, true));
+        System.out.println(r.intersect(t, false, true));
+        System.out.println(r.intersect(t, true, false));
+        System.out.println(r.intersect(t, false, false));
+
+    }
 }
