@@ -96,6 +96,7 @@ public class DBApp {
             DBVector<String> lines = new DBVector<>();
             lines.add("databaseName = " + selectedDBName);
             lines.add("maximumNumberOfRows = 200");
+            lines.add("maxEntriesCountNode = 4");
             maxRecordsCountPage = 200;
             try {
                 FileWriter fw = new FileWriter(currentConfigFile);

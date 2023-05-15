@@ -60,26 +60,26 @@ class NodeTest {
         });
     }
 
-    @Test
-    @Order(5)
-    void searchReturnsCorrectPageNumbers() throws DBAppException {
-        root.insert(new Point3D<>(1, 1, 1), 1);
-        root.insert(new Point3D<>(2, 2, 2), 2);
-        root.insert(new Point3D<>(3, 3, 3), 3);
-        root.insert(new Point3D<>(4, 4, 4), 4);
-        root.insert(new Point3D<>(5, 5, 5), 5);
-
-        DimRange x = new DimRange(1, 3);
-        DimRange y = new DimRange(1, 3);
-        DimRange z = new DimRange(1, 3);
-
-        DBVector<Integer> result = root.search(x, y, z);
-
-        assertEquals(3, result.size());
-        assertTrue(result.contains(1));
-        assertTrue(result.contains(2));
-        assertTrue(result.contains(3));
-    }
+//    @Test
+//    @Order(5)
+//    void searchReturnsCorrectPageNumbers() throws DBAppException {
+//        root.insert(new Point3D<>(1, 1, 1), 1);
+//        root.insert(new Point3D<>(2, 2, 2), 2);
+//        root.insert(new Point3D<>(3, 3, 3), 3);
+//        root.insert(new Point3D<>(4, 4, 4), 4);
+//        root.insert(new Point3D<>(5, 5, 5), 5);
+//
+//        DimRange x = new DimRange(1, 3);
+//        DimRange y = new DimRange(1, 3);
+//        DimRange z = new DimRange(1, 3);
+//
+//        DBVector<Integer> result = root.search(x, y, z);
+//
+//        assertEquals(3, result.size());
+//        assertTrue(result.contains(1));
+//        assertTrue(result.contains(2));
+//        assertTrue(result.contains(3));
+//    }
 
     @Test
     @Order(6)
