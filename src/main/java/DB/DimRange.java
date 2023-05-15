@@ -4,7 +4,7 @@ import java.util.Date;
 import java.io.Serializable;
 import java.util.*;
 
-public class DimRange implements Serializable{
+public class DimRange implements Serializable {
     private Comparable min;
     private Comparable max;
 
@@ -113,8 +113,9 @@ public class DimRange implements Serializable{
         return min + " " + max;
     }
 
-    public boolean intersect(DimRange other) {
-        if (min.compareTo(other.max) > 0 || max.compareTo(other.min) < 0) {
+    public boolean intersect(DimRange other, boolean includeL, boolean includeR) {
+        if ((includeL ? min.compareTo(other.max) > 0 : min.compareTo(other.max) >= 0)
+                || (includeR ? max.compareTo(other.min) < 0 : max.compareTo(other.min) <= 0)) {
             return false;
         }
         return true;

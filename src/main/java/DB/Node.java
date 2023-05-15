@@ -85,14 +85,14 @@ public class Node<T> implements Serializable{
         this.points.clear();
     }
 
-    public DBVector<Integer> search(DimRange x, DimRange y, DimRange z) {
-        HashSet<Integer> temp = new HashSet<>(searchHelper(x, y, z));
+    public DBVector<Integer> search(DimRange x, DimRange y, DimRange z, boolean includeXL, boolean includeYL, boolean includeZL, boolean includeXR, boolean includeYR, boolean includeZR) {
+        HashSet<Integer> temp = new HashSet<>(searchHelper(x, y, z, includeXL, includeYL, includeZL, includeXR, includeYR, includeZR));
         DBVector<Integer> res = new DBVector<>();
         res.addAll(temp);
         return res;
     }
 
-    private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z) {
+    private DBVector<Integer> searchHelper(DimRange x, DimRange y, DimRange z, boolean includeXL, boolean includeYL, boolean includeZL, boolean includeXR, boolean includeYR, boolean includeZR) {
         if (children == null) {
             DBVector<Integer> result = new DBVector<>();
             for (Point3D<T> point : points) {
@@ -105,8 +105,8 @@ public class Node<T> implements Serializable{
 
         DBVector<Integer> result = new DBVector<>();
         for (int i = 0; i < children.length; i++) {
-            if (xRange.intersect(x) && yRange.intersect(y) && zRange.intersect(z)) {
-                result.addAll(children[i].search(x, y, z));
+            if (xRange.intersect(x, includeXL, includeXR) && yRange.intersect(y, includeYL, includeYR) && zRange.intersect(z, includeZL, includeZR)) {
+                result.addAll(children[i].search(x, y, z, includeXL, includeYL, includeZL, includeXR, includeYR, includeZR));
             }
         }
 
