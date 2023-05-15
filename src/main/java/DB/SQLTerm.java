@@ -8,5 +8,13 @@ public class SQLTerm {
     public SQLTerm(){}
 
 
-
+    @Override
+    public String toString() {
+        return "SQLTerm{" +
+                "TableName:" + _strTableName +
+                ", ColumnName:" + _strColumnName +
+                ", Operator:" + _strOperator +
+                ", objValue:" + _objValue +
+                '}';
+    }
 }

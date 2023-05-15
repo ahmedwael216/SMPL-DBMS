@@ -147,7 +147,7 @@ public class Table implements Serializable {
 
     // checker method to check if the inserted value in the valid range of the key
 
-    private String getKeyType(String key) {
+    public String getKeyType(String key) {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = null;

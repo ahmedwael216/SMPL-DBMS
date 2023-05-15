@@ -133,6 +133,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
@@ -191,6 +192,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
@@ -237,6 +239,7 @@ public class DBApp {
         }
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
@@ -282,6 +285,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
@@ -291,7 +295,7 @@ public class DBApp {
 
                 table.deleteFromTable(strTableName, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName+ ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 out.writeObject(table);
                 out.close();
@@ -311,7 +315,7 @@ public class DBApp {
         }
     }
 
-    public String printTable(String strTableName) throws IOException, ClassNotFoundException {
+    public String printTable(String strTableName) throws IOException, DBAppException {
         Table table = getTable(strTableName);
         String ret = table.toString();
 
@@ -347,7 +351,7 @@ public class DBApp {
 
 
     public Iterator parseSQL( StringBuffer strbufSQL ) throws DBAppException{
-        return SQLParser.parse(strbufSQL);
+        return SQLParser.parse(strbufSQL,this);
     }
 
 
@@ -362,25 +366,27 @@ public class DBApp {
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
         StringBuffer sb =new StringBuffer();
-        sb.append("SELECT * FROM STUDENTS;");
-        sb.append("Create Table STUDENTS");
-        db.parseSQL(sb);
+        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
+//        sb.append("Create Table STUDENTS");
         //creating table
-//        String strTableName = "Student";
-//        Hashtable<String, String> min = new Hashtable<>();
-//        min.put("id", "0");
-//        min.put("name", "A");
-//        min.put("gpa", "0.0");
-//        Hashtable<String, String> max = new Hashtable<>();
-//        max.put("id", "1000");
-//        max.put("name", "zzzzzzzzzzzzz");
-//        max.put("gpa", "4.0");
-//        Hashtable<String, String> htblColNameType = new Hashtable<>();
-//        htblColNameType.put("id", "java.lang.Integer");
-//        htblColNameType.put("name", "java.lang.String");
-//        htblColNameType.put("gpa", "java.lang.Double");
-//        db.createTable(strTableName, "id", htblColNameType, min, max);
+        String strTableName = "Student";
+        Hashtable<String, String> min = new Hashtable<>();
+        min.put("id", "0");
+        min.put("name", "A");
+        min.put("gpa", "0.0");
+        Hashtable<String, String> max = new Hashtable<>();
+        max.put("id", "1000");
+        max.put("name", "zzzzzzzzzzzzz");
+        max.put("gpa", "4.0");
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.Double");
+        db.createTable(strTableName, "id", htblColNameType, min, max);
 //
+
+        db.parseSQL(sb);
+
 //        for (int i = 200; i < 400; i++) {
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("id", i);
@@ -392,20 +398,26 @@ public class DBApp {
 //        System.out.println(db.printTable(strTableName));
     }
 
-    public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
+    public int getTableLength(String tableName) throws DBAppException {
         Table table = getTable(tableName);
         int res = table.getSize();
         return res;
     }
 
-    private Table getTable(String tableName) throws IOException, ClassNotFoundException {
-        FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
-        ObjectInputStream in = new ObjectInputStream(file);
+    public Table getTable(String tableName) throws DBAppException {
+        try{
+            tableName=tableName.toLowerCase();
+//            System.out.println(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+            FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+            ObjectInputStream in = new ObjectInputStream(file);
 
-        Table table = (Table) in.readObject();
+            Table table = (Table) in.readObject();
 
-        in.close();
-        file.close();
-        return table;
+            in.close();
+            file.close();
+            return table;
+        }catch (Exception ignored){
+            throw new DBAppException("Problem loading table");
+        }
     }
 }

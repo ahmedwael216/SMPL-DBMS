@@ -500,7 +500,7 @@ public class SQLiteParserBaseListener implements SQLiteParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterSelect_stmt(SQLiteParser.Select_stmtContext ctx) {
-		System.out.println("in select");
+//		System.out.println("in select");
 	}
 	/**
 	 * {@inheritDoc}
