@@ -66,7 +66,18 @@ public class SQLParser {
 
             @Override
             public void enterCreate_index_stmt(SQLiteParser.Create_index_stmtContext ctx) {
-
+                try{
+                    String tableName = ctx.table_name().getText();
+//                    System.out.println("table Name: "+tableName);
+                    String[] columnNames = new String[ctx.indexed_column().size()];
+                    for(int i=0;i<ctx.indexed_column().size();i++){
+                        columnNames[i] = ctx.indexed_column().get(i).getText();
+                    }
+//                    System.out.println(Arrays.toString(columnNames));
+                    DB.createIndex(tableName, columnNames);
+                }catch(Exception ignored){
+                    error=true;
+                }
             }
             @Override
             public void enterCreate_table_stmt(SQLiteParser.Create_table_stmtContext ctx) {

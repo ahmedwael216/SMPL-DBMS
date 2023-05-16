@@ -366,8 +366,8 @@ public class DBApp {
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
         StringBuffer sb =new StringBuffer();
-        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
-//        sb.append("Create Table STUDENTS");
+//        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
+        sb.append("Create INDEX  index1 ON STUDENTS (age,name,gpa)");
         //creating table
         String strTableName = "Student";
         Hashtable<String, String> min = new Hashtable<>();
