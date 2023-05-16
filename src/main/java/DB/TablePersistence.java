@@ -2,6 +2,7 @@ package DB;
 
 import java.io.*;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class TablePersistence {
     public static int getNumberOfPagesForTable(String name) {
@@ -130,36 +131,40 @@ public class TablePersistence {
 
             String[] keys = table.keys;
 
-            String[] indexCols = table.getIndexCols();
+            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCols = m.getKey();
+                Node indexRoot = m.getValue();
 
-            int colXIndex = SearchStrategy.getColIndex(keys,indexCols[0]);
-            int colYIndex = SearchStrategy.getColIndex(keys,indexCols[1]);
-            int colZIndex = SearchStrategy.getColIndex(keys,indexCols[2]);
+                int colXIndex = SearchStrategy.getColIndex(keys, indexCols[0]);
+                int colYIndex = SearchStrategy.getColIndex(keys, indexCols[1]);
+                int colZIndex = SearchStrategy.getColIndex(keys, indexCols[2]);
 
-            if(record.getItem(colXIndex)!=null && record.getItem(colYIndex)!=null && record.getItem(colZIndex)!=null){
-                DimRange xRange = new DimRange((Comparable) record.getItem(colXIndex), (Comparable) record.getItem(colXIndex));
-                DimRange yRange = new DimRange((Comparable) record.getItem(colYIndex), (Comparable) record.getItem(colYIndex));
-                DimRange zRange = new DimRange((Comparable) record.getItem(colZIndex), (Comparable) record.getItem(colZIndex));
+                if (record.getItem(colXIndex) != null && record.getItem(colYIndex) != null && record.getItem(colZIndex) != null) {
+                    DimRange xRange = new DimRange((Comparable) record.getItem(colXIndex), (Comparable) record.getItem(colXIndex));
+                    DimRange yRange = new DimRange((Comparable) record.getItem(colYIndex), (Comparable) record.getItem(colYIndex));
+                    DimRange zRange = new DimRange((Comparable) record.getItem(colZIndex), (Comparable) record.getItem(colZIndex));
 
-                DBVector<Integer> pageIndices = table.getIndexRoot().search(xRange, yRange, zRange,true, true, true, true, true, true);
+                    DBVector<Integer> pageIndices = indexRoot.search(xRange, yRange, zRange, true, true, true, true, true, true);
 
-                int n = getNumberOfPagesForTable(tableName);
-                int totDel = 0;
-                for(int pageIdx : pageIndices) {
-                    Page p = deserialize(pageIdx, tableName);
-                    totDel += p.deleteLinear(record);
-                    if (p.isEmpty()) {
-                        deletePage(tableName, pageIdx, n);
-                        n--;
-                    } else
-                        serialize(p, tableName, pageIdx);
+                    int n = getNumberOfPagesForTable(tableName);
+                    int totDel = 0;
+                    for (int pageIdx : pageIndices) {
+                        Page p = deserialize(pageIdx, tableName);
+                        totDel += p.deleteLinear(record);
+                        if (p.isEmpty()) {
+                            deletePage(tableName, pageIdx, n);
+                            n--;
+                        } else
+                            serialize(p, tableName, pageIdx);
+                    }
+
+                    return totDel;
                 }
 
-                return totDel;
+                return deleteLinear(record, tableName);
             }
-
-            return deleteLinear(record, tableName);
         }
+
 
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
@@ -175,19 +180,45 @@ public class TablePersistence {
         return del;
     }
 
-    public static void update(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
+    public static void update(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException {
+        Table table = DBApp.getTable(tableName);
+
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
             throw new DBAppException("Table is empty");
         }
+
         int pageIndex = findPageNumber(n, tableName, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex, tableName);
+
+
+        SQLTerm getRecord = new SQLTerm();
+        getRecord._strColumnName = table.keys[0];
+        getRecord._strOperator = "=";
+        getRecord._strTableName = table.getName();
+        getRecord._objValue = (Comparable) record.getPrimaryKey();
+
+        DBVector<Record> queryResult = ClusteringKeySearch.Search(getRecord,table.keys,table.prototype);
+
+        Record romoverecord =  queryResult.get(0);
+
+
+        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey();
+            Node index = m.getValue();
+            Point3D point = Table.createPoint(table, romoverecord, indexCols);
+            index.delete(point, true, pageIndex);
+        }
+
         p.updateRecord(record);
-        int newPageIndex = findPageNumber(n,tableName, (Comparable) record.getPrimaryKey());
-        Table table = DBApp.getTable(tableName);
-        Node root = table.getIndexRoot();
-        Point3D point = Table.createPoint(table,record,table.getIndexCols());
-        root.update(point, true, pageIndex, newPageIndex);
+
+        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey();
+            Node index = m.getValue();
+            Point3D point = Table.createPoint(table, record, indexCols);
+            index.update(point, pageIndex);
+        }
+
         serialize(p, tableName, pageIndex);
     }
 

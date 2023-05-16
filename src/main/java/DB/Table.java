@@ -9,12 +9,13 @@ import java.util.*;
 
 public class Table implements Serializable {
     private String name;
-    private Record prototype;
+    public Record prototype;
     private int size;
 
     public String[] keys;
-    private String[] indexCols;
-    private Node indexRoot;
+    public DBVector<Integer> test;
+
+    private HashMap<String[], Node> tableIndices;
 
     public Table(String strTableName,
             String strClusteringKeyColumn,
@@ -26,6 +27,7 @@ public class Table implements Serializable {
         this.name = strTableName;
         keys = getKeys(htblColNameType, strClusteringKeyColumn);
         String DBName = DBApp.selectedDBName;
+        this.tableIndices = new HashMap<>();
 
         // Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
@@ -77,6 +79,8 @@ public class Table implements Serializable {
         }
         size = 0;
 
+
+
     }
 
     private boolean checkValidType(String type, String val) {
@@ -115,21 +119,18 @@ public class Table implements Serializable {
         return name;
     }
 
-    public String[] getIndexCols() {
-        return this.indexCols;
+    public HashMap<String[], Node> getTableIndices() {
+        return this.tableIndices;
     }
 
-    public void setIndexCols(String[] indexCols) {
-        this.indexCols = indexCols;
+    public void addIndex(String[] indexCols, Node root) {
+        this.test = new DBVector<>();
+        test.add(1);
+        root.printComplete();
+        this.tableIndices.put(indexCols, root);
+        System.out.println(tableIndices.entrySet().size() + " entry set");
     }
 
-    public Node getIndexRoot() {
-        return this.indexRoot;
-    }
-
-    public void setIndexRoot(Node indexRoot) {
-        this.indexRoot = indexRoot;
-    }
 
     public String[] getMaxAndMinString(String columnName) throws IOException {
         String DBName = DBApp.selectedDBName;
@@ -445,7 +446,7 @@ public class Table implements Serializable {
 
     }
 
-    public static void insertLinearIntoIndex(String strTableName, Node root, String[] strarrColName)
+    public static void insertLinearIntoIndex(String strTableName, String[] strarrColName)
             throws IOException, ClassNotFoundException, DBAppException, ParseException {
         Table table = DBApp.getTable(strTableName);
 
@@ -453,7 +454,20 @@ public class Table implements Serializable {
             throw new DBAppException("Table not found!");
         }
 
-        root = createRootNode(table, strarrColName);
+        if(table.getTableIndices() != null) {
+            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCol = m.getKey();
+                for (String s : indexCol) {
+                    for (String t : strarrColName) {
+                        if (s.equals(t))
+                            throw new DBAppException("One column or more already have an index!");
+                    }
+                }
+
+            }
+        }
+
+        Node root = createRootNode(table, strarrColName);
 
         int n = Table.getNumberOfPagesForTable(strTableName);
         for (int i = 0; i < n; i++) {
@@ -466,14 +480,14 @@ public class Table implements Serializable {
             TablePersistence.serialize(p, strTableName, i);
         }
 
-        table.setIndexCols(strarrColName);
-        table.setIndexRoot(root);
+        table.addIndex(strarrColName, root);
+
     }
 
-    public static void createIndex(String strTableName,
+    public void createIndex(String strTableName,
             String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
 
-        insertLinearIntoIndex(strTableName, null, strarrColName);
+        insertLinearIntoIndex(strTableName,  strarrColName);
 
     }
 
@@ -487,8 +501,9 @@ public class Table implements Serializable {
     public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
         if(x == strarrOperators.length)
             return null;
-        if(useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]}, new String[] {strarrOperators[x], strarrOperators[x+1]})){
-            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]} ,this.keys),
+        Node indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]}, new String[] {strarrOperators[x], strarrOperators[x+1]});
+        if( indexRoot != null){
+            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]} ,this.keys, indexRoot),
                     selectHelper(strTableName,arrSQLTerms,strarrOperators,x+3)
                     ,strarrOperators[x]);
         }
@@ -504,21 +519,28 @@ public class Table implements Serializable {
         }
     }
 
-    public boolean useOctree(SQLTerm[] queries, String[] operators){
-        String[] indexCols = this.indexCols;
+    public Node useOctree(SQLTerm[] queries, String[] operators){
 
-        HashSet<String> hs = new HashSet<>();
-        hs.add(indexCols[0]);
-        hs.add(indexCols[1]);
-        hs.add(indexCols[2]);
+        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey();
+            Node root = m.getValue();
 
-        if(operators[0].equals("AND") && operators[1].equals("AND")){
-            hs.remove(queries[0]._strColumnName);
-            hs.remove(queries[1]._strColumnName);
-            hs.remove(queries[2]._strColumnName);
+            HashSet<String> hs = new HashSet<>();
+            hs.add(indexCols[0]);
+            hs.add(indexCols[1]);
+            hs.add(indexCols[2]);
+
+            if (operators[0].equals("AND") && operators[1].equals("AND")) {
+                hs.remove(queries[0]._strColumnName);
+                hs.remove(queries[1]._strColumnName);
+                hs.remove(queries[2]._strColumnName);
+            }
+
+            if(hs.size() == 0)
+                return root;
         }
 
-        return hs.size() == 0;
+        return null;
     }
 
     public DBVector<Record> handleOperators(DBVector<Record>FirstSet,DBVector<Record>SecondSet,String operator){
@@ -566,27 +588,25 @@ public class Table implements Serializable {
     }
 
 
-
-
     public void rearrangeQueries3(SQLTerm[] sqlTermArr, String[] operators) {
-        ArrayList<int[]> indices = new ArrayList<>();
+        ArrayList<int[]> andingWindows = new ArrayList<>();
 
         int start = 0;
         for (int i = 0; i < operators.length; i++) {
             if (!operators[i].equals("AND")) {
-                int[] a = new int[]{start, i};
-                indices.add(a);
+                int[] a = {start, i};
+                andingWindows.add(a);
                 start = i + 1;
             }
 
             if (operators[i].equals("AND") && i == operators.length - 1) {
                 int[] a = new int[2];
                 a = new int[]{start, i + 1};
-                indices.add(a);
+                andingWindows.add(a);
                 start = i + 1;
             }
 
-            for (int[] arr : indices) {
+            for (int[] arr : andingWindows) {
                 this.rearrangeQueries3helper(sqlTermArr, arr[0], arr[1]);
             }
 
@@ -595,39 +615,52 @@ public class Table implements Serializable {
 
     public void rearrangeQueries3helper(SQLTerm[] sqlTermArr, int start, int end){
         if(end-start<=2)return;
-        String[] indexCols = this.indexCols;
+        String[][] indicesColumns = new String[this.getTableIndices().size()][3];
 
-        LinkedList<SQLTerm> dimXTerms = new LinkedList<SQLTerm>();
-        LinkedList<SQLTerm> dimYTerms = new LinkedList<SQLTerm>();
-        LinkedList<SQLTerm> dimZTerms = new LinkedList<SQLTerm>();
-        LinkedList<SQLTerm> otherTerms= new LinkedList<SQLTerm>();
-        for(int i=start;i<=end;i++){
-            if(sqlTermArr[i]._strColumnName.equals(indexCols[0]))dimXTerms.add(sqlTermArr[i]);
-            else if(sqlTermArr[i]._strColumnName.equals(indexCols[1]))dimYTerms.add(sqlTermArr[i]);
-            else if(sqlTermArr[i]._strColumnName.equals(indexCols[2]))dimZTerms.add(sqlTermArr[i]);
-            else otherTerms.add(sqlTermArr[i]);
+        int f =0;
+        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey();
+            indicesColumns[f] = indexCols;
+            f++;
         }
 
+        for(String[] indexCols : indicesColumns) {
+            LinkedList<SQLTerm> dimXTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> dimYTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> dimZTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> otherTerms= new LinkedList<SQLTerm>();
+            for(int i=start;i<=end;i++){
+                if(sqlTermArr[i]._strColumnName.equals(indexCols[0]))dimXTerms.add(sqlTermArr[i]);
+                else if(sqlTermArr[i]._strColumnName.equals(indexCols[1]))dimYTerms.add(sqlTermArr[i]);
+                else if(sqlTermArr[i]._strColumnName.equals(indexCols[2]))dimZTerms.add(sqlTermArr[i]);
+                else otherTerms.add(sqlTermArr[i]);
+            }
 
 
-        while(dimXTerms.size()>0 || dimYTerms.size()>0 || dimZTerms.size()>0 || otherTerms.size()>0){
-            if(dimXTerms.size()>0){
-                sqlTermArr[start] = dimXTerms.removeFirst();
-                start++;
+
+            while(dimXTerms.size()>0 || dimYTerms.size()>0 || dimZTerms.size()>0){
+                if(dimXTerms.size()>0){
+                    sqlTermArr[start] = dimXTerms.removeFirst();
+                    start++;
+                }
+                if(dimYTerms.size()>0){
+                    sqlTermArr[start] = dimYTerms.removeFirst();
+                    start++;
+                }
+                if(dimZTerms.size()>0){
+                    sqlTermArr[start] = dimZTerms.removeFirst();
+                    start++;
+                }
             }
-            if(dimYTerms.size()>0){
-                sqlTermArr[start] = dimYTerms.removeFirst();
-                start++;
+
+            int starttemp = start;
+            while(!otherTerms.isEmpty()){
+                sqlTermArr[starttemp] = otherTerms.removeFirst();
+                starttemp++;
             }
-            if(dimZTerms.size()>0){
-                sqlTermArr[start] = dimZTerms.removeFirst();
-                start++;
-            }
-            if(otherTerms.size()>0){
-                sqlTermArr[start] = otherTerms.removeFirst();
-                start++;
-            }
+
         }
+
 
 
     }
@@ -636,27 +669,28 @@ public class Table implements Serializable {
         SQLTerm query1 = new SQLTerm();
         query1._strColumnName = "col1";
         SQLTerm query2 = new SQLTerm();
-        query2._strColumnName = "col4";
+        query2._strColumnName = "col2";
         SQLTerm query3 = new SQLTerm();
-        query3._strColumnName = "col4";
+        query3._strColumnName = "col3";
         SQLTerm query4 = new SQLTerm();
-        query4._strColumnName = "col2";
+        query4._strColumnName = "col4";
         SQLTerm query5 = new SQLTerm();
-        query5._strColumnName = "col2";
+        query5._strColumnName = "col5";
         SQLTerm query6 = new SQLTerm();
-        query6._strColumnName = "col5";
+        query6._strColumnName = "col6";
         SQLTerm query7 = new SQLTerm();
-        query7._strColumnName = "col3";
+        query7._strColumnName = "col7";
         SQLTerm query8 = new SQLTerm();
-        query8._strColumnName = "col3";
+        query8._strColumnName = "col8";
         SQLTerm query9 = new SQLTerm();
-        query9._strColumnName = "col1";
+        query9._strColumnName = "col9";
+        SQLTerm query10 = new SQLTerm();
+        query10._strColumnName = "col10";
 
 
-        String[] operators = new String[] {"AND", "AND", "AND", "AND", "AND", "AND", "AND", "AND"};
+        String[] operators = new String[] {"AND", "AND", "OR", "AND", "AND", "AND", "AND", "AND", "AND"};
 
-        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9};
-
+        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9, query10};
 
     }
 }

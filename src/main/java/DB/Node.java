@@ -173,26 +173,23 @@ public class Node<T> implements Serializable{
         return null;
     }
 
-    public void update(Point3D<T> point,boolean updateSingle, int oldPageNumber, int newPageNumber) throws DBAppException {
+    public void update(Point3D<T> point, int pageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
+
         if(leaf == null){
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
 
+        if(!leaf.points.contains(point)){
+            leaf.points.add(point);
+            return;
+        }
+
+        // else the point is already in the leaf so adding the refrence.
         for(int i = 0; i < leaf.points.size(); i++){
             Point3D<T> p = leaf.points.get(i);
             if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())){
-                if(updateSingle){
-                    p.removeReference(oldPageNumber);
-                    p.addReference(newPageNumber);
-                }
-                else{
-                   for(int j = 0; j < p.getReferences().size(); j++){
-                       if(p.getReferences().get(j) == oldPageNumber){
-                           p.getReferences().set(j,newPageNumber);
-                       }
-                   }
-                }
+                    p.addReference(pageNumber);
                 return;
             }
         }

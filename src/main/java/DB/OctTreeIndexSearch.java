@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 
 public class OctTreeIndexSearch extends SearchStrategy{
-    public static DBVector<Record> Search (SQLTerm[] queries, String[] keys) throws DBAppException, IOException, ParseException, ClassNotFoundException {
+    public static DBVector<Record> Search (SQLTerm[] queries, String[] keys, Node indexRoot) throws DBAppException, IOException, ParseException, ClassNotFoundException {
         SQLTerm firstQuery = queries[0];
         SQLTerm secondQuery = queries[0];
         SQLTerm thirdQuery = queries[0];
@@ -15,7 +15,7 @@ public class OctTreeIndexSearch extends SearchStrategy{
         boolean[] includeLRZ = setMinMaxQuery(thirdQuery, minZ, maxZ);
 
         Table table = DBApp.getTable(firstQuery._strTableName);
-        Node indexRoot = table.getIndexRoot();
+
         DimRange xRange = new DimRange(minX, maxX);
         DimRange yRange = new DimRange(minY, maxY);
         DimRange zRange = new DimRange(minZ, maxZ);

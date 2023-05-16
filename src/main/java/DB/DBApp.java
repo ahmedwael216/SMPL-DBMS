@@ -182,12 +182,37 @@ public class DBApp {
     // If three column names are passed, create an octree.
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
-                            String[] strarrColName)
+                                   String[] strarrColName)
             throws DBAppException, IOException, ClassNotFoundException, ParseException {
         if(strarrColName.length != 3)
             throw new DBAppException("There must be three columns in order to create the index.");
 
-        Table.createIndex(strTableName,strarrColName);
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "create index for " + strTableName + " table");
+
+                Table table = getTable(strTableName);
+
+                table.createIndex(strTableName,strarrColName);
+
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(table);
+                out.close();
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
