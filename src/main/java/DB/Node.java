@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Node<T> implements Serializable{
+public class Node<T> implements Serializable {
     private Node<T>[] children;
     private DimRange xRange;
     private DimRange yRange;
@@ -116,7 +116,7 @@ public class Node<T> implements Serializable{
     public void delete(Point3D<T> point, boolean deleteSingle, int pageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
 
-        if (leaf == null){
+        if (leaf == null) {
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
 
@@ -136,7 +136,7 @@ public class Node<T> implements Serializable{
                     leaf.points.remove(i);
                 }
 
-                if(children == null)
+                if (children == null)
                     continue;
 
                 boolean emptyChildren = true;
@@ -176,20 +176,20 @@ public class Node<T> implements Serializable{
     public void update(Point3D<T> point, int pageNumber) throws DBAppException {
         Node<T> leaf = getLeaf(point);
 
-        if(leaf == null){
+        if (leaf == null) {
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
 
-        if(!leaf.points.contains(point)){
+        if (!leaf.points.contains(point)) {
             leaf.points.add(point);
             return;
         }
 
         // else the point is already in the leaf so adding the refrence.
-        for(int i = 0; i < leaf.points.size(); i++){
+        for (int i = 0; i < leaf.points.size(); i++) {
             Point3D<T> p = leaf.points.get(i);
-            if(p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())){
-                    p.addReference(pageNumber);
+            if (p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())) {
+                p.addReference(pageNumber);
                 return;
             }
         }

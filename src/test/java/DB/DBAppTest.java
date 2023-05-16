@@ -2,10 +2,14 @@ package DB;
 
 import org.junit.jupiter.api.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,34 +46,34 @@ class DBAppTest {
 
     @Test
     @Order(1)
-    // @Disabled()
+        // @Disabled()
     void createTableWithPrimaryKeyInt() throws DBAppException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         DbApp.createTable(strTableName, "id", htblColNameType, min, max);
     }
 
     @Test
     @Order(2)
-    // @Disabled()
+        // @Disabled()
     void createTableWithPrimaryKeyDouble() throws DBAppException {
-        String strTableName = "StudentDouble";
+        String strTableName = "StudentDouble".toLowerCase();
         DbApp.createTable(strTableName, "gpa", htblColNameType, min, max);
     }
 
     @Test
     @Order(3)
-    // @Disabled()
+        // @Disabled()
     void createTableWithPrimaryKeyString() throws DBAppException {
-        String strTableName = "StudentString";
+        String strTableName = "StudentString".toLowerCase();
         DbApp.createTable(strTableName, "name", htblColNameType, min, max);
 
     }
 
     @Test
     @Order(4)
-    // @Disabled()
+        // @Disabled()
     void createTableWithPrimaryKeyDate() throws DBAppException {
-        String strTableName = "StudentDate";
+        String strTableName = "StudentDate".toLowerCase();
         DbApp.createTable(strTableName, "birthday", htblColNameType, min, max);
 
     }
@@ -77,7 +81,7 @@ class DBAppTest {
     @Test
     @Order(5)
     void insertIntoTableIntNewRow() throws DBAppException, ParseException, IOException, ClassNotFoundException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         for (int i = 0; i < 5; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
@@ -94,7 +98,7 @@ class DBAppTest {
     @Test
     @Order(6)
     void insertIntoTableDoubleNewRow() throws DBAppException, ParseException {
-        String strTableName = "StudentDouble";
+        String strTableName = "StudentDouble".toLowerCase();
         for (int i = 0; i <= 4; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
@@ -109,7 +113,7 @@ class DBAppTest {
     @Test
     @Order(7)
     void insertIntoTableStringNewRow() throws DBAppException, ParseException {
-        String strTableName = "StudentString";
+        String strTableName = "StudentString".toLowerCase();
         for (int i = 0; i < 5; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
@@ -124,7 +128,7 @@ class DBAppTest {
     @Test
     @Order(8)
     void insertIntoTableDateNewRow() throws DBAppException, ParseException {
-        String strTableName = "StudentDate";
+        String strTableName = "StudentDate".toLowerCase();
         for (int i = 1; i <= 9; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
@@ -140,31 +144,31 @@ class DBAppTest {
     @Test
     @Order(9)
     void checkTableLengthForTableInt() throws DBAppException {
-        Assertions.assertEquals(5, DbApp.getTableLength("StudentInt"));
+        Assertions.assertEquals(5, DbApp.getTableLength("StudentInt".toLowerCase()));
     }
 
     @Test
     @Order(10)
     void checkTableLengthForTableDouble() throws DBAppException {
-        Assertions.assertEquals(5, DbApp.getTableLength("StudentDouble"));
+        Assertions.assertEquals(5, DbApp.getTableLength("StudentDouble".toLowerCase()));
     }
 
     @Test
     @Order(11)
-    void checkTableLengthForTableString() throws  DBAppException {
-        Assertions.assertEquals(5, DbApp.getTableLength("StudentString"));
+    void checkTableLengthForTableString() throws DBAppException {
+        Assertions.assertEquals(5, DbApp.getTableLength("StudentString".toLowerCase()));
     }
 
     @Test
     @Order(12)
     void checkTableLengthForTableDate() throws DBAppException {
-        Assertions.assertEquals(9, DbApp.getTableLength("StudentDate"));
+        Assertions.assertEquals(9, DbApp.getTableLength("StudentDate".toLowerCase()));
     }
 
     @Test
     @Order(13)
     void insertIntoTableIntRepeatedRow() throws DBAppException, ParseException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
@@ -179,7 +183,7 @@ class DBAppTest {
     @Test
     @Order(14)
     void insertIntoTableDoubleRepeatedRow() throws DBAppException, ParseException {
-        String strTableName = "StudentDouble";
+        String strTableName = "StudentDouble".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
@@ -194,7 +198,7 @@ class DBAppTest {
     @Test
     @Order(15)
     void insertIntoTableStringRepeatedRow() throws DBAppException, ParseException {
-        String strTableName = "StudentString";
+        String strTableName = "StudentString".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed0");
@@ -209,7 +213,7 @@ class DBAppTest {
     @Test
     @Order(16)
     void insertIntoTableDateRepeatedRow() throws DBAppException, ParseException {
-        String strTableName = "StudentDate";
+        String strTableName = "StudentDate".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
@@ -224,7 +228,7 @@ class DBAppTest {
     @Test
     @Order(17)
     void insertIntoTableIntRowWithWrongData() throws DBAppException, ParseException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", "0"); // wrong data type
         htblColNameValue.put("name", "Amir");
@@ -240,7 +244,7 @@ class DBAppTest {
     @Test
     @Order(18)
     void insertIntoTableStringRowWithWrongDate() throws DBAppException, ParseException {
-        String strTableName = "StudentString";
+        String strTableName = "StudentString".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 2);
         htblColNameValue.put("name", 114); // wrong data type
@@ -255,7 +259,7 @@ class DBAppTest {
     @Test
     @Order(19)
     void insertIntoTableDateRowWithWrongDate() throws DBAppException, ParseException {
-        String strTableName = "StudentDate";
+        String strTableName = "StudentDate".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 2);
         htblColNameValue.put("name", "Ahmed");
@@ -269,9 +273,9 @@ class DBAppTest {
     @Test
     @Order(20)
     void updateTableInt() throws ParseException, DBAppException, IOException, ClassNotFoundException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        // htblColNameValue.put("id", 0);
+        htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -283,7 +287,7 @@ class DBAppTest {
     @Test
     @Order(21)
     void updateTableDouble() throws ParseException, DBAppException, IOException, ClassNotFoundException {
-        String strTableName = "StudentDouble";
+        String strTableName = "StudentDouble".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
@@ -297,7 +301,7 @@ class DBAppTest {
     @Test
     @Order(22)
     void updateTableString() throws ParseException, DBAppException, IOException, ClassNotFoundException {
-        String strTableName = "StudentString";
+        String strTableName = "StudentString".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         // htblColNameValue.put("name", "Ahmed Wael");
@@ -311,7 +315,7 @@ class DBAppTest {
     @Test
     @Order(23)
     void updateTableDate() throws DBAppException, IOException, ClassNotFoundException, ParseException {
-        String strTableName = "StudentDate";
+        String strTableName = "StudentDate".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
@@ -325,7 +329,7 @@ class DBAppTest {
     @Test
     @Order(24)
     void deleteRowFromTable() throws DBAppException, ParseException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 1);
         htblColNameValue.put("name", "Ahmed1");
@@ -341,7 +345,7 @@ class DBAppTest {
     @Test
     @Order(25)
     void deleteNoneExistingRowFromTable() throws DBAppException, ParseException {
-        String strTableName = "StudentInt";
+        String strTableName = "StudentInt".toLowerCase();
         Hashtable<String, Object> htblColNameValue = new Hashtable<>();
         htblColNameValue.put("id", 1);
         htblColNameValue.put("name", "Ahmed1");
@@ -356,11 +360,11 @@ class DBAppTest {
     @Test
     @Order(26)
     void createIndexForTheFirstTime() throws DBAppException, IOException, ParseException, ClassNotFoundException {
-        String strTable = "StudentInt";
+        String strTable = "StudentInt".toLowerCase();
         Table table = DBApp.getTable(strTable);
 
-        DbApp.createIndex(strTable, new String[] { "id", "name", "gpa" });
-        System.out.println(table.getTableIndices().size());
+        DbApp.createIndex(strTable, new String[]{"id", "name", "gpa"});
+        System.out.println(table.getTableIndices().size() + " " + table.getName() + " " + table.test.size());
         assertEquals(1, table.getTableIndices().entrySet().size());
     }
 
@@ -550,5 +554,14 @@ class DBAppTest {
                 DbApp.insertIntoTable(strTableName, htblColNameValue);
             });
         }
+    }
+
+    @Test
+    @Order(36)
+    void getAllIndecies() throws DBAppException {
+        String strTableName = "studentint";
+        Table table = DBApp.getTable(strTableName);
+        HashMap<String, Node> indecies = table.getTableIndices();
+        assertEquals(1, indecies.size());
     }
 }

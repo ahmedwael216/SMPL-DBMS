@@ -15,7 +15,7 @@ public class Table implements Serializable {
     public String[] keys;
     public DBVector<Integer> test;
 
-    private TreeMap<String[], Node> tableIndices;
+    private HashMap<String, Node> tableIndices;
 
     public Table(String strTableName,
                  String strClusteringKeyColumn,
@@ -27,14 +27,8 @@ public class Table implements Serializable {
         this.name = strTableName;
         keys = getKeys(htblColNameType, strClusteringKeyColumn);
         String DBName = DBApp.selectedDBName;
-        this.tableIndices = new TreeMap<>((a, b) -> {
-            for (int i = 0; i < a.length; i++) {
-                if (a[i].compareTo(b[i]) != 0)
-                    return a[i].compareTo(b[i]);
-            }
-            return 0;
-        });
-
+        this.tableIndices = new HashMap<>();
+        test = new DBVector<>();
         // Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
 
@@ -124,16 +118,15 @@ public class Table implements Serializable {
         return name;
     }
 
-    public TreeMap<String[], Node> getTableIndices() {
+    public HashMap<String, Node> getTableIndices() {
         return this.tableIndices;
     }
 
-    public void addIndex(String[] indexCols, Node root) {
-        this.test = new DBVector<>();
+    public void addIndex(String indexCols, Node root) {
         test.add(1);
-        root.printComplete();
+//        root.printComplete();
         this.tableIndices.put(indexCols, root);
-        System.out.println(tableIndices.entrySet().size() + " entry set");
+        System.out.println(tableIndices.entrySet().size() + " entry set" + " " + name);
     }
 
 
@@ -451,7 +444,7 @@ public class Table implements Serializable {
 
     }
 
-    public static void insertLinearIntoIndex(String strTableName, String[] strarrColName)
+    public Node insertLinearIntoIndex(String strTableName, String[] strarrColName)
             throws IOException, ClassNotFoundException, DBAppException, ParseException {
         Table table = DBApp.getTable(strTableName);
 
@@ -460,8 +453,8 @@ public class Table implements Serializable {
         }
 
         if (table.getTableIndices() != null) {
-            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
-                String[] indexCol = m.getKey();
+            for (Map.Entry<String, Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCol = m.getKey().split(",");
                 for (String s : indexCol) {
                     for (String t : strarrColName) {
                         if (s.equals(t))
@@ -472,8 +465,15 @@ public class Table implements Serializable {
             }
         }
 
-        Node root = createRootNode(table, strarrColName);
+        return createRootNode(table, strarrColName);
 
+
+    }
+
+    public void createIndex(String strTableName,
+                            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        Node root = insertLinearIntoIndex(strTableName, strarrColName);
+        Table table = this;
         int n = Table.getNumberOfPagesForTable(strTableName);
         for (int i = 0; i < n; i++) {
             Page p = TablePersistence.deserialize(i, strTableName);
@@ -484,14 +484,15 @@ public class Table implements Serializable {
             }
             TablePersistence.serialize(p, strTableName, i);
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append(strarrColName[0]);
+        for (int i = 1; i < strarrColName.length; i++) {
+            sb.append("," + strarrColName[i]);
+        }
+        System.out.println(sb.toString());
+        table.addIndex(sb.toString(), root);
+        System.out.println("hi " + table.name + " " + table.getTableIndices().size());
 
-        table.addIndex(strarrColName, root);
-
-    }
-
-    public void createIndex(String strTableName,
-                            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
-        insertLinearIntoIndex(strTableName, strarrColName);
     }
 
 
@@ -522,8 +523,8 @@ public class Table implements Serializable {
 
     public Node useOctree(SQLTerm[] queries, String[] operators) {
 
-        for (Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
-            String[] indexCols = m.getKey();
+        for (Map.Entry<String, Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey().split(",");
             Node root = m.getValue();
 
             HashSet<String> hs = new HashSet<>();
@@ -623,8 +624,8 @@ public class Table implements Serializable {
         String[][] indicesColumns = new String[this.getTableIndices().size()][3];
 
         int f = 0;
-        for (Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
-            String[] indexCols = m.getKey();
+        for (Map.Entry<String, Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey().split(",");
             indicesColumns[f] = indexCols;
             f++;
         }

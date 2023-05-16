@@ -76,7 +76,7 @@ public class SQLParser {
                         columnNames[i] = ctx.indexed_column().get(i).getText();
                     }
 //                    System.out.println(Arrays.toString(columnNames));
-                    DB.createIndex(tableName, columnNames);
+//                    DB.createIndex(tableName, columnNames);
                 }catch(Exception ignored){
                     error=true;
                 }

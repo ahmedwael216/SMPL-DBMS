@@ -132,8 +132,8 @@ public class TablePersistence {
 
             String[] keys = table.keys;
 
-            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
-                String[] indexCols = m.getKey();
+            for (Map.Entry<String, Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCols = m.getKey().split(",");
                 Node indexRoot = m.getValue();
 
                 int colXIndex = SearchStrategy.getColIndex(keys, indexCols[0]);
@@ -204,8 +204,8 @@ public class TablePersistence {
         Record romoverecord =  queryResult.get(0);
 
 
-        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
-            String[] indexCols = m.getKey();
+        for(Map.Entry<String,Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey().split(",");
             Node index = m.getValue();
             Point3D point = Table.createPoint(table, romoverecord, indexCols);
             index.delete(point, true, pageIndex);
@@ -213,8 +213,8 @@ public class TablePersistence {
 
         p.updateRecord(record);
 
-        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
-            String[] indexCols = m.getKey();
+        for(Map.Entry<String,Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey().split(",");
             Node index = m.getValue();
             Point3D point = Table.createPoint(table, record, indexCols);
             index.update(point, pageIndex);

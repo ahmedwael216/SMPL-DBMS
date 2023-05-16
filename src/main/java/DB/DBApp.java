@@ -137,7 +137,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
-            strTableName=strTableName.toLowerCase();
+            strTableName = strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
@@ -190,26 +190,28 @@ public class DBApp {
     // If three column names are passed, create an octree.
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
-                                   String[] strarrColName)
+                            String[] strarrColName)
             throws DBAppException, IOException, ClassNotFoundException, ParseException {
-        if(strarrColName.length != 3)
+        if (strarrColName.length != 3)
             throw new DBAppException("There must be three columns in order to create the index.");
 
 
         Properties prop = new Properties();
         try {
+            strTableName = strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "create index for " + strTableName + " table");
 
                 Table table = getTable(strTableName);
-
-                table.createIndex(strTableName,strarrColName);
-
+                System.out.println("Here " + strTableName);
+                table.createIndex(strTableName, strarrColName);
+                System.out.println("Here2 " + table.getTableIndices().size());
                 FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 out.writeObject(table);
                 out.close();
+                System.out.println("Here3 " + table.getTableIndices().size() + " " + table.test.size());
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -236,7 +238,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
-            strTableName=strTableName.toLowerCase();
+            strTableName = strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
@@ -283,7 +285,7 @@ public class DBApp {
         }
         Properties prop = new Properties();
         try {
-            strTableName=strTableName.toLowerCase();
+            strTableName = strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
@@ -329,7 +331,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
-            strTableName=strTableName.toLowerCase();
+            strTableName = strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
@@ -339,7 +341,7 @@ public class DBApp {
 
                 table.deleteFromTable(strTableName, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName+ ".ser");
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 out.writeObject(table);
                 out.close();
@@ -360,7 +362,7 @@ public class DBApp {
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-                                    String[] strarrOperators) throws DBAppException{
+                                    String[] strarrOperators) throws DBAppException {
         String strTableName = arrSQLTerms[0]._strTableName;
 
         Properties prop = new Properties();
@@ -393,7 +395,7 @@ public class DBApp {
     }
 
     public String printTable(String strTableName) throws IOException, DBAppException {
-        strTableName=strTableName.toLowerCase();
+        strTableName = strTableName.toLowerCase();
         Table table = getTable(strTableName);
         String ret = table.toString();
 
@@ -406,9 +408,8 @@ public class DBApp {
     }
 
 
-
-    public Iterator parseSQL( StringBuffer strbufSQL ) throws DBAppException{
-        return SQLParser.parse(strbufSQL,this);
+    public Iterator parseSQL(StringBuffer strbufSQL) throws DBAppException {
+        return SQLParser.parse(strbufSQL, this);
     }
 
 
@@ -422,7 +423,7 @@ public class DBApp {
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
-        StringBuffer sb =new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 //        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
 //        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
 //        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
@@ -466,8 +467,8 @@ public class DBApp {
     }
 
     public static Table getTable(String tableName) throws DBAppException {
-        try{
-            tableName=tableName.toLowerCase();
+        try {
+            tableName = tableName.toLowerCase();
 //            System.out.println(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
             FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
             ObjectInputStream in = new ObjectInputStream(file);
@@ -477,7 +478,7 @@ public class DBApp {
             in.close();
             file.close();
             return table;
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
             throw new DBAppException("Problem loading table");
         }
     }
