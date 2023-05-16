@@ -233,6 +233,12 @@ public class DBApp {
      * @param htblColNameValue maps columns' names to their corresponding values to be inserted
      * @throws DBAppException If an exception occurred
      */
+    public void serilizeTable(String strTableName, Table table) throws IOException, ClassNotFoundException {
+        FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(table);
+        out.close();
+    }
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue)
             throws DBAppException {
@@ -247,10 +253,8 @@ public class DBApp {
 
                 table.insertIntoTable(strTableName, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                out.writeObject(table);
-                out.close();
+                serilizeTable(strTableName, table);
+
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -294,10 +298,7 @@ public class DBApp {
 
                 table.updateTable(strTableName, strClusteringKeyValue, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                out.writeObject(table);
-                out.close();
+                serilizeTable(strTableName, table);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }
@@ -341,10 +342,7 @@ public class DBApp {
 
                 table.deleteFromTable(strTableName, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
-                ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                out.writeObject(table);
-                out.close();
+                serilizeTable(strTableName, table);
             } else {
                 System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
             }

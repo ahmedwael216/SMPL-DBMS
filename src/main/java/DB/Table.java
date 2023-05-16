@@ -296,8 +296,8 @@ public class Table implements Serializable {
         if (!checkRecord(record)) {
             throw new DBAppException("Please enter valid data");
         }
-
-        TablePersistence.insert(strTableName, record);
+        TablePersistence tablePersistence = new TablePersistence();
+        tablePersistence.insert(strTableName, record);
         size++;
     }
 
@@ -305,8 +305,8 @@ public class Table implements Serializable {
             throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
 
         Record record = getRecord(htblColNameValue);
-
-        size -= TablePersistence.delete(strTableName, record);
+        TablePersistence tablePersistence = new TablePersistence();
+        size -= tablePersistence.delete(strTableName, record);
     }
 
     public static void setNumberOfPagesForTable(String name, int x) {
@@ -356,8 +356,8 @@ public class Table implements Serializable {
         if (!checkRecord(record)) {
             throw new DBAppException("Please enter valid data");
         }
-
-        TablePersistence.update(strTableName, record);
+        TablePersistence tablePersistence = new TablePersistence();
+        tablePersistence.update(strTableName, record);
 
     }
 
@@ -476,13 +476,14 @@ public class Table implements Serializable {
         Table table = this;
         int n = Table.getNumberOfPagesForTable(strTableName);
         for (int i = 0; i < n; i++) {
-            Page p = TablePersistence.deserialize(i, strTableName);
+            TablePersistence tp = new TablePersistence();
+            Page p = tp.deserialize(i, strTableName);
             DBVector<Record> records = p.getRecords();
             for (Record r : records) {
                 Point3D point = createPoint(table, r, strarrColName);
                 root.insert(point, i);
             }
-            TablePersistence.serialize(p, strTableName, i);
+            tp.serialize(p, strTableName, i);
         }
         StringBuilder sb = new StringBuilder();
         sb.append(strarrColName[0]);

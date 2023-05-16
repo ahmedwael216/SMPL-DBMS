@@ -81,7 +81,6 @@ public class Page implements Serializable, Comparable {
 
     @Override
     public int compareTo(Object o) {
-        System.out.println("comparing " + o + " to " + minValue + " and " + maxValue);
         if (((Comparable) o).compareTo(maxValue) <= 0 && ((Comparable) o).compareTo(minValue) >= 0)
             return 0;
         if (((Comparable) o).compareTo(maxValue) > 0) {

@@ -15,9 +15,9 @@ public class LinearSearch extends   SearchStrategy{
         int colIndex = getColIndex(keys, colName);
 
         int numberOfPages = TablePersistence.getNumberOfPagesForTable(tableName);
-
+        TablePersistence tp = new TablePersistence();
         for (int pageno=0;pageno<numberOfPages;pageno++){
-            Page page = TablePersistence.deserialize(pageno,tableName);
+            Page page = tp.deserialize(pageno,tableName);
             DBVector<Record> records = page.getRecords();
             for(Record record : records){
                 if(expressionEval(operator, (Comparable) record.getItem(colIndex), (Comparable) query._objValue)) result.add(record);

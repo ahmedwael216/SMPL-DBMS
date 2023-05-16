@@ -119,21 +119,28 @@ public class Node<T> implements Serializable {
         if (leaf == null) {
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
-
+        System.out.println(point);
+        for (Point3D<T> p : leaf.points) {
+            System.out.println(p + " " + p.getReferences().size());
+        }
         int index = leaf.points.indexOf(point);
         if (index == -1) {
             throw new DBAppException("The point to be deleted is not found");
         }
-
+        System.out.println("deleted");
         for (int i = 0; i < leaf.points.size(); i++) {
             Point3D<T> p = leaf.points.get(i);
             if (p.getXDim().equals(point.getXDim()) && p.getYDim().equals(point.getYDim()) && p.getZDim().equals(point.getZDim())) {
+                System.out.println("sure");
                 if (deleteSingle) {
                     p.removeReference(pageNumber);
-                    if (p.getReferences().size() == 0)
+                    if (p.getReferences().size() == 0) {
                         leaf.points.remove(i);
+                        i--;
+                    }
                 } else {
                     leaf.points.remove(i);
+                    i--;
                 }
 
                 if (children == null)
@@ -171,6 +178,26 @@ public class Node<T> implements Serializable {
             }
         }
         return null;
+    }
+
+    public DBVector<Integer> searchPoint(Point3D p) {
+        if (children == null) {
+            DBVector<Integer> result = new DBVector<>();
+            for (Point3D<T> point : points) {
+                if (point.getXDim().equals(p.getXDim()) && point.getYDim().equals(p.getYDim()) && point.getZDim().equals(p.getZDim())) {
+                    result.addAll(point.getReferences());
+                }
+            }
+            return result;
+        } else {
+            DBVector<Integer> result = new DBVector<>();
+            for (int i = 0; i < children.length; i++) {
+                if (children[i].inRange(p)) {
+                    result.addAll(children[i].searchPoint(p));
+                }
+            }
+            return result;
+        }
     }
 
     public void update(Point3D<T> point, int pageNumber) throws DBAppException {

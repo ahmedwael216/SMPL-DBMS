@@ -13,12 +13,12 @@ public class ClusteringKeySearch extends SearchStrategy {
         String operator = query._strOperator;
 
         int colIndex = getColIndex(keys, colName);
+        TablePersistence tp = new TablePersistence();
+        int numberOfPages = tp.getNumberOfPagesForTable(tableName);
 
-        int numberOfPages = TablePersistence.getNumberOfPagesForTable(tableName);
+        int pageno = tp.findPageNumber(numberOfPages, tableName, (Comparable) query._objValue);
 
-        int pageno = TablePersistence.findPageNumber(numberOfPages, tableName, (Comparable) query._objValue);
-
-        Page page = TablePersistence.deserialize(pageno, tableName);
+        Page page = tp.deserialize(pageno, tableName);
 
 
         DBVector<Record> records = page.getRecords();
@@ -65,9 +65,9 @@ public class ClusteringKeySearch extends SearchStrategy {
         else recordno = -(recordno + 1);
 
         int numberOfPages = TablePersistence.getNumberOfPagesForTable(tableName);
-
+        TablePersistence tp = new TablePersistence();
         for (; pageno < numberOfPages; pageno++) {
-            Page page = TablePersistence.deserialize(pageno, tableName);
+            Page page = tp.deserialize(pageno, tableName);
             DBVector<Record> records = page.getRecords();
             for (; recordno < records.size(); recordno++) {
                 result.add(records.get(recordno));
@@ -80,16 +80,16 @@ public class ClusteringKeySearch extends SearchStrategy {
     public static void lessThan(int pageno, int recordno, String tableName, DBVector<Record> result) throws IOException, ClassNotFoundException {
         if (recordno >= 0) recordno--;
         else recordno = -(recordno + 2);
-
+        TablePersistence tp = new TablePersistence();
         if (recordno < 0) {
             pageno--;
-            recordno = TablePersistence.deserialize(pageno, tableName).getRecords().size() - 1;
+            recordno = tp.deserialize(pageno, tableName).getRecords().size() - 1;
         }
 
         for (int i = 0; i < pageno; i++) {
-            Page page = TablePersistence.deserialize(i, tableName);
+            Page page = tp.deserialize(i, tableName);
             DBVector<Record> records = page.getRecords();
-            for (int j = 0; j < recordno; j++) {
+            for (int j = 0; ((j <= recordno) && (i >= pageno - 1)) || (j < records.size() && i < pageno - 1); j++) {
                 result.add(records.get(j));
             }
         }
@@ -98,7 +98,8 @@ public class ClusteringKeySearch extends SearchStrategy {
 
     public static void equal(int pageno, int recordno, String tableName, DBVector<Record> result) throws IOException, ClassNotFoundException {
         if (recordno < 0) return;
-        Page page = TablePersistence.deserialize(pageno, tableName);
+        TablePersistence tp = new TablePersistence();
+        Page page = tp.deserialize(pageno, tableName);
         DBVector<Record> records = page.getRecords();
         result.add(records.get(recordno));
 

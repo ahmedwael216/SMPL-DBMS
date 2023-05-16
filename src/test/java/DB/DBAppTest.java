@@ -82,7 +82,7 @@ class DBAppTest {
     @Order(5)
     void insertIntoTableIntNewRow() throws DBAppException, ParseException, IOException, ClassNotFoundException {
         String strTableName = "StudentInt".toLowerCase();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
@@ -144,7 +144,7 @@ class DBAppTest {
     @Test
     @Order(9)
     void checkTableLengthForTableInt() throws DBAppException {
-        Assertions.assertEquals(5, DbApp.getTableLength("StudentInt".toLowerCase()));
+        Assertions.assertEquals(6, DbApp.getTableLength("StudentInt".toLowerCase()));
     }
 
     @Test
@@ -373,7 +373,7 @@ class DBAppTest {
     void insertIntoTableIntAboveMax() throws ParseException {
         String strTableName = "StudentInt";
         for (int i = 0; i < 5; i++) {
-            int random = (int) Math.random() * 9999;
+            int random = (int) (Math.random() * 9999);
             Hashtable<String, Object> htblColNameValue = new Hashtable<>();
             htblColNameValue.put("id", 1000 + random);
             htblColNameValue.put("name", "Ahmed" + i);
@@ -564,5 +564,69 @@ class DBAppTest {
         Table table = DBApp.getTable(strTableName);
         HashMap<String, Node> indecies = table.getTableIndices();
         assertEquals(1, indecies.size());
+    }
+
+    @Test
+    @Order(37)
+    void insertIntoTableWithIndex() throws DBAppException, ParseException, IOException, ClassNotFoundException {
+        String strTableName = "studentint";
+        Table table = DBApp.getTable(strTableName);
+        System.out.println(table.getSize());
+        for (int i = 10; i < 11; i++) {
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            htblColNameValue.put("id", i);
+            htblColNameValue.put("name", "Ahmed" + i);
+            htblColNameValue.put("gpa", 4.0);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+            DbApp.insertIntoTable(strTableName, htblColNameValue);
+        }
+        System.out.println("x " + table.getSize());
+        table = DBApp.getTable(strTableName);
+        System.out.println("y " + table.getSize());
+    }
+
+    @Test
+    @Order(38)
+    void deleteFromTable() throws DBAppException, ParseException, IOException, ClassNotFoundException {
+        String strTableName = "studentint";
+        Table table = DBApp.getTable(strTableName);
+        Node node = table.getTableIndices().get("id,name,gpa");
+        node.printComplete();
+        System.out.println("a " + table.getSize());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("id", 4);
+        htblColNameValue.put("name", "Ahmed" + 4);
+        htblColNameValue.put("gpa", 4.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        Point3D point = new Point3D(4, "Ahmed4", 4.0);
+        DBVector<Integer> res = node.searchPoint(point);
+        System.out.println("b " + res.size());
+        DbApp.serilizeTable(strTableName, table);
+        DbApp.deleteFromTable(strTableName, htblColNameValue);
+        table = DBApp.getTable(strTableName);
+        node = table.getTableIndices().get("id,name,gpa");
+        res = node.searchPoint(point);
+        assertEquals(0, res.size());
+    }
+
+    @Test
+    @Order(39)
+    void updateIndex() throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        String strTableName = "studentint";
+        Table table = DBApp.getTable(strTableName);
+        Node node = table.getTableIndices().get("id,name,gpa");
+        node.printComplete();
+        System.out.println("a " + table.getSize());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("name", "Ahmed" + 5);
+        htblColNameValue.put("gpa", 1.0);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
+        DbApp.updateTable(strTableName, "4", htblColNameValue);
+        Point3D point = new Point3D(4, "Ahmed5", 1.0);
+        DBVector<Integer> res = node.searchPoint(point);
+        assertEquals(1, res.size());
     }
 }

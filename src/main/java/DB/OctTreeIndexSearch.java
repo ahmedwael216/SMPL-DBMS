@@ -32,7 +32,8 @@ public class OctTreeIndexSearch extends SearchStrategy{
         DBVector<Record> result = new DBVector<>();
 
         for(int x : pageIndeces) {
-            Page p = TablePersistence.deserialize(x,strTableName);
+            TablePersistence tp = new TablePersistence();
+            Page p = tp.deserialize(x,strTableName);
             DBVector<Record> records = p.getRecords();
             for(Record record : records){
                 if(expressionEval(queries[0]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[0]._strColumnName)), (Comparable) queries[0]._objValue) &&
