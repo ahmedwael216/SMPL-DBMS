@@ -360,6 +360,7 @@ class DBAppTest {
         Table table = DBApp.getTable(strTable);
 
         DbApp.createIndex(strTable, new String[] { "id", "name", "gpa" });
+        System.out.println(table.getTableIndices().size());
         assertEquals(1, table.getTableIndices().entrySet().size());
     }
 

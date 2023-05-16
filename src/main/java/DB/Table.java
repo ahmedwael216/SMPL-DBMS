@@ -15,7 +15,7 @@ public class Table implements Serializable {
     public String[] keys;
     public DBVector<Integer> test;
 
-    private HashMap<String[], Node> tableIndices;
+    private TreeMap<String[], Node> tableIndices;
 
     public Table(String strTableName,
             String strClusteringKeyColumn,
@@ -27,7 +27,13 @@ public class Table implements Serializable {
         this.name = strTableName;
         keys = getKeys(htblColNameType, strClusteringKeyColumn);
         String DBName = DBApp.selectedDBName;
-        this.tableIndices = new HashMap<>();
+        this.tableIndices = new TreeMap<>((a, b) -> {
+            for (int i = 0; i < a.length; i++) {
+                if (a[i].compareTo(b[i]) != 0)
+                    return a[i].compareTo(b[i]);
+            }
+            return 0;
+        });
 
         // Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
@@ -119,7 +125,7 @@ public class Table implements Serializable {
         return name;
     }
 
-    public HashMap<String[], Node> getTableIndices() {
+    public TreeMap<String[], Node> getTableIndices() {
         return this.tableIndices;
     }
 
