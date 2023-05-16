@@ -83,7 +83,7 @@ class DBAppTest {
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
             htblColNameValue.put("gpa", 4.0);
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
             DbApp.insertIntoTable(strTableName, htblColNameValue);
         }
@@ -100,7 +100,7 @@ class DBAppTest {
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
             htblColNameValue.put("gpa", (double) i);
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
             DbApp.insertIntoTable(strTableName, htblColNameValue);
         }
@@ -115,7 +115,7 @@ class DBAppTest {
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
             htblColNameValue.put("gpa", 4.0);
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
             DbApp.insertIntoTable(strTableName, htblColNameValue);
         }
@@ -130,7 +130,7 @@ class DBAppTest {
             htblColNameValue.put("id", i);
             htblColNameValue.put("name", "Ahmed" + i);
             htblColNameValue.put("gpa", 4.0);
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             htblColNameValue.put("birthday", formatter.parse("2000-01-0" + i));
             DbApp.insertIntoTable(strTableName, htblColNameValue);
         }
@@ -169,7 +169,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -184,7 +184,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -199,7 +199,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed0");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -214,7 +214,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -229,7 +229,7 @@ class DBAppTest {
         htblColNameValue.put("id", "0"); // wrong data type
         htblColNameValue.put("name", "Amir");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-02"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -245,7 +245,7 @@ class DBAppTest {
         htblColNameValue.put("id", 2);
         htblColNameValue.put("name", 114); // wrong data type
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-02"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -274,7 +274,7 @@ class DBAppTest {
         // htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
         DbApp.updateTable(strTableName, "0", htblColNameValue);
         // System.out.println(DbApp.printTable(strTableName));
@@ -288,7 +288,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         // htblColNameValue.put("gpa", 0.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
         DbApp.updateTable(strTableName, "0.0", htblColNameValue);
         System.out.println(DbApp.printTable(strTableName));
@@ -302,7 +302,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         // htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
         DbApp.updateTable(strTableName, "Ahmed0", htblColNameValue);
         System.out.println(DbApp.printTable(strTableName));
@@ -316,7 +316,7 @@ class DBAppTest {
         htblColNameValue.put("id", 0);
         htblColNameValue.put("name", "Ahmed Wael");
         htblColNameValue.put("gpa", 0.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2020-01-01"));
         DbApp.updateTable(strTableName, "2000-01-01", htblColNameValue);
         // System.out.println(DbApp.printTable(strTableName));
@@ -332,7 +332,7 @@ class DBAppTest {
         htblColNameValue.put("gpa", 4.0);
 
         DbApp.deleteFromTable(strTableName, htblColNameValue);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
 
         System.out.println(htblColNameValue);
@@ -346,7 +346,7 @@ class DBAppTest {
         htblColNameValue.put("id", 1);
         htblColNameValue.put("name", "Ahmed1");
         htblColNameValue.put("gpa", 4.0);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
         htblColNameValue.put("birthday", formatter.parse("2000-01-01"));
         Assertions.assertThrows(DBAppException.class, () -> {
             DbApp.deleteFromTable(strTableName, htblColNameValue);
@@ -355,6 +355,16 @@ class DBAppTest {
 
     @Test
     @Order(26)
+    void createIndexForTheFirstTime() throws DBAppException, IOException, ParseException, ClassNotFoundException {
+        String strTable = "StudentInt";
+        Table table = DBApp.getTable(strTable);
+
+        DbApp.createIndex(strTable, new String[] { "id", "name", "gpa" });
+        System.out.println(table.getTableIndices().size());
+        assertEquals(1, table.getTableIndices().entrySet().size());
+    }
+
+
     void insertIntoTableIntAboveMax() throws ParseException {
         String strTableName = "StudentInt";
         for (int i = 0; i < 5; i++) {

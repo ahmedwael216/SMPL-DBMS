@@ -15,13 +15,15 @@ import java.util.*;
 
 public class DBApp {
     public static int maxRecordsCountPage;
+    // TODO: get the value of maxEntriesCountNode and change it
+    public static int maxEntriesCountNode = 4;
     // Path to SMPL-DBMS
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
+
+    public static String DATE_FORMAT = "YYYY-MM-DD";
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
-
-    //TODO refactor all exceptions. DBApp methods =should throw DBApp Exceptions only
 
     /**
      * Executes at application startup.
@@ -93,13 +95,15 @@ public class DBApp {
 
         if (currentConfigFile.exists()) {
             System.out.println("Switching context to existing database: ");
-            getMaximumRecordsCountinPage();
+            getMaximumRecordsCountPage();
+            getmaxEntriesCountNode();
         } else {
             System.out.println("creating database in resources folder");
 
             DBVector<String> lines = new DBVector<>();
             lines.add("databaseName = " + selectedDBName);
             lines.add("maximumNumberOfRows = 200");
+            lines.add("maxEntriesCountNode = 4");
             maxRecordsCountPage = 200;
             try {
                 FileWriter fw = new FileWriter(currentConfigFile);
@@ -157,11 +161,23 @@ public class DBApp {
         }
     }
 
-    public void getMaximumRecordsCountinPage() {
+    public void getMaximumRecordsCountPage() {
         Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             maxRecordsCountPage = Integer.parseInt(prop.getProperty("maximumNumberOfRows"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getmaxEntriesCountNode() {
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            maxEntriesCountNode = Integer.parseInt(prop.getProperty("maxEntriesCountNode"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -174,8 +190,36 @@ public class DBApp {
     // If three column names are passed, create an octree.
     // If only one or two column names is passed, throw an Exception.
     public void createIndex(String strTableName,
-                            String[] strarrColName)
-            throws DBAppException {
+                                   String[] strarrColName)
+            throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        if(strarrColName.length != 3)
+            throw new DBAppException("There must be three columns in order to create the index.");
+
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "create index for " + strTableName + " table");
+
+                Table table = getTable(strTableName);
+
+                table.createIndex(strTableName,strarrColName);
+
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(table);
+                out.close();
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -313,6 +357,39 @@ public class DBApp {
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
+    }
+
+    public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
+                                    String[] strarrOperators) throws DBAppException{
+        String strTableName = arrSQLTerms[0]._strTableName;
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
+            if (prop.getProperty(strTableName + "TablePages") != null) {
+                prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Select From " + strTableName + " table");
+                System.out.println(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+
+                Table table = getTable(strTableName);
+
+                return table.selectFromTable(strTableName, arrSQLTerms, strarrOperators).iterator();
+            } else {
+                System.err.println("The table \"" + strTableName + "\" does not exist in the database \"" + selectedDBName + "\"");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+
     }
 
     public String printTable(String strTableName) throws IOException, DBAppException {

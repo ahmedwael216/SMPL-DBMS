@@ -7,29 +7,38 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
 public class Table implements Serializable {
     private String name;
-    private Record prototype;
+    public Record prototype;
     private int size;
 
-    private String[] keys;
+    public String[] keys;
+    public DBVector<Integer> test;
+
+    private TreeMap<String[], Node> tableIndices;
 
     public Table(String strTableName,
-                 String strClusteringKeyColumn,
-                 Hashtable<String, String> htblColNameType,
-                 Hashtable<String, String> htblColNameMin,
-                 Hashtable<String, String> htblColNameMax)
+            String strClusteringKeyColumn,
+            Hashtable<String, String> htblColNameType,
+            Hashtable<String, String> htblColNameMin,
+            Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
 
         this.name = strTableName;
         keys = getKeys(htblColNameType, strClusteringKeyColumn);
         String DBName = DBApp.selectedDBName;
+        this.tableIndices = new TreeMap<>((a, b) -> {
+            for (int i = 0; i < a.length; i++) {
+                if (a[i].compareTo(b[i]) != 0)
+                    return a[i].compareTo(b[i]);
+            }
+            return 0;
+        });
 
-        //Creating a Directory for the table
+        // Creating a Directory for the table
         new File(DBName + "/" + name).mkdir();
 
-        //Creating a Metadata file for the table
+        // Creating a Metadata file for the table
         CSVWriter writer;
         try {
             File metadata = new File(DBName + "/" + name + "/" + "metadata.csv");
@@ -46,21 +55,24 @@ public class Table implements Serializable {
             if (!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
                 throw new DBAppException("Invalid Value for column " + key);
         }
-        writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName", "IndexType", "min", "max"});
+        writer.writeNext(new String[] { "TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
+                "IndexType", "min", "max" });
 
         // add the primary key column
-        writer.writeNext(new String[]{strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
-                "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn), htblColNameMax.get(strClusteringKeyColumn)});
+        writer.writeNext(
+                new String[] { strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
+                        "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn),
+                        htblColNameMax.get(strClusteringKeyColumn) });
 
         // add other columns
         Set<String> allColumns = htblColNameType.keySet();
         for (String columnName : allColumns) {
-            //skipping primary key (to not include it twice)
+            // skipping primary key (to not include it twice)
             if (columnName.equals(strClusteringKeyColumn)) {
                 continue;
             }
-            writer.writeNext(new String[]{strTableName, columnName, htblColNameType.get(columnName),
-                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName)});
+            writer.writeNext(new String[] { strTableName, columnName, htblColNameType.get(columnName),
+                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName) });
         }
         writer.close();
 
@@ -72,6 +84,8 @@ public class Table implements Serializable {
             System.out.println(e.getMessage());
         }
         size = 0;
+
+
 
     }
 
@@ -90,7 +104,7 @@ public class Table implements Serializable {
             }
         } else if (type.toLowerCase().equals("java.util.date")) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
                 sdf.parse(val);
             } catch (Exception e) {
                 return false;
@@ -111,7 +125,20 @@ public class Table implements Serializable {
         return name;
     }
 
-    private String[] getMaxAndMinString(String columnName) throws IOException {
+    public TreeMap<String[], Node> getTableIndices() {
+        return this.tableIndices;
+    }
+
+    public void addIndex(String[] indexCols, Node root) {
+        this.test = new DBVector<>();
+        test.add(1);
+        root.printComplete();
+        this.tableIndices.put(indexCols, root);
+        System.out.println(tableIndices.entrySet().size() + " entry set");
+    }
+
+
+    public String[] getMaxAndMinString(String columnName) throws IOException {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = new BufferedReader(new FileReader(csvFile));
@@ -125,11 +152,30 @@ public class Table implements Serializable {
             }
             String[] column = line.split(cvsSplitBy);
             if (column[1].substring(1, column[1].length() - 1).equals(columnName)) {
-                return new String[]{column[6].substring(1, column[6].length() - 1), column[7].substring(1, column[7].length() - 1)};
+                return new String[] { column[6].substring(1, column[6].length() - 1),
+                        column[7].substring(1, column[7].length() - 1) };
             }
         }
 
         return null;
+    }
+
+    public static Comparable[] getMinMaxType(String[] colMinMax, String className) throws ParseException {
+        Comparable min = colMinMax[0], max = colMinMax[1];
+
+        if (className.toLowerCase().equals("java.lang.integer")) {
+            min = Integer.parseInt(colMinMax[0]);
+            max = Integer.parseInt(colMinMax[1]);
+        } else if (className.toLowerCase().equals("java.lang.double")) {
+            min = Double.parseDouble(colMinMax[0]);
+            max = Double.parseDouble(colMinMax[1]);
+        } else if (className.toLowerCase().equals("java.lang.date")) {
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            min = formatter.parse(colMinMax[0]);
+            max = formatter.parse(colMinMax[1]);
+        }
+
+        return new Comparable[] { min, max };
     }
 
     private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
@@ -172,10 +218,11 @@ public class Table implements Serializable {
         return null;
     }
 
-    private boolean checkValidity(String columnName, Comparable value) throws ParseException, ClassNotFoundException, IOException, DBAppException {
-        String[] minAndMax = getMaxAndMinString(columnName);
+    public static Comparable[] getMinMaxComparable(String columnName, Table table)
+            throws IOException, ParseException, DBAppException {
+        String[] minAndMax = table.getMaxAndMinString(columnName);
 
-        String className = getKeyType(columnName);
+        String className = table.getKeyType(columnName);
 
         String minValStr = minAndMax[0], maxValStr = minAndMax[1];
         Comparable minVal, maxVal;
@@ -195,7 +242,18 @@ public class Table implements Serializable {
                 minVal = minValStr;
                 maxVal = maxValStr;
             }
+        } catch (Exception e) {
+            throw new DBAppException("Invalid Value for column " + columnName);
+        }
+        return new Comparable[] { minVal, maxVal };
+    }
 
+    private boolean checkValidity(String columnName, Comparable value)
+            throws ParseException, ClassNotFoundException, IOException, DBAppException {
+        // get the value of the min and the max
+        try {
+            Comparable[] minMax = getMinMaxComparable(columnName, this);
+            Comparable minVal = minMax[0], maxVal = minMax[1];
             if (minVal.compareTo(value) > 0) {
                 return false;
             }
@@ -208,7 +266,7 @@ public class Table implements Serializable {
         return true;
     }
 
-    private boolean checkRecord(Record r) throws DBAppException{
+    private boolean checkRecord(Record r) throws DBAppException {
         for (int i = 0; i < r.getDBVector().size(); i++) {
             try {
                 if (r.getItem(i) != null && !checkValidity(keys[i], (Comparable) r.getDBVector().get(i))) {
@@ -221,7 +279,8 @@ public class Table implements Serializable {
         return true;
     }
 
-    private Record getRecord(Hashtable<String, Object> htblColNameValue) throws DBAppException, CloneNotSupportedException {
+    private Record getRecord(Hashtable<String, Object> htblColNameValue)
+            throws DBAppException, CloneNotSupportedException {
         Record record = (Record) prototype.clone();
         for (int keyIndex = 0; keyIndex < keys.length; keyIndex++) {
             if (!htblColNameValue.containsKey(keys[keyIndex])) {
@@ -232,8 +291,8 @@ public class Table implements Serializable {
         return record;
     }
 
-    public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws
-            DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
+    public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue)
+            throws DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException, ParseException {
 
         String clusteringKey = keys[0];
         if (!htblColNameValue.containsKey(clusteringKey)) {
@@ -250,7 +309,8 @@ public class Table implements Serializable {
         size++;
     }
 
-    public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
+    public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue)
+            throws DBAppException, IOException, ClassNotFoundException, ParseException, CloneNotSupportedException {
 
         Record record = getRecord(htblColNameValue);
 
@@ -272,7 +332,7 @@ public class Table implements Serializable {
     }
 
     private Comparable getValue(String val, String type) throws DBAppException {
-        if(!checkValidType(type, val))
+        if (!checkValidType(type, val))
             throw new DBAppException("Invalid value for type " + type + " : " + val);
 
         if (type.toLowerCase().equals("java.lang.integer")) {
@@ -280,7 +340,7 @@ public class Table implements Serializable {
         } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
         } else if (type.toLowerCase().equals("java.util.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
             try {
                 return formatter.parse(val);
             } catch (ParseException e) {
@@ -290,11 +350,11 @@ public class Table implements Serializable {
         return val;
     }
 
-    public void updateTable(String strTableName, String clusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
+    public void updateTable(String strTableName, String clusteringKeyValue, Hashtable<String, Object> htblColNameValue)
+            throws DBAppException, IOException, CloneNotSupportedException, ClassNotFoundException {
 
         Record record = (Record) prototype.clone();
         record.getDBVector().set(0, getValue(clusteringKeyValue, record.getDBVector().get(0).getClass().getName()));
-
 
         for (int keyIndex = 1; keyIndex < keys.length; keyIndex++) {
 
@@ -316,7 +376,7 @@ public class Table implements Serializable {
         try {
             FileInputStream is = new FileInputStream(fileName);
             prop.load(is);
-//            System.out.println(name+" "+prop.getProperty(name+"TablePages"));
+            // System.out.println(name+" "+prop.getProperty(name+"TablePages"));
             return Integer.parseInt(prop.getProperty(name + "TablePages"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -335,13 +395,7 @@ public class Table implements Serializable {
         }
     }
 
-    public static void main(String[] args) throws DBAppException {
-        try {
-            new Table("test", null, null, null, null);
-        } catch (DBAppException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
     public int[] getAllMaxValuesString() throws IOException {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
@@ -360,10 +414,287 @@ public class Table implements Serializable {
         }
         int[] max = new int[integerArrayList.size()];
         for (int i = 0; i < integerArrayList.size(); i++) {
-            max[i]=integerArrayList.get(i);
+            max[i] = integerArrayList.get(i);
         }
         return max;
     }
+
+    public static Node createRootNode(Table table, String[] strarrColName)
+            throws IOException, ParseException, DBAppException {
+
+        Comparable[] minMaxX = getMinMaxComparable(strarrColName[0], table);
+        Comparable[] minMaxY = getMinMaxComparable(strarrColName[1], table);
+        Comparable[] minMaxZ = getMinMaxComparable(strarrColName[2], table);
+
+        return new Node(minMaxX[0], minMaxY[0], minMaxZ[0], minMaxX[1], minMaxY[1], minMaxZ[1]);
+    }
+
+    public static Point3D createPoint(Table table, Record r, String[] strarrColName) {
+        int xIndex = -1, yIndex = -1, zIndex = -1;
+
+        for (int i = 0; i < table.keys.length; i++) {
+            if (table.keys[i].equals(strarrColName[0])) {
+                xIndex = i;
+            }
+            if (table.keys[i].equals(strarrColName[1])) {
+                yIndex = i;
+            }
+            if (table.keys[i].equals(strarrColName[2])) {
+                zIndex = i;
+            }
+        }
+
+        Comparable x = (Comparable) r.getDBVector().get(xIndex);
+        Comparable y = (Comparable) r.getDBVector().get(yIndex);
+        Comparable z = (Comparable) r.getDBVector().get(zIndex);
+
+        return new Point3D(x, y, z);
+
+    }
+
+    public static void insertLinearIntoIndex(String strTableName, String[] strarrColName)
+            throws IOException, ClassNotFoundException, DBAppException, ParseException {
+        Table table = DBApp.getTable(strTableName);
+
+        if (table == null) {
+            throw new DBAppException("Table not found!");
+        }
+
+        if(table.getTableIndices() != null) {
+            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCol = m.getKey();
+                for (String s : indexCol) {
+                    for (String t : strarrColName) {
+                        if (s.equals(t))
+                            throw new DBAppException("One column or more already have an index!");
+                    }
+                }
+
+            }
+        }
+
+        Node root = createRootNode(table, strarrColName);
+
+        int n = Table.getNumberOfPagesForTable(strTableName);
+        for (int i = 0; i < n; i++) {
+            Page p = TablePersistence.deserialize(i, strTableName);
+            DBVector<Record> records = p.getRecords();
+            for (Record r : records) {
+                Point3D point = createPoint(table, r, strarrColName);
+                root.insert(point, i);
+            }
+            TablePersistence.serialize(p, strTableName, i);
+        }
+
+        table.addIndex(strarrColName, root);
+
+    }
+
+    public void createIndex(String strTableName,
+            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        insertLinearIntoIndex(strTableName,  strarrColName);
+    }
+
+
+    public DBVector<Record> selectFromTable(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, IOException, ParseException, ClassNotFoundException, CloneNotSupportedException {
+        rearrangeQueries3(arrSQLTerms, strarrOperators);
+        return selectHelper(strTableName, arrSQLTerms, strarrOperators, 0);
+
+    }
+
+    public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
+        if(x == strarrOperators.length)
+            return null;
+        Node indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]}, new String[] {strarrOperators[x], strarrOperators[x+1]});
+        if( indexRoot != null){
+            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]} ,this.keys, indexRoot),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+3)
+                    ,strarrOperators[x]);
+        }
+        else if(arrSQLTerms[x]._strColumnName.equals(keys[0])){
+            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[0],this.keys, this.prototype),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
+                    ,strarrOperators[x]);
+        }
+        else {
+            return handleOperators(LinearSearch.Search(arrSQLTerms[0],this.keys),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
+                    ,strarrOperators[x]);
+        }
+    }
+
+    public Node useOctree(SQLTerm[] queries, String[] operators){
+
+        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey();
+            Node root = m.getValue();
+
+            HashSet<String> hs = new HashSet<>();
+            hs.add(indexCols[0]);
+            hs.add(indexCols[1]);
+            hs.add(indexCols[2]);
+
+            if (operators[0].equals("AND") && operators[1].equals("AND")) {
+                hs.remove(queries[0]._strColumnName);
+                hs.remove(queries[1]._strColumnName);
+                hs.remove(queries[2]._strColumnName);
+            }
+
+            if(hs.size() == 0)
+                return root;
+        }
+
+        return null;
+    }
+
+    public DBVector<Record> handleOperators(DBVector<Record>FirstSet,DBVector<Record>SecondSet,String operator){
+        if(SecondSet == null) return FirstSet;
+        switch (operator){
+            case "AND": return Table.and(FirstSet,SecondSet);
+            case "OR": return  Table.or(FirstSet,SecondSet);
+            case "XOR": return  Table.xor(FirstSet,SecondSet);
+            default: return null;
+        }
+    }
+
+    public static DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> FirstSetHashTable = new HashSet<Record>();
+        DBVector<Record> result = new DBVector<Record>();
+
+        for(Record record:FirstSet)FirstSetHashTable.add(record);
+        for(Record record:SecondSet)if(FirstSetHashTable.contains(record))result.add(record);
+        return result;
+    }
+
+    public static DBVector<Record> or(DBVector<Record> FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) resultHashSet.add(record);
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+    public static DBVector<Record> xor(DBVector<Record> FirstSet, DBVector<Record> SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) {
+            if(resultHashSet.contains(record))resultHashSet.remove(record);
+            else resultHashSet.add(record);
+        }
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+
+    public void rearrangeQueries3(SQLTerm[] sqlTermArr, String[] operators) {
+        ArrayList<int[]> andingWindows = new ArrayList<>();
+
+        int start = 0;
+        for (int i = 0; i < operators.length; i++) {
+            if (!operators[i].equals("AND")) {
+                int[] a = {start, i};
+                andingWindows.add(a);
+                start = i + 1;
+            }
+
+            if (operators[i].equals("AND") && i == operators.length - 1) {
+                int[] a = new int[2];
+                a = new int[]{start, i + 1};
+                andingWindows.add(a);
+                start = i + 1;
+            }
+
+            for (int[] arr : andingWindows) {
+                this.rearrangeQueries3helper(sqlTermArr, arr[0], arr[1]);
+            }
+
+        }
+    }
+
+    public void rearrangeQueries3helper(SQLTerm[] sqlTermArr, int start, int end){
+        if(end-start<=2)return;
+        String[][] indicesColumns = new String[this.getTableIndices().size()][3];
+
+        int f =0;
+        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+            String[] indexCols = m.getKey();
+            indicesColumns[f] = indexCols;
+            f++;
+        }
+
+        for(String[] indexCols : indicesColumns) {
+            LinkedList<SQLTerm> dimXTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> dimYTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> dimZTerms = new LinkedList<SQLTerm>();
+            LinkedList<SQLTerm> otherTerms= new LinkedList<SQLTerm>();
+            for(int i=start;i<=end;i++){
+                if(sqlTermArr[i]._strColumnName.equals(indexCols[0]))dimXTerms.add(sqlTermArr[i]);
+                else if(sqlTermArr[i]._strColumnName.equals(indexCols[1]))dimYTerms.add(sqlTermArr[i]);
+                else if(sqlTermArr[i]._strColumnName.equals(indexCols[2]))dimZTerms.add(sqlTermArr[i]);
+                else otherTerms.add(sqlTermArr[i]);
+            }
+
+
+
+            while(dimXTerms.size()>0 || dimYTerms.size()>0 || dimZTerms.size()>0){
+                if(dimXTerms.size()>0){
+                    sqlTermArr[start] = dimXTerms.removeFirst();
+                    start++;
+                }
+                if(dimYTerms.size()>0){
+                    sqlTermArr[start] = dimYTerms.removeFirst();
+                    start++;
+                }
+                if(dimZTerms.size()>0){
+                    sqlTermArr[start] = dimZTerms.removeFirst();
+                    start++;
+                }
+            }
+
+            int starttemp = start;
+            while(!otherTerms.isEmpty()){
+                sqlTermArr[starttemp] = otherTerms.removeFirst();
+                starttemp++;
+            }
+
+        }
+
+
+
+    }
+
+    public static void main(String[] args) {
+        SQLTerm query1 = new SQLTerm();
+        query1._strColumnName = "col1";
+        SQLTerm query2 = new SQLTerm();
+        query2._strColumnName = "col2";
+        SQLTerm query3 = new SQLTerm();
+        query3._strColumnName = "col3";
+        SQLTerm query4 = new SQLTerm();
+        query4._strColumnName = "col4";
+        SQLTerm query5 = new SQLTerm();
+        query5._strColumnName = "col5";
+        SQLTerm query6 = new SQLTerm();
+        query6._strColumnName = "col6";
+        SQLTerm query7 = new SQLTerm();
+        query7._strColumnName = "col7";
+        SQLTerm query8 = new SQLTerm();
+        query8._strColumnName = "col8";
+        SQLTerm query9 = new SQLTerm();
+        query9._strColumnName = "col9";
+        SQLTerm query10 = new SQLTerm();
+        query10._strColumnName = "col10";
+
+
+        String[] operators = new String[] {"AND", "AND", "OR", "AND", "AND", "AND", "AND", "AND", "AND"};
+
+        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9, query10};
 
     public Iterator select(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, ParseException, IOException, ClassNotFoundException {
         for(SQLTerm term:arrSQLTerms){

@@ -27,7 +27,6 @@ public class Record implements Cloneable, Comparable, Serializable {
         return tupleRow;
     }
 
-
     public Serializable getItem(int i) {
         return tupleRow.get(i);
     }
@@ -62,7 +61,6 @@ public class Record implements Cloneable, Comparable, Serializable {
         return new Record(schema);
     }
 
-
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
@@ -86,7 +84,7 @@ public class Record implements Cloneable, Comparable, Serializable {
                 continue;
             if (this.getItem(i) == null)
                 return false;
-            if(((Record)o).getItem(i) == null)
+            if (((Record) o).getItem(i) == null)
                 continue;
             if (!this.getItem(i).equals(((Record) o).getItem(i)))
                 return false;

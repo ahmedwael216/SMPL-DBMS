@@ -3,6 +3,7 @@ package DB;
 import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class TablePersistence {
     public static int getNumberOfPagesForTable(String name) {
@@ -52,7 +53,7 @@ public class TablePersistence {
         return true;
     }
 
-    private static int findPageNumber(int n, String tableName, Comparable pk) throws IOException, ClassNotFoundException {
+    public static int findPageNumber(int n, String tableName, Comparable pk) throws IOException, ClassNotFoundException {
         int low = 0;
         int high = n - 1;
 
@@ -70,7 +71,7 @@ public class TablePersistence {
         return 0;
     }
 
-    private static void serialize(Page p, String tableName, int pageIndex) {
+    public static void serialize(Page p, String tableName, int pageIndex) {
         String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + pageIndex + ".ser";
         // Serialization
         try {
@@ -88,7 +89,7 @@ public class TablePersistence {
         }
     }
 
-    private static Page deserialize(int x, String tableName) throws IOException, ClassNotFoundException {
+    public static Page deserialize(int x, String tableName) throws IOException, ClassNotFoundException {
         String filename = DBApp.currentDBFile + File.separator + tableName + File.separator + x + ".ser";
         FileInputStream file = new FileInputStream(filename);
         ObjectInputStream in = new ObjectInputStream(file);
@@ -126,8 +127,45 @@ public class TablePersistence {
 
     public static int delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
         if (record.getPrimaryKey() == null) {
-            return deleteLinear(record, tableName);
+
+            Table table = DBApp.getTable(tableName);
+
+            String[] keys = table.keys;
+
+            for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
+                String[] indexCols = m.getKey();
+                Node indexRoot = m.getValue();
+
+                int colXIndex = SearchStrategy.getColIndex(keys, indexCols[0]);
+                int colYIndex = SearchStrategy.getColIndex(keys, indexCols[1]);
+                int colZIndex = SearchStrategy.getColIndex(keys, indexCols[2]);
+
+                if (record.getItem(colXIndex) != null && record.getItem(colYIndex) != null && record.getItem(colZIndex) != null) {
+                    DimRange xRange = new DimRange((Comparable) record.getItem(colXIndex), (Comparable) record.getItem(colXIndex));
+                    DimRange yRange = new DimRange((Comparable) record.getItem(colYIndex), (Comparable) record.getItem(colYIndex));
+                    DimRange zRange = new DimRange((Comparable) record.getItem(colZIndex), (Comparable) record.getItem(colZIndex));
+
+                    DBVector<Integer> pageIndices = indexRoot.search(xRange, yRange, zRange, true, true, true, true, true, true);
+
+                    int n = getNumberOfPagesForTable(tableName);
+                    int totDel = 0;
+                    for (int pageIdx : pageIndices) {
+                        Page p = deserialize(pageIdx, tableName);
+                        totDel += p.deleteLinear(record);
+                        if (p.isEmpty()) {
+                            deletePage(tableName, pageIdx, n);
+                            n--;
+                        } else
+                            serialize(p, tableName, pageIdx);
+                    }
+
+                    return totDel;
+                }
+
+                return deleteLinear(record, tableName);
+            }
         }
+
 
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
@@ -143,14 +181,45 @@ public class TablePersistence {
         return del;
     }
 
-    public static void update(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
+    public static void update(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException, CloneNotSupportedException {
+        Table table = DBApp.getTable(tableName);
+
         int n = getNumberOfPagesForTable(tableName);
         if (n == 0) {
             throw new DBAppException("Table is empty");
         }
+
         int pageIndex = findPageNumber(n, tableName, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex, tableName);
+
+
+        SQLTerm getRecord = new SQLTerm();
+        getRecord._strColumnName = table.keys[0];
+        getRecord._strOperator = "=";
+        getRecord._strTableName = table.getName();
+        getRecord._objValue = (Comparable) record.getPrimaryKey();
+
+        DBVector<Record> queryResult = ClusteringKeySearch.Search(getRecord,table.keys,table.prototype);
+
+        Record romoverecord =  queryResult.get(0);
+
+
+        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey();
+            Node index = m.getValue();
+            Point3D point = Table.createPoint(table, romoverecord, indexCols);
+            index.delete(point, true, pageIndex);
+        }
+
         p.updateRecord(record);
+
+        for(Map.Entry<String[],Node> m: table.getTableIndices().entrySet()){
+            String[] indexCols = m.getKey();
+            Node index = m.getValue();
+            Point3D point = Table.createPoint(table, record, indexCols);
+            index.update(point, pageIndex);
+        }
+
         serialize(p, tableName, pageIndex);
     }
 
@@ -187,7 +256,6 @@ public class TablePersistence {
         upDashes.append("┐\n");
         dashes.append("┤\n");
         downDashes.append("┘\n");
-
 
         for (String page : pages){
             s.append(upDashes);

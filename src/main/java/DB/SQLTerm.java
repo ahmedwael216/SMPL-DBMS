@@ -1,5 +1,6 @@
 package DB;
 
+
 public class SQLTerm {
     String _strTableName;
     String _strColumnName;
