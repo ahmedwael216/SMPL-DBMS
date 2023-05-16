@@ -478,155 +478,11 @@ public class Table implements Serializable {
     }
 
 
-    public static SQLTerm[] rearrangeQueries(SQLTerm[] queries, String[] operators) {
-//        String[] indexCols = this.indexCols;
-            String[] indexCols = new String[] {"col1", "col2", "col3"};
+    public DBVector<Record> selectFromTable(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, IOException, ParseException, ClassNotFoundException, CloneNotSupportedException {
+        rearrangeQueries3(arrSQLTerms, strarrOperators);
+        return selectHelper(strTableName, arrSQLTerms, strarrOperators, 0);
 
-        HashSet<String> hs = new HashSet<>();
-        hs.add(indexCols[0]);
-        hs.add(indexCols[1]);
-        hs.add(indexCols[2]);
-
-        ArrayList<int[]> indicesArr = new ArrayList<>();
-
-        int x=-1, y=-1, z=-1;
-
-        String prevOperator = "";
-        for(int i=0;i<queries.length;i++) {
-
-            if(i>0) {
-                prevOperator = operators[i-1];
-            }
-
-            if((i > 0 && !prevOperator.equals("AND") && hs.contains(queries[i]._strColumnName)) ||(i==0 && hs.contains(queries[i]._strColumnName))  || (hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND"))) {
-                System.out.println("AND and col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
-                hs.remove(queries[i]._strColumnName);
-                if(x == -1)
-                    x = i;
-                else if (y == -1)
-                    y = i;
-                else
-                    z = i;
-
-                if(hs.size() == 0) {
-                    System.out.println("AND and All three col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
-                    int[] indices = new int[] {x,y,z};
-                    indicesArr.add(indices);
-                    hs.add(indexCols[0]);
-                    hs.add(indexCols[1]);
-                    hs.add(indexCols[2]);
-                }
-            }
-
-            else if(!hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND")) {
-                System.out.println("AND but not col index.");
-                continue;
-            }
-
-            else if(hs.size() != 0 && !prevOperator.equals("AND")) {
-                System.out.println("Not AND, col name: " +  queries[i]._strColumnName);
-                hs.add(indexCols[0]);
-                hs.add(indexCols[1]);
-                hs.add(indexCols[2]);
-
-                x = -1;
-                y = -1;
-                z =-1;
-            }
-
-
-        }
-
-        for(int[] a : indicesArr) {
-            Arrays.sort(a);
-            System.out.println(Arrays.toString(a) + " indices");
-            int indexToBeSwapped = a[0] + 1;
-            SQLTerm query1 = queries[indexToBeSwapped];
-            SQLTerm query2 = queries[indexToBeSwapped+1];
-            queries[indexToBeSwapped] = queries[a[1]];
-            queries[indexToBeSwapped+1] = queries[a[2]];
-            queries[a[1]] = query1;
-            queries[a[2]] = query2;
-        }
-
-        return queries;
     }
-
-    public static SQLTerm[] rearrangeQueries2(SQLTerm[] queries, String[] operators) {
-//        String[] indexCols = this.indexCols;
-        String[] indexCols = new String[] {"col1", "col2", "col3"};
-
-        HashSet<String> hs = new HashSet<>();
-        hs.add(indexCols[0]);
-        hs.add(indexCols[1]);
-        hs.add(indexCols[2]);
-
-        ArrayList<int[]> indicesArr = new ArrayList<>();
-
-        String prevOperator = "";
-        int[] indices = new int[]{-1, -1, -1};
-        for(int i=0;i<queries.length;i++) {
-
-            if(i>0) {
-                prevOperator = operators[i-1];
-            }
-
-            if((i > 0 && !prevOperator.equals("AND") && hs.contains(queries[i]._strColumnName)) ||(i==0 && hs.contains(queries[i]._strColumnName))  || (hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND"))) {
-                System.out.println("AND and col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
-                hs.remove(queries[i]._strColumnName);
-                if(x == -1)
-                    x = i;
-                else if (y == -1)
-                    y = i;
-                else
-                    z = i;
-
-                if(hs.size() == 0) {
-                    System.out.println("AND and All three col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
-                    int[] indices = new int[] {x,y,z};
-                    indicesArr.add(indices);
-                    hs.add(indexCols[0]);
-                    hs.add(indexCols[1]);
-                    hs.add(indexCols[2]);
-                }
-            }
-
-            else if(!hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND")) {
-                System.out.println("AND but not col index.");
-                continue;
-            }
-
-            else if(hs.size() != 0 && !prevOperator.equals("AND")) {
-                System.out.println("Not AND, col name: " +  queries[i]._strColumnName);
-                hs.add(indexCols[0]);
-                hs.add(indexCols[1]);
-                hs.add(indexCols[2]);
-
-                x = -1;
-                y = -1;
-                z =-1;
-            }
-
-
-        }
-
-        for(int[] a : indicesArr) {
-            Arrays.sort(a);
-            System.out.println(Arrays.toString(a) + " indices");
-            int indexToBeSwapped = a[0] + 1;
-            SQLTerm query1 = queries[indexToBeSwapped];
-            SQLTerm query2 = queries[indexToBeSwapped+1];
-            queries[indexToBeSwapped] = queries[a[1]];
-            queries[indexToBeSwapped+1] = queries[a[2]];
-            queries[a[1]] = query1;
-            queries[a[2]] = query2;
-        }
-
-        return queries;
-    }
-
-
-
 
     public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
         if(x == strarrOperators.length)
@@ -673,9 +529,7 @@ public class Table implements Serializable {
             case "XOR": return  Table.xor(FirstSet,SecondSet);
             default: return null;
         }
-
     }
-
 
     public static DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
         HashSet<Record> FirstSetHashTable = new HashSet<Record>();
@@ -712,37 +566,104 @@ public class Table implements Serializable {
     }
 
 
-    public static void main(String[] args) {
-        SQLTerm query1 = new SQLTerm();
-        query1._strColumnName = "col1";
-        SQLTerm query2 = new SQLTerm();
-        query2._strColumnName = "col2";
-        SQLTerm query3 = new SQLTerm();
-        query3._strColumnName = "col4";
-        SQLTerm query4 = new SQLTerm();
-        query4._strColumnName = "col3";
-        SQLTerm query5 = new SQLTerm();
-        query5._strColumnName = "col2";
-        SQLTerm query6 = new SQLTerm();
-        query6._strColumnName = "col3";
-        SQLTerm query7 = new SQLTerm();
-        query7._strColumnName = "col4";
-        SQLTerm query8 = new SQLTerm();
-        query8._strColumnName = "col1";
 
-        String[] operators = new String[] {"AND", "AND", "AND", "OR", "AND", "AND", "AND"};
 
-        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8};
+    public void rearrangeQueries3(SQLTerm[] sqlTermArr, String[] operators) {
+        ArrayList<int[]> indices = new ArrayList<>();
 
-        Table.rearrangeQueries(queries, operators);
+        int start = 0;
+        for (int i = 0; i < operators.length; i++) {
+            if (!operators[i].equals("AND")) {
+                int[] a = new int[]{start, i};
+                indices.add(a);
+                start = i + 1;
+            }
 
-        for(SQLTerm query: queries) {
-            System.out.println(query._strColumnName);
+            if (operators[i].equals("AND") && i == operators.length - 1) {
+                int[] a = new int[2];
+                a = new int[]{start, i + 1};
+                indices.add(a);
+                start = i + 1;
+            }
+
+            for (int[] arr : indices) {
+                this.rearrangeQueries3helper(sqlTermArr, arr[0], arr[1]);
+            }
+
+        }
+    }
+
+    public void rearrangeQueries3helper(SQLTerm[] sqlTermArr, int start, int end){
+        if(end-start<=2)return;
+        String[] indexCols = this.indexCols;
+
+        LinkedList<SQLTerm> dimXTerms = new LinkedList<SQLTerm>();
+        LinkedList<SQLTerm> dimYTerms = new LinkedList<SQLTerm>();
+        LinkedList<SQLTerm> dimZTerms = new LinkedList<SQLTerm>();
+        LinkedList<SQLTerm> otherTerms= new LinkedList<SQLTerm>();
+        for(int i=start;i<=end;i++){
+            if(sqlTermArr[i]._strColumnName.equals(indexCols[0]))dimXTerms.add(sqlTermArr[i]);
+            else if(sqlTermArr[i]._strColumnName.equals(indexCols[1]))dimYTerms.add(sqlTermArr[i]);
+            else if(sqlTermArr[i]._strColumnName.equals(indexCols[2]))dimZTerms.add(sqlTermArr[i]);
+            else otherTerms.add(sqlTermArr[i]);
         }
 
 
 
+        while(dimXTerms.size()>0 || dimYTerms.size()>0 || dimZTerms.size()>0 || otherTerms.size()>0){
+            if(dimXTerms.size()>0){
+                sqlTermArr[start] = dimXTerms.removeFirst();
+                start++;
+            }
+            if(dimYTerms.size()>0){
+                sqlTermArr[start] = dimYTerms.removeFirst();
+                start++;
+            }
+            if(dimZTerms.size()>0){
+                sqlTermArr[start] = dimZTerms.removeFirst();
+                start++;
+            }
+            if(otherTerms.size()>0){
+                sqlTermArr[start] = otherTerms.removeFirst();
+                start++;
+            }
+        }
+
+
     }
+    //  0            2         4     5
+    //  and   and  and   or   and  and
+    // i     i    i    i   i      i    i
+    // 0               3   4            6
 
 
+    // x and x and x and y and y and y and z and z and z
+
+    public static void main(String[] args) {
+        SQLTerm query1 = new SQLTerm();
+        query1._strColumnName = "col1";
+        SQLTerm query2 = new SQLTerm();
+        query2._strColumnName = "col4";
+        SQLTerm query3 = new SQLTerm();
+        query3._strColumnName = "col4";
+        SQLTerm query4 = new SQLTerm();
+        query4._strColumnName = "col2";
+        SQLTerm query5 = new SQLTerm();
+        query5._strColumnName = "col2";
+        SQLTerm query6 = new SQLTerm();
+        query6._strColumnName = "col5";
+        SQLTerm query7 = new SQLTerm();
+        query7._strColumnName = "col3";
+        SQLTerm query8 = new SQLTerm();
+        query8._strColumnName = "col3";
+        SQLTerm query9 = new SQLTerm();
+        query9._strColumnName = "col1";
+
+
+        String[] operators = new String[] {"AND", "AND", "AND", "AND", "AND", "AND", "AND", "AND"};
+
+        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9};
+
+
+    }
 }
