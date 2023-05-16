@@ -21,7 +21,7 @@ public class DBApp {
     public static String rootPath = new File(System.getProperty("user.dir")).getAbsolutePath();//.getParentFile().getParentFile().getParentFile().getParent() + File.separator;
     public static String selectedDBName = null;
 
-    public static String DATE_FORMAT = "YYYY-MM-DD";
+    public static String DATE_FORMAT = "yyyy-MM-dd";
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
 
@@ -406,27 +406,6 @@ public class DBApp {
     }
 
 
-      public Iterator selectFromTable(SQLTerm[] arrSQLTerms,String[] strarrOperators) throws DBAppException, IOException, ClassNotFoundException, ParseException {
-          //insuring that the table name is consistent
-          String tableName = arrSQLTerms[0]._strTableName;
-          for(SQLTerm term:arrSQLTerms){
-              if(!term._strTableName.equals(tableName)){
-                  throw new DBAppException("The table names are not consistant");
-              }
-          }
-
-          // insuring that the starrOperators are right
-          for(String s: strarrOperators){
-              if(!(s.equals("OR") || s.equals("AND") ||s.equals("XOR"))){
-                  throw new DBAppException("The "+s+" starrOperators is invalid");
-              }
-          }
-
-          Table t = getTable(tableName);
-          return t.select(arrSQLTerms,strarrOperators);
-      }
-
-
 
     public Iterator parseSQL( StringBuffer strbufSQL ) throws DBAppException{
         return SQLParser.parse(strbufSQL,this);
@@ -486,7 +465,7 @@ public class DBApp {
         return res;
     }
 
-    public Table getTable(String tableName) throws DBAppException {
+    public static Table getTable(String tableName) throws DBAppException {
         try{
             tableName=tableName.toLowerCase();
 //            System.out.println(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");

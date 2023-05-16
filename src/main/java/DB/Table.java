@@ -18,10 +18,10 @@ public class Table implements Serializable {
     private TreeMap<String[], Node> tableIndices;
 
     public Table(String strTableName,
-            String strClusteringKeyColumn,
-            Hashtable<String, String> htblColNameType,
-            Hashtable<String, String> htblColNameMin,
-            Hashtable<String, String> htblColNameMax)
+                 String strClusteringKeyColumn,
+                 Hashtable<String, String> htblColNameType,
+                 Hashtable<String, String> htblColNameMin,
+                 Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
 
         this.name = strTableName;
@@ -55,14 +55,14 @@ public class Table implements Serializable {
             if (!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
                 throw new DBAppException("Invalid Value for column " + key);
         }
-        writer.writeNext(new String[] { "TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
-                "IndexType", "min", "max" });
+        writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
+                "IndexType", "min", "max"});
 
         // add the primary key column
         writer.writeNext(
-                new String[] { strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
+                new String[]{strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
                         "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn),
-                        htblColNameMax.get(strClusteringKeyColumn) });
+                        htblColNameMax.get(strClusteringKeyColumn)});
 
         // add other columns
         Set<String> allColumns = htblColNameType.keySet();
@@ -71,8 +71,8 @@ public class Table implements Serializable {
             if (columnName.equals(strClusteringKeyColumn)) {
                 continue;
             }
-            writer.writeNext(new String[] { strTableName, columnName, htblColNameType.get(columnName),
-                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName) });
+            writer.writeNext(new String[]{strTableName, columnName, htblColNameType.get(columnName),
+                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName)});
         }
         writer.close();
 
@@ -84,7 +84,6 @@ public class Table implements Serializable {
             System.out.println(e.getMessage());
         }
         size = 0;
-
 
 
     }
@@ -104,7 +103,7 @@ public class Table implements Serializable {
             }
         } else if (type.toLowerCase().equals("java.util.date")) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 sdf.parse(val);
             } catch (Exception e) {
                 return false;
@@ -152,8 +151,8 @@ public class Table implements Serializable {
             }
             String[] column = line.split(cvsSplitBy);
             if (column[1].substring(1, column[1].length() - 1).equals(columnName)) {
-                return new String[] { column[6].substring(1, column[6].length() - 1),
-                        column[7].substring(1, column[7].length() - 1) };
+                return new String[]{column[6].substring(1, column[6].length() - 1),
+                        column[7].substring(1, column[7].length() - 1)};
             }
         }
 
@@ -170,12 +169,12 @@ public class Table implements Serializable {
             min = Double.parseDouble(colMinMax[0]);
             max = Double.parseDouble(colMinMax[1]);
         } else if (className.toLowerCase().equals("java.lang.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             min = formatter.parse(colMinMax[0]);
             max = formatter.parse(colMinMax[1]);
         }
 
-        return new Comparable[] { min, max };
+        return new Comparable[]{min, max};
     }
 
     private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
@@ -232,7 +231,7 @@ public class Table implements Serializable {
                 minVal = Integer.parseInt(minValStr);
                 maxVal = Integer.parseInt(maxValStr);
             } else if (className.toLowerCase().equals("java.util.date")) {
-                SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 minVal = formatter.parse(minValStr);
                 maxVal = formatter.parse(maxValStr);
             } else if (className.toLowerCase().equals("java.lang.double")) {
@@ -245,7 +244,7 @@ public class Table implements Serializable {
         } catch (Exception e) {
             throw new DBAppException("Invalid Value for column " + columnName);
         }
-        return new Comparable[] { minVal, maxVal };
+        return new Comparable[]{minVal, maxVal};
     }
 
     private boolean checkValidity(String columnName, Comparable value)
@@ -340,7 +339,7 @@ public class Table implements Serializable {
         } else if (type.toLowerCase().equals("java.lang.double")) {
             return Double.parseDouble(val);
         } else if (type.toLowerCase().equals("java.util.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 return formatter.parse(val);
             } catch (ParseException e) {
@@ -460,7 +459,7 @@ public class Table implements Serializable {
             throw new DBAppException("Table not found!");
         }
 
-        if(table.getTableIndices() != null) {
+        if (table.getTableIndices() != null) {
             for (Map.Entry<String[], Node> m : table.getTableIndices().entrySet()) {
                 String[] indexCol = m.getKey();
                 for (String s : indexCol) {
@@ -491,8 +490,8 @@ public class Table implements Serializable {
     }
 
     public void createIndex(String strTableName,
-            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
-        insertLinearIntoIndex(strTableName,  strarrColName);
+                            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+        insertLinearIntoIndex(strTableName, strarrColName);
     }
 
 
@@ -503,29 +502,27 @@ public class Table implements Serializable {
     }
 
     public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
-        if(x == strarrOperators.length)
+        if (x == strarrOperators.length)
             return null;
-        Node indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]}, new String[] {strarrOperators[x], strarrOperators[x+1]});
-        if( indexRoot != null){
-            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]} ,this.keys, indexRoot),
-                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+3)
-                    ,strarrOperators[x]);
-        }
-        else if(arrSQLTerms[x]._strColumnName.equals(keys[0])){
-            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[0],this.keys, this.prototype),
-                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
-                    ,strarrOperators[x]);
-        }
-        else {
-            return handleOperators(LinearSearch.Search(arrSQLTerms[0],this.keys),
-                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
-                    ,strarrOperators[x]);
+        Node indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x + 1], arrSQLTerms[x + 2]}, new String[]{strarrOperators[x], strarrOperators[x + 1]});
+        if (indexRoot != null) {
+            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x + 1], arrSQLTerms[x + 2]}, this.keys, indexRoot),
+                    selectHelper(strTableName, arrSQLTerms, strarrOperators, x + 3)
+                    , strarrOperators[x]);
+        } else if (arrSQLTerms[x]._strColumnName.equals(keys[0])) {
+            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[0], this.keys, this.prototype),
+                    selectHelper(strTableName, arrSQLTerms, strarrOperators, x + 1)
+                    , strarrOperators[x]);
+        } else {
+            return handleOperators(LinearSearch.Search(arrSQLTerms[0], this.keys),
+                    selectHelper(strTableName, arrSQLTerms, strarrOperators, x + 1)
+                    , strarrOperators[x]);
         }
     }
 
-    public Node useOctree(SQLTerm[] queries, String[] operators){
+    public Node useOctree(SQLTerm[] queries, String[] operators) {
 
-        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+        for (Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
             String[] indexCols = m.getKey();
             Node root = m.getValue();
 
@@ -540,53 +537,57 @@ public class Table implements Serializable {
                 hs.remove(queries[2]._strColumnName);
             }
 
-            if(hs.size() == 0)
+            if (hs.size() == 0)
                 return root;
         }
 
         return null;
     }
 
-    public DBVector<Record> handleOperators(DBVector<Record>FirstSet,DBVector<Record>SecondSet,String operator){
-        if(SecondSet == null) return FirstSet;
-        switch (operator){
-            case "AND": return Table.and(FirstSet,SecondSet);
-            case "OR": return  Table.or(FirstSet,SecondSet);
-            case "XOR": return  Table.xor(FirstSet,SecondSet);
-            default: return null;
+    public DBVector<Record> handleOperators(DBVector<Record> FirstSet, DBVector<Record> SecondSet, String operator) {
+        if (SecondSet == null) return FirstSet;
+        switch (operator) {
+            case "AND":
+                return Table.and(FirstSet, SecondSet);
+            case "OR":
+                return Table.or(FirstSet, SecondSet);
+            case "XOR":
+                return Table.xor(FirstSet, SecondSet);
+            default:
+                return null;
         }
     }
 
-    public static DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
+    public static DBVector<Record> and(DBVector<Record> FirstSet, DBVector<Record> SecondSet) {
         HashSet<Record> FirstSetHashTable = new HashSet<Record>();
         DBVector<Record> result = new DBVector<Record>();
 
-        for(Record record:FirstSet)FirstSetHashTable.add(record);
-        for(Record record:SecondSet)if(FirstSetHashTable.contains(record))result.add(record);
+        for (Record record : FirstSet) FirstSetHashTable.add(record);
+        for (Record record : SecondSet) if (FirstSetHashTable.contains(record)) result.add(record);
         return result;
     }
 
-    public static DBVector<Record> or(DBVector<Record> FirstSet, DBVector<Record>SecondSet){
+    public static DBVector<Record> or(DBVector<Record> FirstSet, DBVector<Record> SecondSet) {
         HashSet<Record> resultHashSet = new HashSet<Record>();
-        DBVector<Record>  result = new DBVector<Record>();
+        DBVector<Record> result = new DBVector<Record>();
 
-        for(Record record:FirstSet) resultHashSet.add(record);
-        for(Record record:SecondSet) resultHashSet.add(record);
-        for(Record record:resultHashSet) result.add(record);
+        for (Record record : FirstSet) resultHashSet.add(record);
+        for (Record record : SecondSet) resultHashSet.add(record);
+        for (Record record : resultHashSet) result.add(record);
 
         return result;
     }
 
-    public static DBVector<Record> xor(DBVector<Record> FirstSet, DBVector<Record> SecondSet){
+    public static DBVector<Record> xor(DBVector<Record> FirstSet, DBVector<Record> SecondSet) {
         HashSet<Record> resultHashSet = new HashSet<Record>();
-        DBVector<Record>  result = new DBVector<Record>();
+        DBVector<Record> result = new DBVector<Record>();
 
-        for(Record record:FirstSet) resultHashSet.add(record);
-        for(Record record:SecondSet) {
-            if(resultHashSet.contains(record))resultHashSet.remove(record);
+        for (Record record : FirstSet) resultHashSet.add(record);
+        for (Record record : SecondSet) {
+            if (resultHashSet.contains(record)) resultHashSet.remove(record);
             else resultHashSet.add(record);
         }
-        for(Record record:resultHashSet) result.add(record);
+        for (Record record : resultHashSet) result.add(record);
 
         return result;
     }
@@ -617,54 +618,52 @@ public class Table implements Serializable {
         }
     }
 
-    public void rearrangeQueries3helper(SQLTerm[] sqlTermArr, int start, int end){
-        if(end-start<=2)return;
+    public void rearrangeQueries3helper(SQLTerm[] sqlTermArr, int start, int end) {
+        if (end - start <= 2) return;
         String[][] indicesColumns = new String[this.getTableIndices().size()][3];
 
-        int f =0;
-        for(Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
+        int f = 0;
+        for (Map.Entry<String[], Node> m : this.getTableIndices().entrySet()) {
             String[] indexCols = m.getKey();
             indicesColumns[f] = indexCols;
             f++;
         }
 
-        for(String[] indexCols : indicesColumns) {
+        for (String[] indexCols : indicesColumns) {
             LinkedList<SQLTerm> dimXTerms = new LinkedList<SQLTerm>();
             LinkedList<SQLTerm> dimYTerms = new LinkedList<SQLTerm>();
             LinkedList<SQLTerm> dimZTerms = new LinkedList<SQLTerm>();
-            LinkedList<SQLTerm> otherTerms= new LinkedList<SQLTerm>();
-            for(int i=start;i<=end;i++){
-                if(sqlTermArr[i]._strColumnName.equals(indexCols[0]))dimXTerms.add(sqlTermArr[i]);
-                else if(sqlTermArr[i]._strColumnName.equals(indexCols[1]))dimYTerms.add(sqlTermArr[i]);
-                else if(sqlTermArr[i]._strColumnName.equals(indexCols[2]))dimZTerms.add(sqlTermArr[i]);
+            LinkedList<SQLTerm> otherTerms = new LinkedList<SQLTerm>();
+            for (int i = start; i <= end; i++) {
+                if (sqlTermArr[i]._strColumnName.equals(indexCols[0])) dimXTerms.add(sqlTermArr[i]);
+                else if (sqlTermArr[i]._strColumnName.equals(indexCols[1])) dimYTerms.add(sqlTermArr[i]);
+                else if (sqlTermArr[i]._strColumnName.equals(indexCols[2])) dimZTerms.add(sqlTermArr[i]);
                 else otherTerms.add(sqlTermArr[i]);
             }
 
 
-
-            while(dimXTerms.size()>0 || dimYTerms.size()>0 || dimZTerms.size()>0){
-                if(dimXTerms.size()>0){
+            while (dimXTerms.size() > 0 || dimYTerms.size() > 0 || dimZTerms.size() > 0) {
+                if (dimXTerms.size() > 0) {
                     sqlTermArr[start] = dimXTerms.removeFirst();
                     start++;
                 }
-                if(dimYTerms.size()>0){
+                if (dimYTerms.size() > 0) {
                     sqlTermArr[start] = dimYTerms.removeFirst();
                     start++;
                 }
-                if(dimZTerms.size()>0){
+                if (dimZTerms.size() > 0) {
                     sqlTermArr[start] = dimZTerms.removeFirst();
                     start++;
                 }
             }
 
             int starttemp = start;
-            while(!otherTerms.isEmpty()){
+            while (!otherTerms.isEmpty()) {
                 sqlTermArr[starttemp] = otherTerms.removeFirst();
                 starttemp++;
             }
 
         }
-
 
 
     }
@@ -692,16 +691,8 @@ public class Table implements Serializable {
         query10._strColumnName = "col10";
 
 
-        String[] operators = new String[] {"AND", "AND", "OR", "AND", "AND", "AND", "AND", "AND", "AND"};
+        String[] operators = new String[]{"AND", "AND", "OR", "AND", "AND", "AND", "AND", "AND", "AND"};
 
-        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9, query10};
-
-    public Iterator select(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, ParseException, IOException, ClassNotFoundException {
-        for(SQLTerm term:arrSQLTerms){
-            if(!checkValidity(term._strColumnName, (Comparable) term._objValue)){
-                throw new DBAppException("Invalid value for column " + term._strColumnName + " : " + term._objValue);
-            }
-        }
-        return TablePersistence.select(this.getName(),arrSQLTerms, strarrOperators);
+        SQLTerm[] queries = new SQLTerm[]{query1, query2, query3, query4, query5, query6, query7, query8, query9, query10};
     }
 }
