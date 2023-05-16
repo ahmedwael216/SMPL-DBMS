@@ -17,9 +17,6 @@ class DBAppTest {
     static Hashtable<String, String> min;
     static Hashtable<String, String> max;
 
-    static String strTable1;
-    static Table table1;
-
     @BeforeAll
     static void setUp() {
         DbApp = new DBApp();
@@ -45,7 +42,7 @@ class DBAppTest {
 
     @Test
     @Order(1)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyInt() throws DBAppException {
         String strTableName = "StudentInt";
         DbApp.createTable(strTableName, "id", htblColNameType, min, max);
@@ -53,7 +50,7 @@ class DBAppTest {
 
     @Test
     @Order(2)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyDouble() throws DBAppException {
         String strTableName = "StudentDouble";
         DbApp.createTable(strTableName, "gpa", htblColNameType, min, max);
@@ -61,7 +58,7 @@ class DBAppTest {
 
     @Test
     @Order(3)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyString() throws DBAppException {
         String strTableName = "StudentString";
         DbApp.createTable(strTableName, "name", htblColNameType, min, max);
@@ -70,7 +67,7 @@ class DBAppTest {
 
     @Test
     @Order(4)
-        // @Disabled()
+    // @Disabled()
     void createTableWithPrimaryKeyDate() throws DBAppException {
         String strTableName = "StudentDate";
         DbApp.createTable(strTableName, "birthday", htblColNameType, min, max);
@@ -359,15 +356,13 @@ class DBAppTest {
     @Test
     @Order(26)
     void createIndexForTheFirstTime() throws DBAppException, IOException, ParseException, ClassNotFoundException {
-     strTable1 = "StudentInt";
-     table1 = DBApp.getTable(strTable1);
-        System.out.println(table1);
-        assertNull(table1.test);
-        DbApp.createIndex(strTable1, new String[]{"id","name","gpa"});
+        String strTable = "StudentInt";
+        Table table = DBApp.getTable(strTable);
 
-        System.out.println(table1.test);
-        assertNotNull(table1.test);
-//        assertEquals(1,table.getTableIndices().entrySet().size());
+        DbApp.createIndex(strTable, new String[] { "id", "name", "gpa" });
+        assertEquals(1, table.getTableIndices().entrySet().size());
     }
+
+
 
 }

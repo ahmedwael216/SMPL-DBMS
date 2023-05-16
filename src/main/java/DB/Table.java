@@ -486,9 +486,7 @@ public class Table implements Serializable {
 
     public void createIndex(String strTableName,
             String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
-
         insertLinearIntoIndex(strTableName,  strarrColName);
-
     }
 
 
