@@ -125,6 +125,39 @@ public class TablePersistence {
 
     public static int delete(String tableName, Record record) throws DBAppException, IOException, ClassNotFoundException {
         if (record.getPrimaryKey() == null) {
+
+            Table table = DBApp.getTable(tableName);
+
+            String[] keys = table.keys;
+
+            String[] indexCols = table.getIndexCols();
+
+            int colXIndex = SearchStrategy.getColIndex(keys,indexCols[0]);
+            int colYIndex = SearchStrategy.getColIndex(keys,indexCols[1]);
+            int colZIndex = SearchStrategy.getColIndex(keys,indexCols[2]);
+
+            if(record.getItem(colXIndex)!=null && record.getItem(colYIndex)!=null && record.getItem(colZIndex)!=null){
+                DimRange xRange = new DimRange((Comparable) record.getItem(colXIndex), (Comparable) record.getItem(colXIndex));
+                DimRange yRange = new DimRange((Comparable) record.getItem(colYIndex), (Comparable) record.getItem(colYIndex));
+                DimRange zRange = new DimRange((Comparable) record.getItem(colZIndex), (Comparable) record.getItem(colZIndex));
+
+                DBVector<Integer> pageIndices = table.getIndexRoot().search(xRange, yRange, zRange,true, true, true, true, true, true);
+
+                int n = getNumberOfPagesForTable(tableName);
+                int totDel = 0;
+                for(int pageIdx : pageIndices) {
+                    Page p = deserialize(pageIdx, tableName);
+                    totDel += p.deleteLinear(record);
+                    if (p.isEmpty()) {
+                        deletePage(tableName, pageIdx, n);
+                        n--;
+                    } else
+                        serialize(p, tableName, pageIdx);
+                }
+
+                return totDel;
+            }
+
             return deleteLinear(record, tableName);
         }
 
@@ -150,6 +183,11 @@ public class TablePersistence {
         int pageIndex = findPageNumber(n, tableName, (Comparable) record.getPrimaryKey());
         Page p = deserialize(pageIndex, tableName);
         p.updateRecord(record);
+        int newPageIndex = findPageNumber(n,tableName, (Comparable) record.getPrimaryKey());
+        Table table = DBApp.getTable(tableName);
+        Node root = table.getIndexRoot();
+        Point3D point = Table.createPoint(table,record,table.getIndexCols());
+        root.update(point, true, pageIndex, newPageIndex);
         serialize(p, tableName, pageIndex);
     }
 
@@ -186,7 +224,6 @@ public class TablePersistence {
         upDashes.append("┐\n");
         dashes.append("┤\n");
         downDashes.append("┘\n");
-
 
         for (String page : pages){
             s.append(upDashes);

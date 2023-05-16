@@ -12,7 +12,7 @@ public class Table implements Serializable {
     private Record prototype;
     private int size;
 
-    private String[] keys;
+    public String[] keys;
     private String[] indexCols;
     private Node indexRoot;
 
@@ -631,13 +631,6 @@ public class Table implements Serializable {
 
 
     }
-    //  0            2         4     5
-    //  and   and  and   or   and  and
-    // i     i    i    i   i      i    i
-    // 0               3   4            6
-
-
-    // x and x and x and y and y and y and z and z and z
 
     public static void main(String[] args) {
         SQLTerm query1 = new SQLTerm();

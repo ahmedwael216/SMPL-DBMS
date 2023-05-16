@@ -160,7 +160,6 @@ public class Node<T> implements Serializable{
 
     }
 
-
     private Node<T> getLeaf(Point3D<T> point) throws DBAppException {
         if (children == null) {
             return this;
