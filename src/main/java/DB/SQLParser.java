@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SQLParser {
     private static boolean error =false;
@@ -82,7 +84,44 @@ public class SQLParser {
             @Override
             public void enterCreate_table_stmt(SQLiteParser.Create_table_stmtContext ctx) {
                 try{
+                    String tableName = ctx.table_name().getText();
+                    Hashtable<String,String> htblColNameType = new Hashtable<>();
 
+                    String clustringCol = "";
+                    for (SQLiteParser.Column_defContext x : ctx.column_def()) {
+                        if(x.column_constraint().size()>0){
+                            if(x.column_constraint().get(0).getText().equalsIgnoreCase("primarykey")){
+                                clustringCol = x.column_name().getText();
+                            }else{
+                                // only primary key in handled in this project
+                                throw new Exception();
+                            }
+                        }
+                        String dataType="";
+                        if(x.type_name().getText().equalsIgnoreCase("int")){
+                            dataType = "java.lang.integer";
+                        }
+                        if(x.type_name().getText().equalsIgnoreCase("double")){
+                            dataType = "java.lang.double";
+                        }
+                        if(x.type_name().getText().equalsIgnoreCase("date")){
+                            dataType = "java.util.date";
+                        }
+                        Pattern pattern = Pattern.compile("varchar(.*)", Pattern.CASE_INSENSITIVE);
+                        Matcher matcher = pattern.matcher(x.type_name().getText());
+                        if(matcher.find()) {
+                            dataType = "java.lang.String";
+                        }
+                        htblColNameType.put(x.column_name().getText(),dataType);
+                    }
+                    Hashtable<String,String> min = new Hashtable<>();
+                    Hashtable<String,String> max = new Hashtable<>();
+                    for (SQLiteParser.Column_defContext x : ctx.column_def()) {
+                        min.put(x.column_name().getText(),getMin(x.type_name().getText()));
+                        max.put(x.column_name().getText(),getMax(x.type_name().getText()));
+                        System.out.println(x.column_name().getText()+" "+x.type_name().getText());
+                    }
+                    DB.createTable(tableName,clustringCol,htblColNameType,min,max);
                 }catch (Exception ignored){
                     error=true;
                 }
@@ -108,6 +147,47 @@ public class SQLParser {
             throw new DBAppException("Wrong SQl statement");
         }
         return it;
+    }
+
+    private static String getMin(String type) {
+        if(type.equalsIgnoreCase("int")){
+            return Integer.MIN_VALUE+"";
+        }
+        if(type.equalsIgnoreCase("double")){
+            return Double.MIN_VALUE+"";
+        }
+        if(type.equalsIgnoreCase("date")){
+            //TODO test this
+            return new Date(0)+"";
+        }else{
+            return " ";
+        }
+    }
+    private static String getMax(String type) {
+        if(type.equalsIgnoreCase("int")){
+            return Integer.MAX_VALUE+"";
+        }
+        if(type.equalsIgnoreCase("double")){
+            return Double.MAX_VALUE+"";
+        }
+        if(type.equalsIgnoreCase("date")){
+            //TODO add max date
+            return new Date(0)+"";
+        }else{
+            String s = "";
+            for(int i=0;i< type.toCharArray().length;i++){
+                char c = type.toCharArray()[i];
+                if(c == '('){
+                    while(type.toCharArray()[i+1]!=')'){
+                        i++;
+                        s+=type.toCharArray()[i];
+                    }
+                }
+            }
+            int len = Integer.parseInt(s);
+            //~ is the last printable char in ASCII
+            return "~".repeat(len);
+        }
     }
 
     private static SQLTerm getSQLTerm(SQLiteParser.ExprContext expression,String tableName) throws DBAppException, ParseException {
