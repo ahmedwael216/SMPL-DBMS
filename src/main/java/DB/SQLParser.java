@@ -179,6 +179,16 @@ public class SQLParser {
                     error = true;
                 }
             }
+            @Override public void enterJoin_clause(SQLiteParser.Join_clauseContext ctx) {
+                error=true;
+            }
+            @Override public void enterJoin_operator(SQLiteParser.Join_operatorContext ctx) {
+                error=true;
+            }
+            @Override public void enterLimit_stmt(SQLiteParser.Limit_stmtContext ctx) {
+                error =true;
+            }
+
 
         },tree);
 

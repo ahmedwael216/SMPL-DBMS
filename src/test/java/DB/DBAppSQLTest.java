@@ -265,7 +265,7 @@ class DBAppSQLTest {
     void updateTableInt() throws ParseException, DBAppException, IOException, ClassNotFoundException {
         String strTableName = "StudentInt".toLowerCase();
         StringBuffer sb = new StringBuffer();
-        sb.append("UPDATE studentInt SET name = \"Ahmed\",gpa =4.0 WHERE id = 1");
+        sb.append("UPDATE studentInt SET name = \"Ahmed\",gpa =4.0 , birthday = \"2001-01-01\" WHERE id = 1");
         DbApp.parseSQL(sb);
         System.out.println(DbApp.printTable(strTableName));
     }
