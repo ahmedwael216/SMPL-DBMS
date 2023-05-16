@@ -151,7 +151,15 @@ public class SQLParser {
             @Override
             public void enterInsert_stmt(SQLiteParser.Insert_stmtContext ctx){
                 try{
-
+                    String tableName = ctx.table_name().getText() ;
+                    Hashtable<String,Object> htblColNameValue = new Hashtable<>();
+                    for(int i=0;i<ctx.column_name().size();i++){
+                        String colName = ctx.column_name().get(i).getText();
+                        htblColNameValue.put(colName,getObjectValue(tableName,colName,ctx.expr().get(i).getText()));
+                    }
+//                    System.out.println(htblColNameValue);
+                    System.out.println("here");
+                    DB.insertIntoTable(tableName,htblColNameValue);
                 }catch (Exception ignored){
                     error = true;
                 }
@@ -232,7 +240,7 @@ public class SQLParser {
         Object o = null;
         type = type.toLowerCase();
         switch (type) {
-            case "java.lang.string" : o = value;break;
+            case "java.lang.string" : o = value.substring(1,value.length()-1);break;
             case "java.lang.integer": o = Integer.parseInt(value);break;
             case "java.lang.double" :o = Double.parseDouble(value);break;
             case "java.util.date"   :
