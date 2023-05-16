@@ -103,22 +103,26 @@ public class Page implements Serializable, Comparable {
             for (int i=0;i<r.getDBVector().size();i++){
                 Object o= r.getDBVector().get(i);
                 StringBuilder element;
-                switch (o.getClass().getSimpleName()){
-                    case "Integer":
-                        element = new StringBuilder((Integer)o +"");
-                        break;
-                    case "Double":
-                        element = new StringBuilder((Double)o +"");
-                        break;
-                    case "Date":
-                        element = new StringBuilder((Date)o +"");
-                        break;
-                    default:
-                        element = new StringBuilder((String)o);
-                        break;
-                }
-                while(element.length()<max[i]){
-                    element.append(" ");
+                if(o!=null){
+                    switch (o.getClass().getSimpleName()){
+                        case "Integer":
+                            element = new StringBuilder((Integer)o +"");
+                            break;
+                        case "Double":
+                            element = new StringBuilder((Double)o +"");
+                            break;
+                        case "Date":
+                            element = new StringBuilder((Date)o +"");
+                            break;
+                        default:
+                            element = new StringBuilder((String)o);
+                            break;
+                    }
+                    while(element.length()<max[i]){
+                        element.append(" ");
+                    }
+                }else{
+                    element = new StringBuilder("null");
                 }
                 sb.append(element);
                 if(i!=r.getDBVector().size()-1){

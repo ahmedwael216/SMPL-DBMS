@@ -27,7 +27,6 @@ public class SQLParser {
         SQLiteParser sqLiteParser = new SQLiteParser(commonTokenStream);
 
         ParseTree tree = sqLiteParser.parse();
-        DBApp finalDb = db;
         ParseTreeWalker.DEFAULT.walk(new SQLiteParserBaseListener(){
             @Override
             public void enterSql_stmt(SQLiteParser.Sql_stmtContext ctx) {
@@ -60,7 +59,7 @@ public class SQLParser {
 
                     System.out.println(Arrays.toString(arrSQLTerms));
                     System.out.println(Arrays.toString(strarrOperators));
-                    db.selectFromTable(arrSQLTerms,strarrOperators);
+                    it = db.selectFromTable(arrSQLTerms,strarrOperators);
                 }catch (Exception ignored){
                     error = true;
                 }
@@ -76,7 +75,7 @@ public class SQLParser {
                         columnNames[i] = ctx.indexed_column().get(i).getText();
                     }
 //                    System.out.println(Arrays.toString(columnNames));
-//                    DB.createIndex(tableName, columnNames);
+                    DB.createIndex(tableName, columnNames);
                 }catch(Exception ignored){
                     error=true;
                 }
@@ -119,7 +118,7 @@ public class SQLParser {
                     for (SQLiteParser.Column_defContext x : ctx.column_def()) {
                         min.put(x.column_name().getText(),getMin(x.type_name().getText()));
                         max.put(x.column_name().getText(),getMax(x.type_name().getText()));
-                        System.out.println(x.column_name().getText()+" "+x.type_name().getText());
+//                        System.out.println(x.column_name().getText()+" "+x.type_name().getText());
                     }
                     DB.createTable(tableName,clustringCol,htblColNameType,min,max);
                 }catch (Exception ignored){
@@ -131,7 +130,7 @@ public class SQLParser {
             public void enterUpdate_stmt(SQLiteParser.Update_stmtContext ctx) {
                 try{
                     String tableName = ctx.qualified_table_name().getText();
-                    System.out.println(tableName);
+//                    System.out.println(tableName);
                     Hashtable<String, Object> htblColNameValue = new Hashtable<>();
                     int size = ctx.column_name().size() ;
                     for(int i = 0; i < size; i++) {
@@ -142,7 +141,6 @@ public class SQLParser {
 //                    System.out.println(strClusteringKeyValue);
 //                    System.out.println(htblColNameValue);
                     DB.updateTable(tableName, strClusteringKeyValue, htblColNameValue);
-
                 }catch (Exception ignored){
                     error = true;
                 }
@@ -167,7 +165,6 @@ public class SQLParser {
             public void enterDelete_stmt(SQLiteParser.Delete_stmtContext ctx) {
                 try{
                     String tableName = ctx.qualified_table_name().getText();
-                    System.out.println(tableName);
                     Hashtable<String,Object> htblColNameValue = new Hashtable<>();
                     SQLiteParser.ExprContext expression = ctx.expr();
                     while(expression.AND_()!=null){
@@ -177,12 +174,21 @@ public class SQLParser {
                     }
                     String[] arr = expression.getText().split("=");
                     htblColNameValue.put(arr[0],getObjectValue(tableName,arr[0],arr[1]));
-                    System.out.println(htblColNameValue);
                     DB.deleteFromTable(tableName,htblColNameValue);
                 }catch (Exception ignored){
                     error = true;
                 }
             }
+            @Override public void enterJoin_clause(SQLiteParser.Join_clauseContext ctx) {
+                error=true;
+            }
+            @Override public void enterJoin_operator(SQLiteParser.Join_operatorContext ctx) {
+                error=true;
+            }
+            @Override public void enterLimit_stmt(SQLiteParser.Limit_stmtContext ctx) {
+                error =true;
+            }
+
 
         },tree);
 
@@ -200,8 +206,7 @@ public class SQLParser {
             return Double.MIN_VALUE+"";
         }
         if(type.equalsIgnoreCase("date")){
-            //TODO test this
-            return new Date(0)+"";
+            return "1970-01-01";
         }else{
             return " ";
         }
@@ -214,8 +219,8 @@ public class SQLParser {
             return Double.MAX_VALUE+"";
         }
         if(type.equalsIgnoreCase("date")){
-            //TODO add max date
-            return new Date(0)+"";
+            return "2025-01-01";
+
         }else{
             String s = "";
             for(int i=0;i< type.toCharArray().length;i++){
@@ -255,6 +260,7 @@ public class SQLParser {
             case "java.lang.integer": o = Integer.parseInt(value);break;
             case "java.lang.double" :o = Double.parseDouble(value);break;
             case "java.util.date"   :
+                value=value.substring(1,value.length()-1);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 o = sdf.parse(value);
                 break;

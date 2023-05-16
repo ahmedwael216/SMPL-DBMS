@@ -426,7 +426,7 @@ public class DBApp {
 //        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
 //        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
 //        sb.append("INSERT INTO STUDENT (id,name,gpa) VALUES(1,\"Ahmed Wael\",3.0);");
-        sb.append("delete FROM student where id =1 AND gpa = 3.0");// AND name = \"ahmed\"");
+//        sb.append("delete FROM student where id =1 AND gpa = 3.0");// AND name = \"ahmed\"");
 //        sb.append("UPDATE student SET gpa = 4.0, name = \"Ahmed\" WHERE id = 1");
         //creating table
         String strTableName = "Student";
