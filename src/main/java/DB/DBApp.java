@@ -368,7 +368,8 @@ public class DBApp {
         StringBuffer sb =new StringBuffer();
 //        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
 //        sb.append("Create INDEX  index1 ON STUDENTS (age,name,gpa)");
-        sb.append("CREATE TABLE students (id int PRIMARY KEY,name varchar(20),gpa double);");
+//        sb.append("CREATE TABLE students (id int PRIMARY KEY,name varchar(20),gpa double);");
+        sb.append("UPDATE students SET gpa = 4.0, name = \"Ahmed\" WHERE id = 1");
         //creating table
         String strTableName = "Student";
         Hashtable<String, String> min = new Hashtable<>();
@@ -383,7 +384,7 @@ public class DBApp {
         htblColNameType.put("id", "java.lang.Integer");
         htblColNameType.put("name", "java.lang.String");
         htblColNameType.put("gpa", "java.lang.Double");
-//        db.createTable(strTableName, "id", htblColNameType, min, max);
+        db.createTable(strTableName, "id", htblColNameType, min, max);
 //
 
         db.parseSQL(sb);

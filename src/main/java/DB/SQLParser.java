@@ -129,16 +129,40 @@ public class SQLParser {
 
             @Override
             public void enterUpdate_stmt(SQLiteParser.Update_stmtContext ctx) {
+                try{
+                    String tableName = ctx.qualified_table_name().getText();
+                    System.out.println(tableName);
+                    Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+                    int size = ctx.column_name().size() ;
+                    for(int i = 0; i < size; i++) {
+                        String columnName = ctx.column_name().get(i).getText();
+                        htblColNameValue.put(columnName, getObjectValue(tableName, columnName, ctx.expr().get(i).getText()));
+                    }
+                    String strClusteringKeyValue = ctx.expr(size).expr().get(1).getText();
+//                    System.out.println(strClusteringKeyValue);
+//                    System.out.println(htblColNameValue);
+                    DB.updateTable(tableName, strClusteringKeyValue, htblColNameValue);
 
+                }catch (Exception ignored){
+                    error = true;
+                }
             }
 
             @Override
             public void enterInsert_stmt(SQLiteParser.Insert_stmtContext ctx){
+                try{
 
+                }catch (Exception ignored){
+                    error = true;
+                }
             }
             @Override
             public void enterDelete_stmt(SQLiteParser.Delete_stmtContext ctx) {
+                try{
 
+                }catch (Exception ignored){
+                    error = true;
+                }
             }
 
         },tree);
@@ -206,11 +230,12 @@ public class SQLParser {
         Table t = DB.getTable(tableName);
         String type =t.getKeyType(colName);
         Object o = null;
+        type = type.toLowerCase();
         switch (type) {
-            case "java.lang.String" : o = value;break;
-            case "java.lang.Integer": o = Integer.parseInt(value);break;
-            case "java.lang.Double" :o = Double.parseDouble(value);break;
-            case "java.util.Date"   : String date = value ;
+            case "java.lang.string" : o = value;break;
+            case "java.lang.integer": o = Integer.parseInt(value);break;
+            case "java.lang.double" :o = Double.parseDouble(value);break;
+            case "java.util.date"   :
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 o = sdf.parse(value);
                 break;
