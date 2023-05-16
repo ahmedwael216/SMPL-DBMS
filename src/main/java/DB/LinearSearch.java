@@ -20,7 +20,7 @@ public class LinearSearch extends   SearchStrategy{
             Page page = TablePersistence.deserialize(pageno,tableName);
             DBVector<Record> records = page.getRecords();
             for(Record record : records){
-                if(expressionEval(operator, (Comparable) record.getItem(colIndex),query._objValue)) result.add(record);
+                if(expressionEval(operator, (Comparable) record.getItem(colIndex), (Comparable) query._objValue)) result.add(record);
             }
 
         }

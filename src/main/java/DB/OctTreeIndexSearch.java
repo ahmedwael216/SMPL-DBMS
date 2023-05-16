@@ -35,9 +35,9 @@ public class OctTreeIndexSearch extends SearchStrategy{
             Page p = TablePersistence.deserialize(x,strTableName);
             DBVector<Record> records = p.getRecords();
             for(Record record : records){
-                if(expressionEval(queries[0]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[0]._strColumnName)),queries[0]._objValue) &&
-                        expressionEval(queries[1]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[1]._strColumnName)),queries[1]._objValue) &&
-                        expressionEval(queries[2]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[2]._strColumnName)),queries[2]._objValue)
+                if(expressionEval(queries[0]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[0]._strColumnName)), (Comparable) queries[0]._objValue) &&
+                        expressionEval(queries[1]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[1]._strColumnName)), (Comparable) queries[1]._objValue) &&
+                        expressionEval(queries[2]._strOperator, (Comparable) record.getItem(getColIndex(keys,queries[2]._strColumnName)), (Comparable) queries[2]._objValue)
                 )
                     result.add(record);
             }
@@ -66,28 +66,28 @@ public class OctTreeIndexSearch extends SearchStrategy{
             case "=": {
                 includeL = true;
                 includeR = true;
-                min = query._objValue;
-                max = query._objValue;
+                min = (Comparable) query._objValue;
+                max = (Comparable) query._objValue;
             };break;
             case ">": {
                 includeL = false;
                 includeR = true;
-                min = query._objValue;
+                min = (Comparable) query._objValue;
             };break;
             case ">=": {
                 includeL = true;
                 includeR = true;
-                min = query._objValue;
+                min = (Comparable) query._objValue;
             };break;
             case  "<": {
                 includeL = true;
                 includeR = false;
-                max = query._objValue;
+                max = (Comparable) query._objValue;
             }break;
             case "<=":{
                 includeL = true;
                 includeR = true;
-                max = query._objValue;
+                max = (Comparable) query._objValue;
             };break;
         }
 
