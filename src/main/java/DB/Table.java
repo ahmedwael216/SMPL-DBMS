@@ -147,7 +147,7 @@ public class Table implements Serializable {
 
     // checker method to check if the inserted value in the valid range of the key
 
-    private String getKeyType(String key) {
+    public String getKeyType(String key) {
         String DBName = DBApp.selectedDBName;
         String csvFile = DBName + "/" + name + "/" + "metadata.csv";
         BufferedReader br = null;
@@ -363,5 +363,14 @@ public class Table implements Serializable {
             max[i]=integerArrayList.get(i);
         }
         return max;
+    }
+
+    public Iterator select(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, ParseException, IOException, ClassNotFoundException {
+        for(SQLTerm term:arrSQLTerms){
+            if(!checkValidity(term._strColumnName, (Comparable) term._objValue)){
+                throw new DBAppException("Invalid value for column " + term._strColumnName + " : " + term._objValue);
+            }
+        }
+        return TablePersistence.select(this.getName(),arrSQLTerms, strarrOperators);
     }
 }
