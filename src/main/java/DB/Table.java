@@ -696,5 +696,12 @@ public class Table implements Serializable {
 
         SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8, query9, query10};
 
+    public Iterator select(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException, ParseException, IOException, ClassNotFoundException {
+        for(SQLTerm term:arrSQLTerms){
+            if(!checkValidity(term._strColumnName, (Comparable) term._objValue)){
+                throw new DBAppException("Invalid value for column " + term._strColumnName + " : " + term._objValue);
+            }
+        }
+        return TablePersistence.select(this.getName(),arrSQLTerms, strarrOperators);
     }
 }

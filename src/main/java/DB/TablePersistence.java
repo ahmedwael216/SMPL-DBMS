@@ -1,6 +1,7 @@
 package DB;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -269,5 +270,10 @@ public class TablePersistence {
             }
         }
         return s.toString();
+    }
+
+    public static Iterator select(String name, SQLTerm[] arrSQLTerms, String[] strarrOperators) {
+
+        return null;
     }
 }

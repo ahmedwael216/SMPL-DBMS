@@ -1,5 +1,12 @@
 package DB;
 
+import grammar.SQLiteLexer;
+import grammar.SQLiteParser;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
@@ -17,7 +24,7 @@ public class DBApp {
     public static String DATE_FORMAT = "YYYY-MM-DD";
     public static File currentDBFile = null;
     public static File currentConfigFile = null;
-    
+
     /**
      * Executes at application startup.
      * Prompts user to enter name of database to use.
@@ -130,6 +137,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 System.err.println("The table \"" + strTableName + "\" already exists in the database \"" + selectedDBName + "\"");
@@ -228,6 +236,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Insert into " + strTableName + " table");
@@ -274,6 +283,7 @@ public class DBApp {
         }
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Update " + strTableName + " table");
@@ -319,6 +329,7 @@ public class DBApp {
             throws DBAppException {
         Properties prop = new Properties();
         try {
+            strTableName=strTableName.toLowerCase();
             prop.load(new FileInputStream(currentConfigFile.getAbsolutePath()));
             if (prop.getProperty(strTableName + "TablePages") != null) {
                 prop.store(new FileWriter(currentConfigFile.getAbsolutePath()), "Delete From " + strTableName + " table");
@@ -328,7 +339,7 @@ public class DBApp {
 
                 table.deleteFromTable(strTableName, htblColNameValue);
 
-                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName + ".ser");
+                FileOutputStream fileOut = new FileOutputStream(currentConfigFile.getParent() + File.separator + strTableName + File.separator + strTableName+ ".ser");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 out.writeObject(table);
                 out.close();
@@ -381,7 +392,8 @@ public class DBApp {
 
     }
 
-    public String printTable(String strTableName) throws IOException, ClassNotFoundException {
+    public String printTable(String strTableName) throws IOException, DBAppException {
+        strTableName=strTableName.toLowerCase();
         Table table = getTable(strTableName);
         String ret = table.toString();
 
@@ -393,12 +405,33 @@ public class DBApp {
         return ret;
     }
 
-    /*
-     * public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-     * String[] strarrOperators)
-     * throws DBAppException{}
-     */
-    //TODO create SQL Term class
+
+      public Iterator selectFromTable(SQLTerm[] arrSQLTerms,String[] strarrOperators) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+          //insuring that the table name is consistent
+          String tableName = arrSQLTerms[0]._strTableName;
+          for(SQLTerm term:arrSQLTerms){
+              if(!term._strTableName.equals(tableName)){
+                  throw new DBAppException("The table names are not consistant");
+              }
+          }
+
+          // insuring that the starrOperators are right
+          for(String s: strarrOperators){
+              if(!(s.equals("OR") || s.equals("AND") ||s.equals("XOR"))){
+                  throw new DBAppException("The "+s+" starrOperators is invalid");
+              }
+          }
+
+          Table t = getTable(tableName);
+          return t.select(arrSQLTerms,strarrOperators);
+      }
+
+
+
+    public Iterator parseSQL( StringBuffer strbufSQL ) throws DBAppException{
+        return SQLParser.parse(strbufSQL,this);
+    }
+
 
     /**
      * Helper function to check if the column has an index or not.
@@ -410,22 +443,32 @@ public class DBApp {
     //                     throws DBAppException {}
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
+        StringBuffer sb =new StringBuffer();
+//        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
+//        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
+//        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
+//        sb.append("INSERT INTO STUDENT (id,name,gpa) VALUES(1,\"Ahmed Wael\",3.0);");
+        sb.append("delete FROM student where id =1 AND gpa = 3.0");// AND name = \"ahmed\"");
+//        sb.append("UPDATE student SET gpa = 4.0, name = \"Ahmed\" WHERE id = 1");
         //creating table
         String strTableName = "Student";
-//        Hashtable<String, String> min = new Hashtable<>();
-//        min.put("id", "0");
-//        min.put("name", "A");
-//        min.put("gpa", "0.0");
-//        Hashtable<String, String> max = new Hashtable<>();
-//        max.put("id", "1000");
-//        max.put("name", "zzzzzzzzzzzzz");
-//        max.put("gpa", "4.0");
-//        Hashtable<String, String> htblColNameType = new Hashtable<>();
-//        htblColNameType.put("id", "java.lang.Integer");
-//        htblColNameType.put("name", "java.lang.String");
-//        htblColNameType.put("gpa", "java.lang.Double");
-//        db.createTable(strTableName, "id", htblColNameType, min, max);
-//
+        Hashtable<String, String> min = new Hashtable<>();
+        min.put("id", "0");
+        min.put("name", "A");
+        min.put("gpa", "0.0");
+        Hashtable<String, String> max = new Hashtable<>();
+        max.put("id", "1000");
+        max.put("name", "zzzzzzzzzzzzz");
+        max.put("gpa", "4.0");
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.Double");
+        db.createTable(strTableName, "id", htblColNameType, min, max);
+
+
+        db.parseSQL(sb);
+
 //        for (int i = 200; i < 400; i++) {
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
 //        htblColNameValue.put("id", i);
@@ -437,20 +480,26 @@ public class DBApp {
         System.out.println(db.printTable(strTableName));
     }
 
-    public int getTableLength(String tableName) throws IOException, ClassNotFoundException {
+    public int getTableLength(String tableName) throws DBAppException {
         Table table = getTable(tableName);
         int res = table.getSize();
         return res;
     }
 
-    public static Table getTable(String tableName) throws IOException, ClassNotFoundException {
-        FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
-        ObjectInputStream in = new ObjectInputStream(file);
+    public Table getTable(String tableName) throws DBAppException {
+        try{
+            tableName=tableName.toLowerCase();
+//            System.out.println(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+            FileInputStream file = new FileInputStream(currentConfigFile.getParent() + File.separator + tableName + File.separator + tableName + ".ser");
+            ObjectInputStream in = new ObjectInputStream(file);
 
-        Table table = (Table) in.readObject();
+            Table table = (Table) in.readObject();
 
-        in.close();
-        file.close();
-        return table;
+            in.close();
+            file.close();
+            return table;
+        }catch (Exception ignored){
+            throw new DBAppException("Problem loading table");
+        }
     }
 }
