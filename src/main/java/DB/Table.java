@@ -17,10 +17,10 @@ public class Table implements Serializable {
     private Node indexRoot;
 
     public Table(String strTableName,
-                 String strClusteringKeyColumn,
-                 Hashtable<String, String> htblColNameType,
-                 Hashtable<String, String> htblColNameMin,
-                 Hashtable<String, String> htblColNameMax)
+            String strClusteringKeyColumn,
+            Hashtable<String, String> htblColNameType,
+            Hashtable<String, String> htblColNameMin,
+            Hashtable<String, String> htblColNameMax)
             throws DBAppException, RuntimeException, IOException {
 
         this.name = strTableName;
@@ -47,14 +47,14 @@ public class Table implements Serializable {
             if (!checkTypes(value, htblColNameMin.get(key), htblColNameMax.get(key)))
                 throw new DBAppException("Invalid Value for column " + key);
         }
-        writer.writeNext(new String[]{"TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
-                "IndexType", "min", "max"});
+        writer.writeNext(new String[] { "TableName", "ColumnName", "ColumnType", "ClusteringKey", "IndexName",
+                "IndexType", "min", "max" });
 
         // add the primary key column
         writer.writeNext(
-                new String[]{strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
+                new String[] { strTableName, strClusteringKeyColumn, htblColNameType.get(strClusteringKeyColumn),
                         "True", "null", "null", htblColNameMin.get(strClusteringKeyColumn),
-                        htblColNameMax.get(strClusteringKeyColumn)});
+                        htblColNameMax.get(strClusteringKeyColumn) });
 
         // add other columns
         Set<String> allColumns = htblColNameType.keySet();
@@ -63,8 +63,8 @@ public class Table implements Serializable {
             if (columnName.equals(strClusteringKeyColumn)) {
                 continue;
             }
-            writer.writeNext(new String[]{strTableName, columnName, htblColNameType.get(columnName),
-                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName)});
+            writer.writeNext(new String[] { strTableName, columnName, htblColNameType.get(columnName),
+                    "False", "null", "null", htblColNameMin.get(columnName), htblColNameMax.get(columnName) });
         }
         writer.close();
 
@@ -145,8 +145,8 @@ public class Table implements Serializable {
             }
             String[] column = line.split(cvsSplitBy);
             if (column[1].substring(1, column[1].length() - 1).equals(columnName)) {
-                return new String[]{column[6].substring(1, column[6].length() - 1),
-                        column[7].substring(1, column[7].length() - 1)};
+                return new String[] { column[6].substring(1, column[6].length() - 1),
+                        column[7].substring(1, column[7].length() - 1) };
             }
         }
 
@@ -170,7 +170,6 @@ public class Table implements Serializable {
 
         return new Comparable[] { min, max };
     }
-
 
     private String[] getKeys(Hashtable<String, String> keysTypes, String clusteringKey) throws IOException {
         String[] res = new String[keysTypes.size()];
@@ -212,7 +211,8 @@ public class Table implements Serializable {
         return null;
     }
 
-    private static Comparable[] getMinMaxComparable(String columnName, Table table) throws IOException, ParseException, DBAppException {
+    public static Comparable[] getMinMaxComparable(String columnName, Table table)
+            throws IOException, ParseException, DBAppException {
         String[] minAndMax = table.getMaxAndMinString(columnName);
 
         String className = table.getKeyType(columnName);
@@ -238,7 +238,7 @@ public class Table implements Serializable {
         } catch (Exception e) {
             throw new DBAppException("Invalid Value for column " + columnName);
         }
-        return new Comparable[]{minVal, maxVal};
+        return new Comparable[] { minVal, maxVal };
     }
 
     private boolean checkValidity(String columnName, Comparable value)
@@ -388,13 +388,6 @@ public class Table implements Serializable {
         }
     }
 
-    public static void main(String[] args) throws DBAppException {
-        try {
-            new Table("test", null, null, null, null);
-        } catch (DBAppException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public int[] getAllMaxValuesString() throws IOException {
         String DBName = DBApp.selectedDBName;
@@ -419,32 +412,8 @@ public class Table implements Serializable {
         return max;
     }
 
-    public static Comparable[] getMinMaxType(String[] colMinMax, String className) throws ParseException {
-        Comparable min = colMinMax[0], max = colMinMax[1];
-
-        if (className.toLowerCase().equals("java.lang.integer")) {
-            min = Integer.parseInt(colMinMax[0]);
-            max = Integer.parseInt(colMinMax[1]);
-        } else if (className.toLowerCase().equals("java.lang.double")) {
-            min = Double.parseDouble(colMinMax[0]);
-            max = Double.parseDouble(colMinMax[1]);
-        } else if (className.toLowerCase().equals("java.lang.date")) {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
-            min = formatter.parse(colMinMax[0]);
-            max = formatter.parse(colMinMax[1]);
-        }
-
-        return new Comparable[]{min, max};
-    }
-
-    public static Node createRootNode(Table table, String[] strarrColName) throws IOException, ParseException, DBAppException {
-        String[] colXMinMax = table.getMaxAndMinString(strarrColName[0]);
-        String[] colYMinMax = table.getMaxAndMinString(strarrColName[1]);
-        String[] colZMinMax = table.getMaxAndMinString(strarrColName[2]);
-
-        String colXClassName = table.getKeyType(strarrColName[0]);
-        String colYClassName = table.getKeyType(strarrColName[1]);
-        String colZClassName = table.getKeyType(strarrColName[2]);
+    public static Node createRootNode(Table table, String[] strarrColName)
+            throws IOException, ParseException, DBAppException {
 
         Comparable[] minMaxX = getMinMaxComparable(strarrColName[0], table);
         Comparable[] minMaxY = getMinMaxComparable(strarrColName[1], table);
@@ -502,10 +471,278 @@ public class Table implements Serializable {
     }
 
     public static void createIndex(String strTableName,
-                                   String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
+            String[] strarrColName) throws DBAppException, IOException, ClassNotFoundException, ParseException {
 
         insertLinearIntoIndex(strTableName, null, strarrColName);
 
     }
+
+
+    public static SQLTerm[] rearrangeQueries(SQLTerm[] queries, String[] operators) {
+//        String[] indexCols = this.indexCols;
+            String[] indexCols = new String[] {"col1", "col2", "col3"};
+
+        HashSet<String> hs = new HashSet<>();
+        hs.add(indexCols[0]);
+        hs.add(indexCols[1]);
+        hs.add(indexCols[2]);
+
+        ArrayList<int[]> indicesArr = new ArrayList<>();
+
+        int x=-1, y=-1, z=-1;
+
+        String prevOperator = "";
+        for(int i=0;i<queries.length;i++) {
+
+            if(i>0) {
+                prevOperator = operators[i-1];
+            }
+
+            if((i > 0 && !prevOperator.equals("AND") && hs.contains(queries[i]._strColumnName)) ||(i==0 && hs.contains(queries[i]._strColumnName))  || (hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND"))) {
+                System.out.println("AND and col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
+                hs.remove(queries[i]._strColumnName);
+                if(x == -1)
+                    x = i;
+                else if (y == -1)
+                    y = i;
+                else
+                    z = i;
+
+                if(hs.size() == 0) {
+                    System.out.println("AND and All three col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
+                    int[] indices = new int[] {x,y,z};
+                    indicesArr.add(indices);
+                    hs.add(indexCols[0]);
+                    hs.add(indexCols[1]);
+                    hs.add(indexCols[2]);
+                }
+            }
+
+            else if(!hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND")) {
+                System.out.println("AND but not col index.");
+                continue;
+            }
+
+            else if(hs.size() != 0 && !prevOperator.equals("AND")) {
+                System.out.println("Not AND, col name: " +  queries[i]._strColumnName);
+                hs.add(indexCols[0]);
+                hs.add(indexCols[1]);
+                hs.add(indexCols[2]);
+
+                x = -1;
+                y = -1;
+                z =-1;
+            }
+
+
+        }
+
+        for(int[] a : indicesArr) {
+            Arrays.sort(a);
+            System.out.println(Arrays.toString(a) + " indices");
+            int indexToBeSwapped = a[0] + 1;
+            SQLTerm query1 = queries[indexToBeSwapped];
+            SQLTerm query2 = queries[indexToBeSwapped+1];
+            queries[indexToBeSwapped] = queries[a[1]];
+            queries[indexToBeSwapped+1] = queries[a[2]];
+            queries[a[1]] = query1;
+            queries[a[2]] = query2;
+        }
+
+        return queries;
+    }
+
+    public static SQLTerm[] rearrangeQueries2(SQLTerm[] queries, String[] operators) {
+//        String[] indexCols = this.indexCols;
+        String[] indexCols = new String[] {"col1", "col2", "col3"};
+
+        HashSet<String> hs = new HashSet<>();
+        hs.add(indexCols[0]);
+        hs.add(indexCols[1]);
+        hs.add(indexCols[2]);
+
+        ArrayList<int[]> indicesArr = new ArrayList<>();
+
+        String prevOperator = "";
+        int[] indices = new int[]{-1, -1, -1};
+        for(int i=0;i<queries.length;i++) {
+
+            if(i>0) {
+                prevOperator = operators[i-1];
+            }
+
+            if((i > 0 && !prevOperator.equals("AND") && hs.contains(queries[i]._strColumnName)) ||(i==0 && hs.contains(queries[i]._strColumnName))  || (hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND"))) {
+                System.out.println("AND and col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
+                hs.remove(queries[i]._strColumnName);
+                if(x == -1)
+                    x = i;
+                else if (y == -1)
+                    y = i;
+                else
+                    z = i;
+
+                if(hs.size() == 0) {
+                    System.out.println("AND and All three col index. col name: " + queries[i]._strColumnName + "index:  "+ i);
+                    int[] indices = new int[] {x,y,z};
+                    indicesArr.add(indices);
+                    hs.add(indexCols[0]);
+                    hs.add(indexCols[1]);
+                    hs.add(indexCols[2]);
+                }
+            }
+
+            else if(!hs.contains(queries[i]._strColumnName) && prevOperator.equals("AND")) {
+                System.out.println("AND but not col index.");
+                continue;
+            }
+
+            else if(hs.size() != 0 && !prevOperator.equals("AND")) {
+                System.out.println("Not AND, col name: " +  queries[i]._strColumnName);
+                hs.add(indexCols[0]);
+                hs.add(indexCols[1]);
+                hs.add(indexCols[2]);
+
+                x = -1;
+                y = -1;
+                z =-1;
+            }
+
+
+        }
+
+        for(int[] a : indicesArr) {
+            Arrays.sort(a);
+            System.out.println(Arrays.toString(a) + " indices");
+            int indexToBeSwapped = a[0] + 1;
+            SQLTerm query1 = queries[indexToBeSwapped];
+            SQLTerm query2 = queries[indexToBeSwapped+1];
+            queries[indexToBeSwapped] = queries[a[1]];
+            queries[indexToBeSwapped+1] = queries[a[2]];
+            queries[a[1]] = query1;
+            queries[a[2]] = query2;
+        }
+
+        return queries;
+    }
+
+
+
+
+    public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
+        if(x == strarrOperators.length)
+            return null;
+        if(useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]}, new String[] {strarrOperators[x], strarrOperators[x+1]})){
+            return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x+1], arrSQLTerms[x+2]} ,this.keys),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+3)
+                    ,strarrOperators[x]);
+        }
+        else if(arrSQLTerms[x]._strColumnName.equals(keys[0])){
+            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[0],this.keys, this.prototype),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
+                    ,strarrOperators[x]);
+        }
+        else {
+            return handleOperators(LinearSearch.Search(arrSQLTerms[0],this.keys),
+                    selectHelper(strTableName,arrSQLTerms,strarrOperators,x+1)
+                    ,strarrOperators[x]);
+        }
+    }
+
+    public boolean useOctree(SQLTerm[] queries, String[] operators){
+        String[] indexCols = this.indexCols;
+
+        HashSet<String> hs = new HashSet<>();
+        hs.add(indexCols[0]);
+        hs.add(indexCols[1]);
+        hs.add(indexCols[2]);
+
+        if(operators[0].equals("AND") && operators[1].equals("AND")){
+            hs.remove(queries[0]._strColumnName);
+            hs.remove(queries[1]._strColumnName);
+            hs.remove(queries[2]._strColumnName);
+        }
+
+        return hs.size() == 0;
+    }
+
+    public DBVector<Record> handleOperators(DBVector<Record>FirstSet,DBVector<Record>SecondSet,String operator){
+        if(SecondSet == null) return FirstSet;
+        switch (operator){
+            case "AND": return Table.and(FirstSet,SecondSet);
+            case "OR": return  Table.or(FirstSet,SecondSet);
+            case "XOR": return  Table.xor(FirstSet,SecondSet);
+            default: return null;
+        }
+
+    }
+
+
+    public static DBVector<Record> and(DBVector<Record>FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> FirstSetHashTable = new HashSet<Record>();
+        DBVector<Record> result = new DBVector<Record>();
+
+        for(Record record:FirstSet)FirstSetHashTable.add(record);
+        for(Record record:SecondSet)if(FirstSetHashTable.contains(record))result.add(record);
+        return result;
+    }
+
+    public static DBVector<Record> or(DBVector<Record> FirstSet, DBVector<Record>SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) resultHashSet.add(record);
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+    public static DBVector<Record> xor(DBVector<Record> FirstSet, DBVector<Record> SecondSet){
+        HashSet<Record> resultHashSet = new HashSet<Record>();
+        DBVector<Record>  result = new DBVector<Record>();
+
+        for(Record record:FirstSet) resultHashSet.add(record);
+        for(Record record:SecondSet) {
+            if(resultHashSet.contains(record))resultHashSet.remove(record);
+            else resultHashSet.add(record);
+        }
+        for(Record record:resultHashSet) result.add(record);
+
+        return result;
+    }
+
+
+    public static void main(String[] args) {
+        SQLTerm query1 = new SQLTerm();
+        query1._strColumnName = "col1";
+        SQLTerm query2 = new SQLTerm();
+        query2._strColumnName = "col2";
+        SQLTerm query3 = new SQLTerm();
+        query3._strColumnName = "col4";
+        SQLTerm query4 = new SQLTerm();
+        query4._strColumnName = "col3";
+        SQLTerm query5 = new SQLTerm();
+        query5._strColumnName = "col2";
+        SQLTerm query6 = new SQLTerm();
+        query6._strColumnName = "col3";
+        SQLTerm query7 = new SQLTerm();
+        query7._strColumnName = "col4";
+        SQLTerm query8 = new SQLTerm();
+        query8._strColumnName = "col1";
+
+        String[] operators = new String[] {"AND", "AND", "AND", "OR", "AND", "AND", "AND"};
+
+        SQLTerm[] queries = new SQLTerm[] {query1,query2, query3, query4, query5, query6, query7, query8};
+
+        Table.rearrangeQueries(queries, operators);
+
+        for(SQLTerm query: queries) {
+            System.out.println(query._strColumnName);
+        }
+
+
+
+    }
+
 
 }

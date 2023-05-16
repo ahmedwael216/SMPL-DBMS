@@ -128,6 +128,5 @@ public class DimRange implements Serializable {
         System.out.println(r.intersect(t, false, true));
         System.out.println(r.intersect(t, true, false));
         System.out.println(r.intersect(t, false, false));
-
     }
 }

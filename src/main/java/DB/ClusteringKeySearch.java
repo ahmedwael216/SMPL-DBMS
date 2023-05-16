@@ -5,10 +5,9 @@ import java.io.Serializable;
 
 public class ClusteringKeySearch extends SearchStrategy{
 
-    public static DBVector<Record> Search (SQLTerm[] queries,String[] keys,Record prototype) throws IOException, ClassNotFoundException, CloneNotSupportedException {
+    public static DBVector<Record> Search (SQLTerm query,String[] keys, Record prototype) throws IOException, ClassNotFoundException, CloneNotSupportedException {
 
         DBVector<Record> result = new DBVector<Record>();
-        SQLTerm query = queries[0];
         String tableName = query._strTableName;
         String colName = query._strColumnName;
         String operator = query._strOperator;

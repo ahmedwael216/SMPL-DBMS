@@ -5,10 +5,9 @@ import java.io.IOException;
 
 public class LinearSearch extends   SearchStrategy{
 
-    public static DBVector Search (SQLTerm[] queries,String[] keys) throws IOException, ClassNotFoundException {
+    public static DBVector Search (SQLTerm query,String[] keys) throws IOException, ClassNotFoundException {
 
         DBVector<Record> result = new DBVector<Record>();
-        SQLTerm query = queries[0];
         String tableName = query._strTableName;
         String colName = query._strColumnName;
         String operator = query._strOperator;
