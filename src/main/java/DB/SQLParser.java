@@ -158,7 +158,6 @@ public class SQLParser {
                         htblColNameValue.put(colName,getObjectValue(tableName,colName,ctx.expr().get(i).getText()));
                     }
 //                    System.out.println(htblColNameValue);
-                    System.out.println("here");
                     DB.insertIntoTable(tableName,htblColNameValue);
                 }catch (Exception ignored){
                     error = true;
@@ -167,7 +166,19 @@ public class SQLParser {
             @Override
             public void enterDelete_stmt(SQLiteParser.Delete_stmtContext ctx) {
                 try{
-
+                    String tableName = ctx.qualified_table_name().getText();
+                    System.out.println(tableName);
+                    Hashtable<String,Object> htblColNameValue = new Hashtable<>();
+                    SQLiteParser.ExprContext expression = ctx.expr();
+                    while(expression.AND_()!=null){
+                        String[] arr = expression.expr().get(1).getText().split("=");
+                        htblColNameValue.put(arr[0],getObjectValue(tableName,arr[0],arr[1]));
+                        expression = expression.expr().get(0);
+                    }
+                    String[] arr = expression.getText().split("=");
+                    htblColNameValue.put(arr[0],getObjectValue(tableName,arr[0],arr[1]));
+                    System.out.println(htblColNameValue);
+                    DB.deleteFromTable(tableName,htblColNameValue);
                 }catch (Exception ignored){
                     error = true;
                 }
