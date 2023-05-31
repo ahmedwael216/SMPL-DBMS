@@ -91,4 +91,9 @@ public class Record implements Cloneable, Comparable, Serializable {
         }
         return true;
     }
+
+    @Override
+    public int hashCode() {
+        return this.getItem(0).hashCode();
+    }
 }

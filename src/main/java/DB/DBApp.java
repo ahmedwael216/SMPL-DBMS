@@ -361,7 +361,7 @@ public class DBApp {
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
                                     String[] strarrOperators) throws DBAppException {
-        String strTableName = arrSQLTerms[0]._strTableName;
+        String strTableName = arrSQLTerms[0]._strTableName.toLowerCase();
 
         Properties prop = new Properties();
         try {
@@ -422,30 +422,57 @@ public class DBApp {
     public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
         DBApp db = new DBApp();
         StringBuffer sb = new StringBuffer();
-//        sb.append("SELECT * FROM STUDENT WHERE name = \"ahmed\"  AND id < 20 OR gpa >= 3.0");
+        sb.append("SELECT * FROM STUDENT WHERE name = \"Ahmed\"  AND id >= 200 OR gpa >= 3.0");
 //        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
 //        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
 //        sb.append("INSERT INTO STUDENT (id,name,gpa) VALUES(1,\"Ahmed Wael\",3.0);");
 //        sb.append("delete FROM student where id =1 AND gpa = 3.0");// AND name = \"ahmed\"");
 //        sb.append("UPDATE student SET gpa = 4.0, name = \"Ahmed\" WHERE id = 1");
         //creating table
-        String strTableName = "Student";
-        Hashtable<String, String> min = new Hashtable<>();
-        min.put("id", "0");
-        min.put("name", "A");
-        min.put("gpa", "0.0");
-        Hashtable<String, String> max = new Hashtable<>();
-        max.put("id", "1000");
-        max.put("name", "zzzzzzzzzzzzz");
-        max.put("gpa", "4.0");
-        Hashtable<String, String> htblColNameType = new Hashtable<>();
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.Double");
-        db.createTable(strTableName, "id", htblColNameType, min, max);
+        String strTableName = "student";
+//        Hashtable<String, String> min = new Hashtable<>();
+//        min.put("id", "0");
+//        min.put("name", "A");
+//        min.put("gpa", "0.0");
+//        Hashtable<String, String> max = new Hashtable<>();
+//        max.put("id", "1000");
+//        max.put("name", "zzzzzzzzzzzzz");
+//        max.put("gpa", "4.0");
+//        Hashtable<String, String> htblColNameType = new Hashtable<>();
+//        htblColNameType.put("id", "java.lang.Integer");
+//        htblColNameType.put("name", "java.lang.String");
+//        htblColNameType.put("gpa", "java.lang.Double");
+//        db.createTable(strTableName, "id", htblColNameType, min, max);
 
 
-        db.parseSQL(sb);
+//        db.parseSQL(sb);
+        SQLTerm[] arr =new SQLTerm[2];
+//        arr[0]=new SQLTerm();
+//        arr[0]._strTableName =strTableName;
+//        arr[0]._strColumnName="name";
+//        arr[0]._objValue="Ahmed200";
+//        arr[0]._strOperator="=";
+        
+        arr[1]=new SQLTerm();
+        arr[1]._strTableName =strTableName;
+        arr[1]._strColumnName="id";
+        arr[1]._objValue=200;
+        arr[1]._strOperator=">=";
+
+        arr[0]=new SQLTerm();
+        arr[0]._strTableName =strTableName;
+        arr[0]._strColumnName="gpa";
+        arr[0]._objValue=3.0;
+        arr[0]._strOperator=">=";
+
+        String[] star ={"OR"};
+        Iterator i =db.selectFromTable(arr,star);
+
+        for (Iterator it = i; it.hasNext(); ) {
+            Object o = it.next();
+            System.out.println(o);
+        }
+
 
 //        for (int i = 200; i < 400; i++) {
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
@@ -455,7 +482,7 @@ public class DBApp {
 //        db.insertIntoTable(strTableName, htblColNameValue);
 //        }
 
-        System.out.println(db.printTable(strTableName));
+//        System.out.println(db.printTable(strTableName));
     }
 
     public int getTableLength(String tableName) throws DBAppException {

@@ -504,15 +504,23 @@ public class Table implements Serializable {
     }
 
     public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
-        if (x == strarrOperators.length)
-            return null;
-        Node indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x + 1], arrSQLTerms[x + 2]}, new String[]{strarrOperators[x], strarrOperators[x + 1]});
+        if (x == strarrOperators.length){
+            if (arrSQLTerms[x]._strColumnName.equals(keys[0])) {
+                return ClusteringKeySearch.Search(arrSQLTerms[x], this.keys, this.prototype);
+            } else {
+                return LinearSearch.Search(arrSQLTerms[x], this.keys);
+            }
+        }
+        Node indexRoot =null;
+        if(x<arrSQLTerms.length-2){
+            indexRoot = useOctree(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x + 1], arrSQLTerms[x + 2]}, new String[]{strarrOperators[x], strarrOperators[x + 1]});
+        }
         if (indexRoot != null) {
             return handleOperators(OctTreeIndexSearch.Search(new SQLTerm[]{arrSQLTerms[x], arrSQLTerms[x + 1], arrSQLTerms[x + 2]}, this.keys, indexRoot),
                     selectHelper(strTableName, arrSQLTerms, strarrOperators, x + 3)
                     , strarrOperators[x]);
         } else if (arrSQLTerms[x]._strColumnName.equals(keys[0])) {
-            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[0], this.keys, this.prototype),
+            return handleOperators(ClusteringKeySearch.Search(arrSQLTerms[x], this.keys, this.prototype),
                     selectHelper(strTableName, arrSQLTerms, strarrOperators, x + 1)
                     , strarrOperators[x]);
         } else {
@@ -565,7 +573,11 @@ public class Table implements Serializable {
         DBVector<Record> result = new DBVector<Record>();
 
         for (Record record : FirstSet) FirstSetHashTable.add(record);
-        for (Record record : SecondSet) if (FirstSetHashTable.contains(record)) result.add(record);
+        for (Record record : SecondSet){
+            if (FirstSetHashTable.contains(record)){
+                result.add(record);
+            }
+        }
         return result;
     }
 

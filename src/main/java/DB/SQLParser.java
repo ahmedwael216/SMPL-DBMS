@@ -36,7 +36,7 @@ public class SQLParser {
             @Override
             public void enterSelect_stmt(SQLiteParser.Select_stmtContext ctx) {
                 try{
-                    String tableName = ctx.select_core(0).table_or_subquery(0).table_name().getText();
+                    String tableName = ctx.select_core(0).table_or_subquery(0).table_name().getText().toLowerCase();
                     System.out.println(tableName);
 //                    Table t = DBApp.getTable(tableName);
 
@@ -60,6 +60,10 @@ public class SQLParser {
                     System.out.println(Arrays.toString(arrSQLTerms));
                     System.out.println(Arrays.toString(strarrOperators));
                     it = db.selectFromTable(arrSQLTerms,strarrOperators);
+                    for (Iterator it2 = it; it2.hasNext(); ) {
+                        Object o = it2.next();
+                        System.out.println(o);
+                    }
                 }catch (Exception ignored){
                     error = true;
                 }
