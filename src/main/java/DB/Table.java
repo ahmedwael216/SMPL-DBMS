@@ -504,6 +504,9 @@ public class Table implements Serializable {
     }
 
     public DBVector<Record> selectHelper(String strTableName, SQLTerm[] arrSQLTerms, String[] strarrOperators, int x) throws IOException, ClassNotFoundException, CloneNotSupportedException, DBAppException, ParseException {
+        if(x>strarrOperators.length){
+            return null;
+        }
         if (x == strarrOperators.length){
             if (arrSQLTerms[x]._strColumnName.equals(keys[0])) {
                 return ClusteringKeySearch.Search(arrSQLTerms[x], this.keys, this.prototype);

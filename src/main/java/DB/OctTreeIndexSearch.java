@@ -6,13 +6,22 @@ import java.text.ParseException;
 public class OctTreeIndexSearch extends SearchStrategy{
     public static DBVector<Record> Search (SQLTerm[] queries, String[] keys, Node indexRoot) throws DBAppException, IOException, ParseException, ClassNotFoundException {
         SQLTerm firstQuery = queries[0];
-        SQLTerm secondQuery = queries[0];
-        SQLTerm thirdQuery = queries[0];
+        SQLTerm secondQuery = queries[1];
+        SQLTerm thirdQuery = queries[2];
 
         Comparable minX = null, maxX=null, minY=null, maxY=null, minZ=null, maxZ=null;
-        boolean[] includeLRX = setMinMaxQuery(firstQuery, minX, maxX);
-        boolean[] includeLRY = setMinMaxQuery(secondQuery, minY, maxY);
-        boolean[] includeLRZ = setMinMaxQuery(thirdQuery, minZ, maxZ);
+        Object [] orr =setMinMaxQuery(firstQuery, minX, maxX);
+        minX = (Comparable) orr[2];
+        maxX = (Comparable) orr[3];
+        boolean[] includeLRX = {(boolean) orr[0], (boolean) orr[1]};
+        orr =setMinMaxQuery(secondQuery, minY, maxY);
+        minY = (Comparable) orr[2];
+        maxY = (Comparable) orr[3];
+        boolean[] includeLRY = {(boolean) orr[0], (boolean) orr[1]};
+        orr =setMinMaxQuery(thirdQuery, minZ, maxZ);
+        minZ = (Comparable) orr[2];
+        maxZ = (Comparable) orr[3];
+        boolean[] includeLRZ = {(boolean) orr[0], (boolean) orr[1]};
 
         Table table = DBApp.getTable(firstQuery._strTableName);
 
@@ -48,7 +57,7 @@ public class OctTreeIndexSearch extends SearchStrategy{
         return result;
     }
 
-    public static boolean[] setMinMaxQuery(SQLTerm query, Comparable min, Comparable max) throws IOException, ClassNotFoundException, ParseException, DBAppException {
+    public static Object[] setMinMaxQuery(SQLTerm query, Comparable min, Comparable max) throws IOException, ClassNotFoundException, ParseException, DBAppException {
 
         Comparable[] minMax = new Comparable[2];
 
@@ -92,7 +101,7 @@ public class OctTreeIndexSearch extends SearchStrategy{
             };break;
         }
 
-        return new boolean[] {includeL, includeR};
+        return new Object[] {includeL, includeR,min,max};
     }
 
 }

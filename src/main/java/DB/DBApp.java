@@ -10,6 +10,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
+import org.junit.jupiter.api.Assertions;
+
+import javax.swing.border.TitledBorder;
 //import java.util.Iterator;
 
 
@@ -230,7 +233,7 @@ public class DBApp {
      * Inserted data must have a value for the primary key.
      *
      * @param strTableName     name of the table to insert the row into
-     * @param htblColNameValue maps columns' names to their corresponding values to be inserted
+     * //@param htblColNameValue maps columns' names to their corresponding values to be inserted
      * @throws DBAppException If an exception occurred
      */
     public void serilizeTable(String strTableName, Table table) throws IOException, ClassNotFoundException {
@@ -419,60 +422,392 @@ public class DBApp {
     //public ??? findIndex(String strTableName,
     //                     String strColName)
     //                     throws DBAppException {}
-    public static void main(String[] args) throws IOException, DBAppException, ClassNotFoundException {
-        DBApp db = new DBApp();
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT * FROM STUDENT WHERE name = \"Ahmed\"  AND id >= 200 OR gpa >= 3.0");
-//        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
-//        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
-//        sb.append("INSERT INTO STUDENT (id,name,gpa) VALUES(1,\"Ahmed Wael\",3.0);");
-//        sb.append("delete FROM student where id =1 AND gpa = 3.0");// AND name = \"ahmed\"");
-//        sb.append("UPDATE student SET gpa = 4.0, name = \"Ahmed\" WHERE id = 1");
-        //creating table
-        String strTableName = "student";
-//        Hashtable<String, String> min = new Hashtable<>();
-//        min.put("id", "0");
-//        min.put("name", "A");
-//        min.put("gpa", "0.0");
-//        Hashtable<String, String> max = new Hashtable<>();
-//        max.put("id", "1000");
-//        max.put("name", "zzzzzzzzzzzzz");
-//        max.put("gpa", "4.0");
-//        Hashtable<String, String> htblColNameType = new Hashtable<>();
-//        htblColNameType.put("id", "java.lang.Integer");
-//        htblColNameType.put("name", "java.lang.String");
-//        htblColNameType.put("gpa", "java.lang.Double");
-//        db.createTable(strTableName, "id", htblColNameType, min, max);
+
+    private static void  insertCoursesRecords(DBApp dbApp, int limit) throws Exception {
+        BufferedReader coursesTable = new BufferedReader(new FileReader("src/main/resources/courses_table.csv"));
+        String record;
+        Hashtable<String, Object> row = new Hashtable<>();
+        int c = limit;
+        if (limit == -1) {
+            c = 1;
+        }
+        while ((record = coursesTable.readLine()) != null && c > 0) {
+            String[] fields = record.split(",");
 
 
-//        db.parseSQL(sb);
-        SQLTerm[] arr =new SQLTerm[2];
-//        arr[0]=new SQLTerm();
-//        arr[0]._strTableName =strTableName;
-//        arr[0]._strColumnName="name";
-//        arr[0]._objValue="Ahmed200";
-//        arr[0]._strOperator="=";
-        
-        arr[1]=new SQLTerm();
-        arr[1]._strTableName =strTableName;
-        arr[1]._strColumnName="id";
-        arr[1]._objValue=200;
-        arr[1]._strOperator=">=";
+            int year = Integer.parseInt(fields[0].trim().substring(0, 4));
+            int month = Integer.parseInt(fields[0].trim().substring(5, 7));
+            int day = Integer.parseInt(fields[0].trim().substring(8));
 
-        arr[0]=new SQLTerm();
-        arr[0]._strTableName =strTableName;
-        arr[0]._strColumnName="gpa";
-        arr[0]._objValue=3.0;
-        arr[0]._strOperator=">=";
+            Date dateAdded = new Date(year - 1900, month - 1, day);
 
-        String[] star ={"OR"};
-        Iterator i =db.selectFromTable(arr,star);
+            row.put("date_added", dateAdded);
 
-        for (Iterator it = i; it.hasNext(); ) {
-            Object o = it.next();
-            System.out.println(o);
+            row.put("course_id", fields[1]);
+            row.put("course_name", fields[2]);
+            row.put("hours", Integer.parseInt(fields[3]));
+
+            dbApp.insertIntoTable("courses", row);
+            row.clear();
+
+            if (limit != -1) {
+                c--;
+            }
         }
 
+        coursesTable.close();
+    }
+
+    private static void  insertStudentRecords(DBApp dbApp, int limit) throws Exception {
+        BufferedReader studentsTable = new BufferedReader(new FileReader("src/main/resources/students_table.csv"));
+        String record;
+        int c = limit;
+        if (limit == -1) {
+            c = 1;
+        }
+
+        Hashtable<String, Object> row = new Hashtable<>();
+        while ((record = studentsTable.readLine()) != null && c > 0) {
+            String[] fields = record.split(",");
+
+            row.put("id", fields[0]);
+            row.put("first_name", fields[1]);
+            row.put("last_name", fields[2]);
+
+            int year = Integer.parseInt(fields[3].trim().substring(0, 4));
+            int month = Integer.parseInt(fields[3].trim().substring(5, 7));
+            int day = Integer.parseInt(fields[3].trim().substring(8));
+
+            Date dob = new Date(year - 1900, month - 1, day);
+            row.put("dob", dob);
+
+            double gpa = Double.parseDouble(fields[4].trim());
+
+            row.put("gpa", gpa);
+
+            dbApp.insertIntoTable("students", row);
+            row.clear();
+            if (limit != -1) {
+                c--;
+            }
+        }
+        studentsTable.close();
+    }
+    private static void insertTranscriptsRecords(DBApp dbApp, int limit) throws Exception {
+        BufferedReader transcriptsTable = new BufferedReader(new FileReader("src/main/resources/transcripts_table.csv"));
+        String record;
+        Hashtable<String, Object> row = new Hashtable<>();
+        int c = limit;
+        if (limit == -1) {
+            c = 1;
+        }
+        while ((record = transcriptsTable.readLine()) != null && c > 0) {
+            String[] fields = record.split(",");
+
+            row.put("gpa", Double.parseDouble(fields[0].trim()));
+            row.put("student_id", fields[1].trim());
+            row.put("course_name", fields[2].trim());
+
+            String date = fields[3].trim();
+            int year = Integer.parseInt(date.substring(0, 4));
+            int month = Integer.parseInt(date.substring(5, 7));
+            int day = Integer.parseInt(date.substring(8));
+
+            Date dateUsed = new Date(year - 1900, month - 1, day);
+            row.put("date_passed", dateUsed);
+
+            dbApp.insertIntoTable("transcripts", row);
+            row.clear();
+
+            if (limit != -1) {
+                c--;
+            }
+        }
+
+        transcriptsTable.close();
+    }
+    private static void insertPCsRecords(DBApp dbApp, int limit) throws Exception {
+        BufferedReader pcsTable = new BufferedReader(new FileReader("src/main/resources/pcs_table.csv"));
+        String record;
+        Hashtable<String, Object> row = new Hashtable<>();
+        int c = limit;
+        if (limit == -1) {
+            c = 1;
+        }
+        while ((record = pcsTable.readLine()) != null && c > 0) {
+            String[] fields = record.split(",");
+
+            row.put("pc_id", Integer.parseInt(fields[0].trim()));
+            row.put("student_id", fields[1].trim());
+
+            dbApp.insertIntoTable("pcs", row);
+            row.clear();
+
+            if (limit != -1) {
+                c--;
+            }
+        }
+
+        pcsTable.close();
+    }
+    private static void createTranscriptsTable(DBApp dbApp) throws Exception {
+        // Double CK
+        String tableName = "transcripts";
+
+        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
+        htblColNameType.put("gpa", "java.lang.Double");
+        htblColNameType.put("student_id", "java.lang.String");
+        htblColNameType.put("course_name", "java.lang.String");
+        htblColNameType.put("date_passed", "java.util.Date");
+
+        Hashtable<String, String> minValues = new Hashtable<>();
+        minValues.put("gpa", "0.7");
+        minValues.put("student_id", "43-0000");
+        minValues.put("course_name", "AAAAAA");
+        minValues.put("date_passed", "1990-01-01");
+
+        Hashtable<String, String> maxValues = new Hashtable<>();
+        maxValues.put("gpa", "5.0");
+        maxValues.put("student_id", "99-9999");
+        maxValues.put("course_name", "zzzzzz");
+        maxValues.put("date_passed", "2020-12-31");
+
+        dbApp.createTable(tableName, "gpa", htblColNameType, minValues, maxValues);
+    }
+
+    private static void createStudentTable(DBApp dbApp) throws Exception {
+        // String CK
+        String tableName = "students";
+
+        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
+        htblColNameType.put("id", "java.lang.String");
+        htblColNameType.put("first_name", "java.lang.String");
+        htblColNameType.put("last_name", "java.lang.String");
+        htblColNameType.put("dob", "java.util.Date");
+        htblColNameType.put("gpa", "java.lang.Double");
+
+        Hashtable<String, String> minValues = new Hashtable<>();
+        minValues.put("id", "43-0000");
+        minValues.put("first_name", "AAAAAA");
+        minValues.put("last_name", "AAAAAA");
+        minValues.put("dob", "1990-01-01");
+        minValues.put("gpa", "0.7");
+
+        Hashtable<String, String> maxValues = new Hashtable<>();
+        maxValues.put("id", "99-9999");
+        maxValues.put("first_name", "zzzzzz");
+        maxValues.put("last_name", "zzzzzz");
+        maxValues.put("dob", "2000-12-31");
+        maxValues.put("gpa", "5.0");
+
+        dbApp.createTable(tableName, "id", htblColNameType, minValues, maxValues);
+    }
+    private static void createPCsTable(DBApp dbApp) throws Exception {
+        // Integer CK
+        String tableName = "pcs";
+
+        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
+        htblColNameType.put("pc_id", "java.lang.Integer");
+        htblColNameType.put("student_id", "java.lang.String");
+
+
+        Hashtable<String, String> minValues = new Hashtable<>();
+        minValues.put("pc_id", "0");
+        minValues.put("student_id", "43-0000");
+
+        Hashtable<String, String> maxValues = new Hashtable<>();
+        maxValues.put("pc_id", "20000");
+        maxValues.put("student_id", "99-9999");
+
+        dbApp.createTable(tableName, "pc_id", htblColNameType, minValues, maxValues);
+    }
+    private static void createCoursesTable(DBApp dbApp) throws Exception {
+        // Date CK
+        String tableName = "courses";
+
+        Hashtable<String, String> htblColNameType = new Hashtable<String, String>();
+        htblColNameType.put("date_added", "java.util.Date");
+        htblColNameType.put("course_id", "java.lang.String");
+        htblColNameType.put("course_name", "java.lang.String");
+        htblColNameType.put("hours", "java.lang.Integer");
+
+
+        Hashtable<String, String> minValues = new Hashtable<>();
+        minValues.put("date_added", "1901-01-01");
+        minValues.put("course_id", "0000");
+        minValues.put("course_name", "AAAAAA");
+        minValues.put("hours", "1");
+
+        Hashtable<String, String> maxValues = new Hashtable<>();
+        maxValues.put("date_added", "2020-12-31");
+        maxValues.put("course_id", "9999");
+        maxValues.put("course_name", "zzzzzz");
+        maxValues.put("hours", "24");
+
+        dbApp.createTable(tableName, "date_added", htblColNameType, minValues, maxValues);
+
+    }
+    public void testWrongStudentsKeyInsertion() {
+        final DBApp dbApp = new DBApp();
+        dbApp.init();
+
+        String table = "students";
+        Hashtable<String, Object> row = new Hashtable();
+        row.put("id", 123);
+
+        row.put("first_name", "foo");
+        row.put("last_name", "bar");
+
+        Date dob = new Date(1995 - 1900, 4 - 1, 1);
+        row.put("dob", dob);
+        row.put("gpa", 1.1);
+
+        Assertions.assertThrows(DBAppException.class, () -> {
+                    dbApp.insertIntoTable(table, row);
+                }
+        );
+
+    }
+    public void testExtraTranscriptsInsertion() {
+        final DBApp dbApp = new DBApp();
+        dbApp.init();
+
+        String table = "transcripts";
+        Hashtable<String, Object> row = new Hashtable();
+        row.put("gpa", 1.5);
+        row.put("student_id", "34-9874");
+        row.put("course_name", "bar");
+        row.put("elective", true);
+
+
+        Date date_passed = new Date(2011 - 1900, 4 - 1, 1);
+        row.put("date_passed", date_passed);
+
+
+        Assertions.assertThrows(DBAppException.class, () -> {
+                    dbApp.insertIntoTable(table, row);
+                }
+        );
+    }
+    public static void main(String[] args) throws Exception {
+        DBApp db = new DBApp();
+
+//        SQLTerm[] arrSQLTerms;
+//	        arrSQLTerms = new SQLTerm[2];
+//	        arrSQLTerms[0] = new SQLTerm();
+//	        arrSQLTerms[0]._strTableName = "students";
+//	        arrSQLTerms[0]._strColumnName= "first_name";
+//	        arrSQLTerms[0]._strOperator = "=";
+//	        arrSQLTerms[0]._objValue =row.get("first_name");
+//
+//	        arrSQLTerms[1] = new SQLTerm();
+//	        arrSQLTerms[1]._strTableName = "students";
+//	        arrSQLTerms[1]._strColumnName= "gpa";
+//	        arrSQLTerms[1]._strOperator = "<=";
+//	        arrSQLTerms[1]._objValue = row.get("gpa");
+//
+//	        String[]strarrOperators = new String[1];
+//	        strarrOperators[0] = "OR";
+//	      String table = "students";
+//
+//	        row.put("first_name", "fooooo");
+//	        row.put("last_name", "baaaar");
+//
+//	        Date dob = new Date(1992 - 1900, 9 - 1, 8);
+//	        row.put("dob", dob);
+//	        row.put("gpa", 1.1);
+//
+//	        dbApp.updateTable(table, clusteringKey, row);
+//        createCoursesTable(db);
+//        createPCsTable(db);
+//        createTranscriptsTable(db);
+//        insertPCsRecords(db,200);
+//        insertTranscriptsRecords(db,200);
+
+
+
+//        insertCoursesRecords(db,200);
+//        db.testExtraTranscriptsInsertion();
+
+//        Table t = getTable("students");
+//
+//        Hashtable<String, Object> h = new Hashtable<>();
+//        h.put("id", new String("43-3542"));
+//        h.put("first_name", "opWXmZ");
+//        h.put("gpa", 4.34);
+////        h.put("job", new Double(1.1));
+//        h.put("date_added", new Date(1996-1900, 8-1, 4));
+//        h.put("date_added", new Date(1996-1900, 8-1, 4));
+//        System.out.println(db.printTable("students"));
+//        db.deleteFromTable("students",   h);
+
+//        db.serilizeTable("students",t);
+//        db.createIndex("students", new String[]{"id", "first_name", "gpa"});
+//        System.out.println(db.printTable("courses"));
+//
+//        createStudentTable(db);
+//        insertStudentRecords(db,200);
+        StringBuffer sb = new StringBuffer();
+//        sb.append("INSERT INTO students (id,first_name,gpa) VALUES(\"52-9972\",\"Ahmed Wael\",3.0);");
+//        sb.append("delete FROM students where id =\"52-9972\"");// AND name = \"ahmed\"");
+
+        sb.append("UPDATE students SET gpa = 4.0 , first_name=\"ahmed wael\" , id =\"52-9972\" WHERE id = \"52-9972\"");
+        sb.append("SELECT * FROM students WHERE id = \"52-9972\"");
+////        sb.append("Create INDEX  index1 ON STUDENT (age,name,gpa)");
+////        sb.append("CREATE TABLE student (id int PRIMARY KEY,name varchar(20),gpa double);");
+//        //creating table
+//        String strTableName = "student";
+////        Hashtable<String, String> min = new Hashtable<>();
+////        min.put("id", "0");
+////        min.put("name", "A");
+////        min.put("gpa", "0.0");
+////        Hashtable<String, String> max = new Hashtable<>();
+////        max.put("id", "1000");
+////        max.put("name", "zzzzzzzzzzzzz");
+////        max.put("gpa", "4.0");
+////        Hashtable<String, String> htblColNameType = new Hashtable<>();
+////        htblColNameType.put("id", "java.lang.Integer");
+////        htblColNameType.put("name", "java.lang.String");
+////        htblColNameType.put("gpa", "java.lang.Double");
+////        db.createTable(strTableName, "id", htblColNameType, min, max);
+//
+//
+        db.parseSQL(sb);
+//        System.out.println(db.printTable("students"));
+//        SQLTerm[] arr =new SQLTerm[2];
+//
+//        arr[0]=new SQLTerm();
+//        arr[0]._strTableName ="courses";
+//        arr[0]._strColumnName="course_id";
+//        arr[0]._objValue="0950";
+//        arr[0]._strOperator="!=";
+//
+//        arr[1]=new SQLTerm();
+//        arr[1]._strTableName ="courses";
+//        arr[1]._strColumnName="hours";
+//        arr[1]._objValue=20;
+//        arr[1]._strOperator=">";
+
+//        arr[2]=new SQLTerm();
+//        arr[2]._strTableName ="courses";
+//        arr[2]._strColumnName="date_added";
+//        arr[2]._objValue=new Date(2008-1900,6-1,31);
+//        arr[2]._strOperator="=";
+
+//        String[] star ={"AND"};
+//        Iterator i =db.selectFromTable(arr,star);
+////
+//        for (Iterator it = i; it.hasNext(); ) {
+//            Object o = it.next();
+//            System.out.println(o);
+//        }
+
+
+//        db.createIndex("courses", new String[] {"course_id", "hours", "date_added"});
+//        Table t =getTable("students");
+//        for(Map.Entry<String,Node> m : t.getTableIndices().entrySet()) {
+//            m.getValue().printComplete();
+//        }
 
 //        for (int i = 200; i < 400; i++) {
 //        Hashtable<String, Object> htblColNameValue = new Hashtable<>();

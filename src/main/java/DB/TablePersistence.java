@@ -274,7 +274,9 @@ public class TablePersistence {
             String[] indexCols = m.getKey().split(",");
             Node index = m.getValue();
             Point3D point = Table.createPoint(table, removeRecord, indexCols);
-            index.delete(point, true, pageIndex);
+            try{
+                index.delete(point, true, pageIndex);
+            }catch (Exception ignored){}
         }
 
         p.updateRecord(record);

@@ -119,7 +119,7 @@ public class Node<T> implements Serializable {
         if (leaf == null) {
             throw new DBAppException("The point is out of valid range, the point: " + point.toString());
         }
-        System.out.println(point);
+        System.out.println(point+" deleted");
         for (Point3D<T> p : leaf.points) {
             System.out.println(p + " " + p.getReferences().size());
         }

@@ -37,11 +37,11 @@ public class SQLParser {
             public void enterSelect_stmt(SQLiteParser.Select_stmtContext ctx) {
                 try{
                     String tableName = ctx.select_core(0).table_or_subquery(0).table_name().getText().toLowerCase();
-                    System.out.println(tableName);
+//                    System.out.println(tableName);
 //                    Table t = DBApp.getTable(tableName);
 
                     SQLiteParser.ExprContext expression = ctx.select_core().get(0).expr().get(0);
-                    System.out.println(expression.getText());
+//                    System.out.println(expression.getText());
 
                     LinkedList<SQLTerm> sqlTermsll = new LinkedList<>();
                     LinkedList<String> operatorsll = new LinkedList<>();
@@ -57,8 +57,8 @@ public class SQLParser {
                     for(int i=0;i<sqlTermsll.size();i++){arrSQLTerms[i]=sqlTermsll.get(i);}
                     for(int i=0;i<operatorsll.size();i++){strarrOperators[i]=operatorsll.get(i);}
 
-                    System.out.println(Arrays.toString(arrSQLTerms));
-                    System.out.println(Arrays.toString(strarrOperators));
+//                    System.out.println(Arrays.toString(arrSQLTerms));
+//                    System.out.println(Arrays.toString(strarrOperators));
                     it = db.selectFromTable(arrSQLTerms,strarrOperators);
                     for (Iterator it2 = it; it2.hasNext(); ) {
                         Object o = it2.next();
@@ -142,6 +142,7 @@ public class SQLParser {
                         htblColNameValue.put(columnName, getObjectValue(tableName, columnName, ctx.expr().get(i).getText()));
                     }
                     String strClusteringKeyValue = ctx.expr(size).expr().get(1).getText();
+                    strClusteringKeyValue=strClusteringKeyValue.substring(1,strClusteringKeyValue.length()-1);
 //                    System.out.println(strClusteringKeyValue);
 //                    System.out.println(htblColNameValue);
                     DB.updateTable(tableName, strClusteringKeyValue, htblColNameValue);
